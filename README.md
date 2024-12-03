@@ -1,2 +1,3 @@
-# rankovo
-Rankovo App
+# Rankovo
+
+TODO
