@@ -1,17 +1,14 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { Domine } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = localFont({
+const fontSans = localFont({
+  variable: "--font-sans",
   src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const fontSerif = Domine({ variable: "--font-serif", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Rankovo",
@@ -26,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          "antialiased font-sans",
+          fontSans.variable,
+          fontSerif.variable,
+        )}
       >
         {children}
       </body>
