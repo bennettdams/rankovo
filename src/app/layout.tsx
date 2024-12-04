@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/navbar";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Domine } from "next/font/google";
@@ -29,6 +30,8 @@ export default function RootLayout({
           fontSerif.variable,
         )}
       >
+        <Navbar />
+
         <main className="mb-52 min-h-full">
           <div className="container mx-auto">{children}</div>
         </main>
