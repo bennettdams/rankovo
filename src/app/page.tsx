@@ -1,4 +1,5 @@
 import { IconRankovo } from "@/components/icons";
+import { Rankings } from "@/components/rankings";
 import { Star } from "lucide-react";
 
 export default function Home() {
@@ -9,7 +10,9 @@ export default function Home() {
       <div className="flex min-h-full flex-col md:flex-row">
         <div className="w-full md:w-1/2">Map</div>
 
-        <div className="w-full md:w-1/2">Rankings...</div>
+        <div className="w-full md:w-1/2">
+          <Rankings />
+        </div>
       </div>
     </div>
   );
