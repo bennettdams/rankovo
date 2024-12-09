@@ -1,23 +1,8 @@
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { createRankings, type Ranking } from "@/data/mock-data";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
-import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import { DateTime } from "./date-time";
+import { RankingsAdminControls } from "./rankings-admin-controls";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { DialogHeader } from "./ui/dialog";
 import {
   Table,
   TableBody,
@@ -51,24 +36,14 @@ export function Rankings() {
           </TableHeader>
           <TableBody>
             {createRankings().map((ranking) => (
-              <Dialog key={ranking.id}>
-                <DialogTrigger asChild>
-                  <RankingTableRow
-                    key={ranking.id}
-                    restaurantName={ranking.restaurantName}
-                    rating={ranking.rating}
-                    product={ranking.product}
-                    note={ranking.note}
-                    reviewedAt={ranking.reviewedAt}
-                  />
-                </DialogTrigger>
-
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+              <RankingsTableRow
+                key={ranking.id}
+                restaurantName={ranking.restaurantName}
+                rating={ranking.rating}
+                product={ranking.product}
+                note={ranking.note}
+                reviewedAt={ranking.reviewedAt}
+              />
             ))}
           </TableBody>
         </Table>
@@ -82,7 +57,7 @@ export function Rankings() {
   );
 }
 
-function RankingTableRow({
+export function RankingsTableRow({
   rating,
   product,
   note,
@@ -116,19 +91,7 @@ function RankingTableRow({
         <DateTime format="YYYY-MM-DD" date={reviewedAt} />
       </TableCell>
       <TableCell>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-haspopup="true" size="icon" variant="ghost">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <RankingsAdminControls />
       </TableCell>
     </TableRow>
   );
