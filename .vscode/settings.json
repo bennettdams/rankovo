@@ -1,0 +1,35 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.autoImportFileExcludePatterns": ["postcss"],
+  "workbench.editor.customLabels.enabled": true,
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/page.tsx": "page ${dirname}",
+    "**/app/**/layout.tsx": "layout ${dirname}"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
+  "prettier.configPath": ".prettierrc",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/bower_components": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.build": true,
+    "**/.gh-pages": true,
+    "**/tsconfig.tsbuildinfo": true,
+    "**/package-lock.json": true
+  },
+  // allows us to get Tailwind CSS IntelliSense for variables ending with the given word.
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    ".*Style.*",
+    ".*Size.*",
+    ".*Color.*",
+    ".*Variants.*"
+  ]
+}
