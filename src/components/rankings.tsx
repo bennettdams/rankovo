@@ -2,6 +2,7 @@ import { createRankings, type Ranking } from "@/data/mock-data";
 import Image from "next/image";
 import { DateTime } from "./date-time";
 import { RankingsAdminControls } from "./rankings-admin-controls";
+import { RatingWithStars } from "./rating-with-stars";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import {
   Table,
@@ -84,7 +85,9 @@ export function RankingsTableRow({
       <TableCell className="font-medium text-primary">
         {restaurantName}
       </TableCell>
-      <TableCell className="font-medium">{rating}</TableCell>
+      <TableCell className="flex items-center font-medium">
+        <RatingWithStars rating={rating} />
+      </TableCell>
       <TableCell className="font-medium">{product}</TableCell>
       <TableCell className="font-medium">{note}</TableCell>
       <TableCell className="hidden md:table-cell">

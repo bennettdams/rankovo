@@ -19,6 +19,7 @@ export default {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
         tertiary: "var(--tertiary)",
+        gray: "var(--gray)",
       },
     },
   },

@@ -56,7 +56,7 @@ export function createRankings(): Ranking[] {
   return restaurantNames.map((restaurantName, index) => ({
     id: (index + 1).toString(),
     restaurantName,
-    rating: createRandomNumberBetween({ min: 0, max: 10, decimalPlaces: 1 }),
+    rating: createRandomNumberBetween({ min: 0, max: 5, decimalPlaces: 1 }),
     product: pickRandomFromArray(productNames),
     note: "Delicious",
     reviewedAt: new Date(),

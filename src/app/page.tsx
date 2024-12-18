@@ -1,6 +1,6 @@
 import { IconRankovo } from "@/components/icons";
 import { Rankings } from "@/components/rankings";
-import { Star } from "lucide-react";
+import { StarsForRating } from "@/components/stars-for-rating";
 
 export default function Home() {
   return (
@@ -34,13 +34,7 @@ function HeroSection() {
             <span className="block md:ml-2 md:inline">Just the best.</span>
           </p>
 
-          <div className="flex justify-center space-x-2">
-            <Star className="h-6 w-6 fill-current text-primary" />
-            <Star className="h-6 w-6 fill-current text-primary" />
-            <Star className="h-6 w-6 fill-current text-primary" />
-            <Star className="h-6 w-6 fill-current text-primary" />
-            <Star className="h-6 w-6 fill-current text-primary" />
-          </div>
+          <StarsForRating rating={5} />
         </div>
       </div>
     </section>
