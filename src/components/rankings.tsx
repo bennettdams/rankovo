@@ -26,6 +26,7 @@ export function Rankings() {
               <TableHead>Restaurant</TableHead>
               <TableHead className="hidden md:table-cell">Rating</TableHead>
               <TableHead className="hidden md:table-cell">Product</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
               <TableHead className="hidden md:table-cell">Note</TableHead>
               <TableHead className="hidden md:table-cell">
                 Reviewed at
@@ -42,6 +43,7 @@ export function Rankings() {
                 restaurantName={ranking.restaurantName}
                 rating={ranking.rating}
                 product={ranking.product}
+                category={ranking.catgory}
                 note={ranking.note}
                 reviewedAt={ranking.reviewedAt}
               />
@@ -61,12 +63,14 @@ export function Rankings() {
 export function RankingsTableRow({
   rating,
   product,
+  category,
   note,
   reviewedAt,
   restaurantName,
 }: {
   rating: Ranking["rating"];
   product: Ranking["product"];
+  category: Ranking["catgory"];
   note: Ranking["note"];
   reviewedAt: Ranking["reviewedAt"];
   restaurantName: Ranking["restaurantName"];
@@ -89,6 +93,7 @@ export function RankingsTableRow({
         <RatingWithStars rating={rating} />
       </TableCell>
       <TableCell className="font-medium">{product}</TableCell>
+      <TableCell className="font-medium">{category}</TableCell>
       <TableCell className="font-medium">{note}</TableCell>
       <TableCell className="hidden md:table-cell">
         <DateTime format="YYYY-MM-DD" date={reviewedAt} />
