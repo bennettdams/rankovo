@@ -18,6 +18,7 @@ export default {
         fg: "var(--fg)",
         primary: "var(--primary)",
         secondary: "var(--secondary)",
+        "secondary-fg": "var(--secondary-fg)",
         tertiary: "var(--tertiary)",
         gray: "var(--gray)",
       },
