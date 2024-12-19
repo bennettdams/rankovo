@@ -1,11 +1,27 @@
+import {
+  FiltersRankings,
+  schemaFiltersRankings,
+} from "@/components/filters-rankings.client";
 import { IconRankovo } from "@/components/icons";
 import { Rankings } from "@/components/rankings";
 import { StarsForRating } from "@/components/stars-for-rating";
 
-export default function Home() {
+export type SearchParamsFilters = { categories?: string };
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParamsFilters>;
+}) {
+  const filters = schemaFiltersRankings.parse(await searchParams);
+
   return (
     <div className="pt-8 md:pt-12">
       <HeroSection />
+
+      <div>
+        <FiltersRankings filters={filters} />
+      </div>
 
       <div className="flex min-h-full flex-col md:flex-row">
         <div className="w-full md:w-1/2">Map</div>
