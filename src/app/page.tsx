@@ -1,10 +1,8 @@
-import {
-  FiltersRankings,
-  schemaFiltersRankings,
-} from "@/components/filters-rankings.client";
+import { FiltersRankings } from "@/components/filters-rankings.client";
 import { IconRankovo } from "@/components/icons";
 import { Rankings } from "@/components/rankings";
 import { StarsForRating } from "@/components/stars-for-rating";
+import { schemaFiltersRankings } from "@/lib/schemas";
 
 export type SearchParamsFilters = { categories?: string };
 

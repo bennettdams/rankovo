@@ -6,9 +6,11 @@
   --bg: #f8efd1;
   --fg: #544f4a;
   --primary: #db7806;
+  --primary-fg: white;
   --secondary: #456b6c;
   --secondary-fg: white;
   --tertiary: #6c3e6e;
+  --tertiary-fg: white;
   --gray: #d6d3d1;
 }
 

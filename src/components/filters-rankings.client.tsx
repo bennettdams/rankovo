@@ -1,20 +1,74 @@
+"use client";
+
 import { categories } from "@/data/static";
-import { schemaCategory, schemaSearchParam } from "@/lib/schemas";
+import { type RankingsFilters } from "@/lib/schemas";
+import { stringifySearchParams } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { useOptimistic, useTransition } from "react";
+import { Button } from "./ui/button";
 
-export const schemaFiltersRankings = z.object({
-  categories: schemaSearchParam(schemaCategory),
-});
+function updateArray<T extends string>(arr: T[] | null, entry: T) {
+  if (arr === null) {
+    return [entry];
+  } else {
+    if (arr.includes(entry)) {
+      const filtered = arr.filter((entryInArr) => entryInArr !== entry);
+      // always use null instead of empty array to adhere to search params schema
+      return filtered.length === 0 ? null : filtered;
+    } else {
+      return [...arr, entry];
+    }
+  }
+}
 
-export type FiltersRankings = z.output<typeof schemaFiltersRankings>;
+export function FiltersRankings({
+  filters: filtersExternal,
+}: {
+  filters: RankingsFilters;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-export function FiltersRankings({ filters }: { filters: FiltersRankings }) {
+  const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
+
+  function updateSearchParams(newFilters: RankingsFilters) {
+    const queryString = stringifySearchParams(newFilters);
+    router.push(queryString ? `/?${queryString}` : "/");
+  }
+
+  function changeFilters<TFilterKey extends keyof RankingsFilters>(
+    filterKey: TFilterKey,
+    value: RankingsFilters[TFilterKey],
+  ) {
+    startTransition(() => {
+      const newFilters = { ...filters, [filterKey]: value };
+      setOptimisticFilters(newFilters);
+      updateSearchParams(newFilters);
+    });
+  }
+
+  function clearFilters() {
+    startTransition(() => {
+      setOptimisticFilters({
+        categories: null,
+        test: null,
+      });
+      router.push("/");
+    });
+  }
+
   return (
     <div className="text-center">
       <h2 className="text-2xl text-secondary">Filters</h2>
 
       <pre>{JSON.stringify(filters, null, 2)}</pre>
+
+      <pre>pending: {isPending + ""}</pre>
+
+      <div>
+        <Button onClick={() => clearFilters()}>Clear all</Button>
+      </div>
 
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         {categories.map((category) => (
@@ -24,6 +78,12 @@ export function FiltersRankings({ filters }: { filters: FiltersRankings }) {
               filters.categories === null
                 ? true
                 : filters.categories.includes(category)
+            }
+            onClick={() =>
+              changeFilters(
+                "categories",
+                updateArray(filters.categories, category),
+              )
             }
           >
             <span className="capitalize">{category}</span>
@@ -36,17 +96,20 @@ export function FiltersRankings({ filters }: { filters: FiltersRankings }) {
 
 function FilterRow({
   isActive,
+  onClick,
   children,
 }: {
   isActive: boolean;
+  onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div
       className={cn(
-        "rounded p-4",
+        "rounded p-4 hover:bg-primary hover:text-primary-fg active:bg-tertiary active:text-tertiary-fg",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
+      onClick={onClick}
     >
       {children}
     </div>

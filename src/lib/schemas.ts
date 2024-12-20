@@ -13,3 +13,10 @@ export function schemaSearchParam<TSchema extends z.ZodSchema>(
 }
 
 export const schemaCategory = z.enum(categories);
+
+export const schemaFiltersRankings = z.object({
+  categories: schemaSearchParam(schemaCategory),
+  test: schemaSearchParam(z.string()),
+});
+
+export type RankingsFilters = z.output<typeof schemaFiltersRankings>;
