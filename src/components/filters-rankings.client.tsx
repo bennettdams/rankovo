@@ -5,7 +5,7 @@ import { type RankingsFilters } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useOptimistic, useTransition } from "react";
+import { use, useOptimistic, useTransition } from "react";
 import { Button } from "./ui/button";
 
 function updateArray<T extends string>(arr: T[] | null, entry: T) {
@@ -22,7 +22,18 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
   }
 }
 
+// TODO Separate RSC instead of `use` here?
 export function FiltersRankings({
+  filters: filtersFromSearchParams,
+}: {
+  filters: Promise<RankingsFilters>;
+}) {
+  const filters = use(filtersFromSearchParams);
+
+  return <FiltersRankingsInternal filters={filters} />;
+}
+
+export function FiltersRankingsInternal({
   filters: filtersExternal,
 }: {
   filters: RankingsFilters;
@@ -34,7 +45,7 @@ export function FiltersRankings({
 
   function updateSearchParams(newFilters: RankingsFilters) {
     const queryString = stringifySearchParams(newFilters);
-    router.push(queryString ? `/?${queryString}` : "/");
+    router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
   }
 
   function changeFilters<TFilterKey extends keyof RankingsFilters>(
@@ -54,7 +65,7 @@ export function FiltersRankings({
         categories: null,
         test: null,
       });
-      router.push("/");
+      router.push("/", { scroll: false });
     });
   }
 

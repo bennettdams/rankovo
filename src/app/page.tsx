@@ -3,6 +3,7 @@ import { IconRankovo } from "@/components/icons";
 import { Rankings } from "@/components/rankings";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { schemaFiltersRankings } from "@/lib/schemas";
+import { Suspense } from "react";
 
 export type SearchParamsFilters = { categories?: string };
 
@@ -11,21 +12,27 @@ export default async function Home({
 }: {
   searchParams: Promise<SearchParamsFilters>;
 }) {
-  const filters = schemaFiltersRankings.parse(await searchParams);
+  const filters = searchParams.then((params) =>
+    schemaFiltersRankings.parse(params),
+  );
 
   return (
     <div className="pt-8 md:pt-12">
       <HeroSection />
 
       <div>
-        <FiltersRankings filters={filters} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <FiltersRankings filters={filters} />
+        </Suspense>
       </div>
 
       <div className="flex min-h-full flex-col md:flex-row">
         <div className="w-full md:w-1/2">Map</div>
 
         <div className="w-full md:w-1/2">
-          <Rankings />
+          <Suspense fallback={<div>Loading rankings...</div>}>
+            <Rankings filters={filters} />
+          </Suspense>
         </div>
       </div>
     </div>

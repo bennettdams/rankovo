@@ -1,3 +1,4 @@
+import type { RankingsFilters } from "@/lib/schemas";
 import type { Category } from "./static";
 
 const restaurantNames: string[] = [
@@ -66,17 +67,28 @@ export type Ranking = {
   note: string;
 };
 
-export function createRankings(): Ranking[] {
-  return restaurantNames.map((restaurantName, index) => {
-    const product = pickRandomFromArray(products);
-    return {
-      id: (index + 1).toString(),
-      restaurantName,
-      rating: createRandomNumberBetween({ min: 0, max: 5, decimalPlaces: 1 }),
-      product: product.name,
-      catgory: product.category,
-      note: "Delicious",
-      reviewedAt: new Date(),
-    };
-  });
+export function createMockRankings(filters: RankingsFilters): Ranking[] {
+  return (
+    restaurantNames
+      .map((restaurantName, index) => {
+        const product = pickRandomFromArray(products);
+        return {
+          id: (index + 1).toString(),
+          restaurantName,
+          rating: createRandomNumberBetween({
+            min: 0,
+            max: 5,
+            decimalPlaces: 1,
+          }),
+          product: product.name,
+          catgory: product.category,
+          note: "Delicious",
+          reviewedAt: new Date(),
+        };
+      })
+      // TODO only categories are filtered atm
+      .filter((entry) =>
+        !filters.categories ? true : filters.categories.includes(entry.catgory),
+      )
+  );
 }

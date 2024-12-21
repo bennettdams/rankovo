@@ -1,4 +1,6 @@
-import { createRankings, type Ranking } from "@/data/mock-data";
+import { api } from "@/data/api";
+import type { Ranking } from "@/data/mock-data";
+import type { RankingsFilters } from "@/lib/schemas";
 import Image from "next/image";
 import { DateTime } from "./date-time";
 import { RankingsAdminControls } from "./rankings-admin-controls";
@@ -13,7 +15,14 @@ import {
   TableRow,
 } from "./ui/table";
 
-export function Rankings() {
+export async function Rankings({
+  filters: filtersExternal,
+}: {
+  filters: Promise<RankingsFilters>;
+}) {
+  const filters = await filtersExternal;
+  const rankings = await api.getRankings(filters);
+
   return (
     <Card>
       <CardContent>
@@ -37,7 +46,7 @@ export function Rankings() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {createRankings().map((ranking) => (
+            {rankings.map((ranking) => (
               <RankingsTableRow
                 key={ranking.id}
                 restaurantName={ranking.restaurantName}
