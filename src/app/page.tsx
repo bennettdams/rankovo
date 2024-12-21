@@ -5,7 +5,7 @@ import { StarsForRating } from "@/components/stars-for-rating";
 import { schemaFiltersRankings } from "@/lib/schemas";
 import { Suspense } from "react";
 
-export type SearchParamsFilters = { categories?: string };
+export type SearchParamsFilters = { categories?: string; rating?: string };
 
 export default async function Home({
   searchParams,

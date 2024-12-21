@@ -63,7 +63,7 @@ export function FiltersRankingsInternal({
     startTransition(() => {
       setOptimisticFilters({
         categories: null,
-        test: null,
+        rating: null,
       });
       router.push("/", { scroll: false });
     });
@@ -73,9 +73,13 @@ export function FiltersRankingsInternal({
     <div className="text-center">
       <h2 className="text-2xl text-secondary">Filters</h2>
 
-      <pre>{JSON.stringify(filters, null, 2)}</pre>
+      <pre>{JSON.stringify(filters, null, 0)}</pre>
 
       <pre>pending: {isPending + ""}</pre>
+
+      <div>
+        <Button onClick={() => changeFilters("rating", 2)}>Rating 2</Button>
+      </div>
 
       <div>
         <Button onClick={() => clearFilters()}>Clear all</Button>

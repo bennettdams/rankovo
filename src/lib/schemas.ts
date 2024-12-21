@@ -1,7 +1,7 @@
 import { categories } from "@/data/static";
 import { z } from "zod";
 
-export function schemaSearchParam<TSchema extends z.ZodSchema>(
+function schemaSearchParamMultiple<TSchema extends z.ZodSchema>(
   schema: TSchema,
 ) {
   return z
@@ -12,11 +12,22 @@ export function schemaSearchParam<TSchema extends z.ZodSchema>(
     .pipe(z.array(schema).nullable());
 }
 
+function schemaSearchParamSingle<TSchema extends z.ZodSchema>(schema: TSchema) {
+  return z
+    .string()
+    .min(1)
+    .optional()
+    .transform((raw) => (!raw ? null : Number(raw)))
+    .pipe(schema.nullable());
+}
+
 export const schemaCategory = z.enum(categories);
 
+export const schemaRating = z.number().min(0).max(10);
+
 export const schemaFiltersRankings = z.object({
-  categories: schemaSearchParam(schemaCategory),
-  test: schemaSearchParam(z.string()),
+  categories: schemaSearchParamMultiple(schemaCategory),
+  rating: schemaSearchParamSingle(schemaRating),
 });
 
 export type RankingsFilters = z.output<typeof schemaFiltersRankings>;

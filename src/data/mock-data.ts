@@ -72,27 +72,30 @@ export type Ranking = {
 };
 
 export function createMockRankings(filters: RankingsFilters): Ranking[] {
-  return (
-    restaurantNames
-      .map((restaurantName, index) => {
-        const product = pickRandomFromArray(products);
-        return {
-          id: (index + 1).toString(),
-          restaurantName,
-          rating: createRandomNumberBetween({
-            min: 0,
-            max: 5,
-            decimalPlaces: 1,
-          }),
-          product: product.name,
-          catgory: product.category,
-          note: "Delicious",
-          reviewedAt: new Date(),
-        };
-      })
-      // TODO only categories are filtered atm
-      .filter((entry) =>
-        !filters.categories ? true : filters.categories.includes(entry.catgory),
-      )
-  );
+  return restaurantNames
+    .map((restaurantName, index) => {
+      const product = pickRandomFromArray(products);
+      return {
+        id: (index + 1).toString(),
+        restaurantName,
+        rating: createRandomNumberBetween({
+          min: 0,
+          max: 5,
+          decimalPlaces: 1,
+        }),
+        product: product.name,
+        catgory: product.category,
+        note: "Delicious",
+        reviewedAt: new Date(),
+      };
+    })
+    .filter((entry) => {
+      const isCategoryMatching = !filters.categories
+        ? true
+        : filters.categories.includes(entry.catgory);
+      const isRatingMatching = !filters.rating
+        ? true
+        : entry.rating >= filters.rating;
+      return isCategoryMatching && isRatingMatching;
+    });
 }

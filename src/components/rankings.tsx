@@ -62,7 +62,14 @@ export async function Rankings({
       </CardContent>
       <CardFooter>
         <div className="text-xs">
-          Showing <strong>1-10</strong> of <strong>32</strong> rankings
+          {rankings.length === 0 ? (
+            <span>No rankings for your filters</span>
+          ) : (
+            <>
+              <strong>{rankings.length}</strong>
+              <span className="ml-1">ranking{rankings.length > 1 && "s"}</span>
+            </>
+          )}
         </div>
       </CardFooter>
     </Card>
