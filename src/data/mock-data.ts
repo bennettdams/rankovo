@@ -21,11 +21,15 @@ const products: { name: string; category: Category }[] = [
   },
   {
     name: "Fried Fries",
-    category: "side dish",
+    category: "snack",
+  },
+  {
+    name: "Gemüsedöner",
+    category: "kebab",
   },
   {
     name: "Fish & Chips",
-    category: "fish",
+    category: "seafood",
   },
   {
     name: "Ceasar Salad",
