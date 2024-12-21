@@ -6,6 +6,7 @@ import { stringifySearchParams } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { use, useOptimistic, useTransition } from "react";
+import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 
 function updateArray<T extends string>(arr: T[] | null, entry: T) {
@@ -78,32 +79,44 @@ export function FiltersRankingsInternal({
       <pre>pending: {isPending + ""}</pre>
 
       <div>
-        <Button onClick={() => changeFilters("rating", 2)}>Rating 2</Button>
-      </div>
-
-      <div>
         <Button onClick={() => clearFilters()}>Clear all</Button>
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
-        {categories.map((category) => (
-          <FilterRow
-            key={category}
-            isActive={
-              filters.categories === null
-                ? true
-                : filters.categories.includes(category)
-            }
-            onClick={() =>
-              changeFilters(
-                "categories",
-                updateArray(filters.categories, category),
-              )
-            }
-          >
-            <span className="capitalize">{category}</span>
-          </FilterRow>
-        ))}
+      <div className="grid grid-cols-2 gap-y-4">
+        <div className="col-start-1 row-start-1 text-2xl">Rating</div>
+        <div className="col-start-1 row-start-2 flex flex-col items-center justify-start">
+          <span className="text-3xl">{filters.rating ?? "All"}</span>
+          <div>
+            <StarsForRating
+              rating={filters.rating ?? 5}
+              onClick={(ratingClicked) =>
+                changeFilters("rating", ratingClicked)
+              }
+            />
+          </div>
+        </div>
+
+        <div className="col-start-2 row-start-1 text-2xl">Category</div>
+        <div className="col-start-2 row-start-2 flex flex-wrap justify-center gap-2">
+          {categories.map((category) => (
+            <FilterRow
+              key={category}
+              isActive={
+                filters.categories === null
+                  ? true
+                  : filters.categories.includes(category)
+              }
+              onClick={() =>
+                changeFilters(
+                  "categories",
+                  updateArray(filters.categories, category),
+                )
+              }
+            >
+              <span className="capitalize">{category}</span>
+            </FilterRow>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -121,7 +134,7 @@ function FilterRow({
   return (
     <div
       className={cn(
-        "rounded p-4 hover:bg-primary hover:text-primary-fg active:bg-tertiary active:text-tertiary-fg",
+        "rounded p-3 hover:bg-primary hover:text-primary-fg active:bg-tertiary active:text-tertiary-fg",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onClick={onClick}
