@@ -25,6 +25,7 @@ export async function Rankings({
 
   return (
     <Card>
+      <span>Rendered at {new Date().toISOString()}</span>
       <CardContent>
         <Table>
           <TableHeader>

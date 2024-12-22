@@ -5,7 +5,8 @@ import { type RankingsFilters } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { use, useOptimistic, useTransition } from "react";
+import { use, useOptimistic, useState, useTransition } from "react";
+import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 
@@ -43,6 +44,9 @@ export function FiltersRankingsInternal({
   const [isPending, startTransition] = useTransition();
 
   const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
+  const [ratingUncommited, setRatingUncommited] = useState(
+    filtersExternal.rating,
+  );
 
   function updateSearchParams(newFilters: RankingsFilters) {
     const queryString = stringifySearchParams(newFilters);
@@ -61,6 +65,8 @@ export function FiltersRankingsInternal({
   }
 
   function clearFilters() {
+    setRatingUncommited(null);
+
     startTransition(() => {
       setOptimisticFilters({
         categories: null,
@@ -85,13 +91,28 @@ export function FiltersRankingsInternal({
       <div className="grid grid-cols-2 gap-y-4">
         <div className="col-start-1 row-start-1 text-2xl">Rating</div>
         <div className="col-start-1 row-start-2 flex flex-col items-center justify-start">
-          <span className="text-3xl">{filters.rating ?? "All"}</span>
+          <span className="text-3xl">{ratingUncommited ?? "All"}</span>
           <div>
             <StarsForRating
-              rating={filters.rating ?? 5}
-              onClick={(ratingClicked) =>
-                changeFilters("rating", ratingClicked)
-              }
+              rating={ratingUncommited ?? 5}
+              onClick={(ratingClicked) => {
+                setRatingUncommited(ratingClicked);
+                changeFilters("rating", ratingClicked);
+              }}
+            />
+          </div>
+          <div className="w-3/4">
+            <SliderDual
+              min={0}
+              max={5}
+              value={[0, ratingUncommited ?? 5]}
+              step={0.1}
+              minStepsBetweenThumbs={0.1}
+              onValueChange={(range) => setRatingUncommited(range[1])}
+              onValueCommit={(range) => {
+                setRatingUncommited(range[1]);
+                changeFilters("rating", range[1]);
+              }}
             />
           </div>
         </div>
