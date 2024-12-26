@@ -37,9 +37,9 @@ function StarForRating({
         onClick={onClick}
         className={cn(
           starStyles,
-          !!onClick && hoverableStyles,
           "relative z-0",
           isFullStarActive && "fill-primary text-primary",
+          !!onClick && hoverableStyles,
         )}
       >
         {(isHalfStarActive ||
@@ -48,8 +48,10 @@ function StarForRating({
           <StarHalf
             className={cn(
               starStyles,
-              !!onClick && hoverableStyles,
               "absolute inset-0 z-10 fill-primary text-primary",
+              // hide for hover as half stars are not clickable
+              !!onClick &&
+                "group-hover/stars:fill-transparent group-hover/stars:text-transparent",
             )}
           />
         )}
@@ -72,7 +74,7 @@ export function StarsForRating({
   return (
     <div
       // reverse order for CSS peer selectors (hover) to work from left to right
-      className="flex flex-row-reverse justify-center space-x-0.5"
+      className="group/stars flex flex-row-reverse justify-center space-x-0.5"
       title={`Rating: ${rating}`}
     >
       <StarForRating onClick={handleClick(5)} position={5} rating={rating} />
