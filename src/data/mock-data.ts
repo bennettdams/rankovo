@@ -66,7 +66,7 @@ export type Ranking = {
   restaurantName: string;
   rating: number;
   product: string;
-  catgory: Category;
+  category: Category;
   reviewedAt: Date;
   note: string;
 };
@@ -84,13 +84,16 @@ export function createMockRankings(filters: FiltersRankings): Ranking[] {
           decimalPlaces: 1,
         }),
         product: product.name,
-        catgory: product.category,
+        category: product.category,
         note: "Delicious",
         reviewedAt: new Date(),
       };
     })
     .filter((entry) => {
-      if (!!filters.categories && !filters.categories.includes(entry.catgory)) {
+      if (
+        !!filters.categories &&
+        !filters.categories.includes(entry.category)
+      ) {
         return false;
       }
       if (!!filters.ratingMin && entry.rating < filters.ratingMin) {

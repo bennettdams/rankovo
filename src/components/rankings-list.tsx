@@ -53,7 +53,7 @@ export async function RankingsList({
                 restaurantName={ranking.restaurantName}
                 rating={ranking.rating}
                 product={ranking.product}
-                category={ranking.catgory}
+                category={ranking.category}
                 note={ranking.note}
                 reviewedAt={ranking.reviewedAt}
               />
@@ -87,7 +87,7 @@ export function RankingsTableRow({
 }: {
   rating: Ranking["rating"];
   product: Ranking["product"];
-  category: Ranking["catgory"];
+  category: Ranking["category"];
   note: Ranking["note"];
   reviewedAt: Ranking["reviewedAt"];
   restaurantName: Ranking["restaurantName"];
