@@ -13,7 +13,7 @@ export function DateTime({
   date: Date;
   format: DateTimeFormat;
   title?: string;
-}): JSX.Element {
+}) {
   // initialize with null to prevent server-render mismatches
   const [dateTransformed, setDateTransformed] = useState<{
     dateFormatted: string;
