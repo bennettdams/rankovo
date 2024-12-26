@@ -6,9 +6,17 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+type SliderDualProps = Omit<
+  React.ComponentProps<typeof SliderPrimitive.Root>,
+  "onValueChange" | "onValueCommit"
+> & {
+  onValueChange: (value: [number, number]) => void;
+  onValueCommit: (value: [number, number]) => void;
+};
+
 const SliderDual = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+  SliderDualProps
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
@@ -17,6 +25,16 @@ const SliderDual = React.forwardRef<
       className,
     )}
     {...props}
+    onValueChange={(value) => {
+      if (value[0] === undefined || value[1] === undefined)
+        throw new Error(` Invalid value ${value[1] + ""} ${value[0] + ""}`);
+      props.onValueChange([value[0], value[1]]);
+    }}
+    onValueCommit={(value) => {
+      if (value[0] === undefined || value[1] === undefined)
+        throw new Error("Invalid value");
+      props.onValueCommit([value[0], value[1]]);
+    }}
   >
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
       <SliderPrimitive.Range className="absolute h-full bg-primary" />
