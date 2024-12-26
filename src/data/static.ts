@@ -19,3 +19,6 @@ export const categories = [
 ] as const;
 
 export type Category = (typeof categories)[number];
+
+export const ratingLowest = 0;
+export const ratingHighest = 5;

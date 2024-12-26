@@ -90,12 +90,16 @@ export function createMockRankings(filters: RankingsFilters): Ranking[] {
       };
     })
     .filter((entry) => {
-      const isCategoryMatching = !filters.categories
-        ? true
-        : filters.categories.includes(entry.catgory);
-      const isRatingMatching = !filters.rating
-        ? true
-        : entry.rating >= filters.rating;
-      return isCategoryMatching && isRatingMatching;
+      if (!!filters.categories && !filters.categories.includes(entry.catgory)) {
+        return false;
+      }
+      if (!!filters.ratingMin && entry.rating < filters.ratingMin) {
+        return false;
+      }
+      if (!!filters.ratingMax && entry.rating > filters.ratingMax) {
+        return false;
+      }
+
+      return true;
     });
 }

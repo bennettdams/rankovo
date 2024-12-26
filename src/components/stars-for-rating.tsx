@@ -46,6 +46,7 @@ function StarForRating({
           // Exception: Show half star for first position if the rating is really low
           (position === 1 && rating < halfStarLowerBound)) && (
           <StarHalf
+            onClick={onClick}
             className={cn(
               starStyles,
               "absolute inset-0 z-10 fill-primary text-primary",

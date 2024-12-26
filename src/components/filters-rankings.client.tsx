@@ -1,9 +1,9 @@
 "use client";
 
-import { categories } from "@/data/static";
+import { categories, ratingHighest, ratingLowest } from "@/data/static";
 import { type RankingsFilters } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
-import { cn } from "@/lib/utils";
+import { cn, isKeyOfObj } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { use, useOptimistic, useState, useTransition } from "react";
 import { SliderDual } from "./slider-dual";
@@ -44,33 +44,44 @@ export function FiltersRankingsInternal({
   const [isPending, startTransition] = useTransition();
 
   const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
-  const [ratingUncommited, setRatingUncommited] = useState(
-    filtersExternal.rating,
+  const [ratingMinUncommited, setRatingMinUncommited] = useState(
+    filtersExternal.ratingMin,
   );
+  const [ratingMaxUncommited, setRatingMaxUncommited] = useState(
+    filtersExternal.ratingMax,
+  );
+  const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
+  const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
 
   function updateSearchParams(newFilters: RankingsFilters) {
     const queryString = stringifySearchParams(newFilters);
     router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
   }
 
-  function changeFilters<TFilterKey extends keyof RankingsFilters>(
-    filterKey: TFilterKey,
-    value: RankingsFilters[TFilterKey],
-  ) {
-    startTransition(() => {
-      const newFilters = { ...filters, [filterKey]: value };
-      setOptimisticFilters(newFilters);
-      updateSearchParams(newFilters);
+  function changeFilters(filtersUpdatedPartial: Partial<RankingsFilters>) {
+    const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
+      if (isKeyOfObj(filters, key)) {
+        return filters[key] !== filtersUpdatedPartial[key];
+      }
     });
+    if (hasChanged) {
+      startTransition(() => {
+        const filtersMerged = { ...filters, ...filtersUpdatedPartial };
+        setOptimisticFilters(filtersMerged);
+        updateSearchParams(filtersMerged);
+      });
+    }
   }
 
   function clearFilters() {
-    setRatingUncommited(null);
+    setRatingMinUncommited(null);
+    setRatingMaxUncommited(null);
 
     startTransition(() => {
       setOptimisticFilters({
         categories: null,
-        rating: null,
+        ratingMin: null,
+        ratingMax: null,
       });
       router.push("/", { scroll: false });
     });
@@ -91,27 +102,44 @@ export function FiltersRankingsInternal({
       <div className="grid grid-cols-2 gap-y-4">
         <div className="col-start-1 row-start-1 text-2xl">Rating</div>
         <div className="col-start-1 row-start-2 flex flex-col items-center justify-start">
-          <span className="text-3xl">{ratingUncommited ?? "All"}</span>
+          <span className="text-3xl">
+            {ratingMinUncommited || ratingMaxUncommited
+              ? `${ratingMinToShow} - ${ratingMaxToShow}`
+              : "All"}
+          </span>
+
           <div>
             <StarsForRating
-              rating={ratingUncommited ?? 5}
+              rating={ratingMaxUncommited ?? ratingHighest}
               onClick={(ratingClicked) => {
-                setRatingUncommited(ratingClicked);
-                changeFilters("rating", ratingClicked);
+                setRatingMinUncommited(ratingClicked);
+                setRatingMaxUncommited(ratingHighest);
+                changeFilters({
+                  ratingMin: ratingClicked,
+                  ratingMax: ratingHighest,
+                });
               }}
             />
           </div>
+
           <div className="w-3/4">
             <SliderDual
-              min={0}
-              max={5}
-              value={[0, ratingUncommited ?? 5]}
+              min={ratingLowest}
+              max={ratingHighest}
+              value={[ratingMinToShow, ratingMaxToShow]}
               step={0.1}
               minStepsBetweenThumbs={0.1}
-              onValueChange={(range) => setRatingUncommited(range[1])}
+              onValueChange={(range) => {
+                setRatingMinUncommited(range[0]);
+                setRatingMaxUncommited(range[1]);
+              }}
               onValueCommit={(range) => {
-                setRatingUncommited(range[1]);
-                changeFilters("rating", range[1]);
+                setRatingMinUncommited(range[0]);
+                setRatingMaxUncommited(range[1]);
+                changeFilters({
+                  ratingMin: range[0],
+                  ratingMax: range[1],
+                });
               }}
             />
           </div>
@@ -128,10 +156,9 @@ export function FiltersRankingsInternal({
                   : filters.categories.includes(category)
               }
               onClick={() =>
-                changeFilters(
-                  "categories",
-                  updateArray(filters.categories, category),
-                )
+                changeFilters({
+                  categories: updateArray(filters.categories, category),
+                })
               }
             >
               <span className="capitalize">{category}</span>
