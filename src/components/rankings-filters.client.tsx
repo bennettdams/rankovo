@@ -1,7 +1,7 @@
 "use client";
 
 import { categories, ratingHighest, ratingLowest } from "@/data/static";
-import { type RankingsFilters } from "@/lib/schemas";
+import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -25,20 +25,20 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
 }
 
 // TODO Separate RSC instead of `use` here?
-export function FiltersRankings({
+export function RankingsFilters({
   filters: filtersFromSearchParams,
 }: {
-  filters: Promise<RankingsFilters>;
+  filters: Promise<FiltersRankings>;
 }) {
   const filters = use(filtersFromSearchParams);
 
   return <FiltersRankingsInternal filters={filters} />;
 }
 
-export function FiltersRankingsInternal({
+function FiltersRankingsInternal({
   filters: filtersExternal,
 }: {
-  filters: RankingsFilters;
+  filters: FiltersRankings;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -53,12 +53,12 @@ export function FiltersRankingsInternal({
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
 
-  function updateSearchParams(newFilters: RankingsFilters) {
+  function updateSearchParams(newFilters: FiltersRankings) {
     const queryString = stringifySearchParams(newFilters);
     router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
   }
 
-  function changeFilters(filtersUpdatedPartial: Partial<RankingsFilters>) {
+  function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
     const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
       if (isKeyOfObj(filters, key)) {
         return filters[key] !== filtersUpdatedPartial[key];

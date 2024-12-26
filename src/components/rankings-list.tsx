@@ -1,6 +1,6 @@
 import { api } from "@/data/api";
 import type { Ranking } from "@/data/mock-data";
-import type { RankingsFilters } from "@/lib/schemas";
+import type { FiltersRankings } from "@/lib/schemas";
 import Image from "next/image";
 import { DateTime } from "./date-time";
 import { RankingsAdminControls } from "./rankings-admin-controls";
@@ -15,10 +15,10 @@ import {
   TableRow,
 } from "./ui/table";
 
-export async function Rankings({
+export async function RankingsList({
   filters: filtersExternal,
 }: {
-  filters: Promise<RankingsFilters>;
+  filters: Promise<FiltersRankings>;
 }) {
   const filters = await filtersExternal;
   const rankings = await api.getRankings(filters);

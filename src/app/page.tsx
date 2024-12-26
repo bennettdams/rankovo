@@ -1,6 +1,6 @@
-import { FiltersRankings } from "@/components/filters-rankings.client";
 import { IconRankovo } from "@/components/icons";
-import { Rankings } from "@/components/rankings";
+import { RankingsFilters } from "@/components/rankings-filters.client";
+import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { schemaFiltersRankings } from "@/lib/schemas";
 import { Suspense } from "react";
@@ -20,7 +20,7 @@ export default async function Home({
 
       <div>
         <Suspense fallback={<div>Loading...</div>}>
-          <FiltersRankings filters={filters} />
+          <RankingsFilters filters={filters} />
         </Suspense>
       </div>
 
@@ -29,7 +29,7 @@ export default async function Home({
 
         <div className="w-full md:w-1/2">
           <Suspense fallback={<div>Loading rankings...</div>}>
-            <Rankings filters={filters} />
+            <RankingsList filters={filters} />
           </Suspense>
         </div>
       </div>

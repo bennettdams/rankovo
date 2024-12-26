@@ -1,4 +1,4 @@
-import type { RankingsFilters } from "@/lib/schemas";
+import type { FiltersRankings } from "@/lib/schemas";
 import type { Category } from "./static";
 
 const restaurantNames: string[] = [
@@ -71,7 +71,7 @@ export type Ranking = {
   note: string;
 };
 
-export function createMockRankings(filters: RankingsFilters): Ranking[] {
+export function createMockRankings(filters: FiltersRankings): Ranking[] {
   return restaurantNames
     .map((restaurantName, index) => {
       const product = pickRandomFromArray(products);

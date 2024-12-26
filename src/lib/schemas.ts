@@ -31,4 +31,4 @@ export const schemaFiltersRankings = z.object({
   ratingMax: schemaSearchParamSingle(schemaRating),
 });
 
-export type RankingsFilters = z.output<typeof schemaFiltersRankings>;
+export type FiltersRankings = z.output<typeof schemaFiltersRankings>;
