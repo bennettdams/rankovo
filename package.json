@@ -32,6 +32,7 @@
     "eslint": "^8",
     "eslint-config-next": "^15.1.1-canary.16",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-b2e8e9c-20241220",
     "postcss": "^8",
     "prettier": "^3.4.1",
     "prettier-plugin-tailwindcss": "^0.6.9",
