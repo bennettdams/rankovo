@@ -102,7 +102,9 @@ function FiltersRankingsInternal({
       </div>
 
       <div className="grid grid-cols-2 gap-y-4">
-        <div className="col-start-1 row-start-1 text-2xl">Rating</div>
+        <div className="col-start-1 row-start-1 text-2xl text-secondary">
+          Rating
+        </div>
         <div className="col-start-1 row-start-2 flex flex-col items-center justify-start">
           <span className="text-3xl">
             {ratingMinUncommited || ratingMaxUncommited
@@ -147,7 +149,9 @@ function FiltersRankingsInternal({
           </div>
         </div>
 
-        <div className="col-start-2 row-start-1 text-2xl">Category</div>
+        <div className="col-start-2 row-start-1 text-2xl text-secondary">
+          Category
+        </div>
         <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {categories.map((category) => (
             <FilterRow

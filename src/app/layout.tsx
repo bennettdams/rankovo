@@ -25,16 +25,30 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-gradient-to-br from-bg to-orange-200 pb-40 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
+          "min-h-screen bg-gradient-to-br from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
           fontSans.variable,
           fontSerif.variable,
         )}
       >
         <Navbar />
 
-        <main className="mb-52 min-h-full">
+        <main className="mb-52 min-h-full pb-40">
           <div className="container mx-auto">{children}</div>
         </main>
+
+        <footer className="py-8 text-center">
+          <p className="text-gray-500 text-sm">
+            <span>© 2024 Rankovo | Built by </span>
+
+            <a
+              href="https://x.com/bennettdams"
+              target="_blank"
+              className="text-primary underline"
+            >
+              Bennett Dams
+            </a>
+          </p>
+        </footer>
       </body>
     </html>
   );
