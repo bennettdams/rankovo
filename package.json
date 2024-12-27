@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier . --write",
-    "tc": "tsc --pretty --noEmit"
+    "tc": "tsc --pretty --noEmit",
+    "check-updates": "npx npm-check-updates -u",
+    "upgrade-nextjs": "npx @next/codemod@canary upgrade latest"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
