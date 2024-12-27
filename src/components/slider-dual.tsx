@@ -27,12 +27,12 @@ const SliderDual = React.forwardRef<
     {...props}
     onValueChange={(value) => {
       if (value[0] === undefined || value[1] === undefined)
-        throw new Error(` Invalid value ${value[1] + ""} ${value[0] + ""}`);
+        throw new Error(` Invalid value ${value[0] + ""} or ${value[1] + ""}`);
       props.onValueChange([value[0], value[1]]);
     }}
     onValueCommit={(value) => {
       if (value[0] === undefined || value[1] === undefined)
-        throw new Error("Invalid value");
+        throw new Error(` Invalid value ${value[0] + ""} or ${value[1] + ""}`);
       props.onValueCommit([value[0], value[1]]);
     }}
   >

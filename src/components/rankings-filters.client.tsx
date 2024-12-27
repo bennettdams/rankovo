@@ -59,11 +59,13 @@ function FiltersRankingsInternal({
   }
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
+    // a bit of overhead, but this way we save a network request (as updating search params also reloads the RSC page)
     const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
       if (isKeyOfObj(filters, key)) {
         return filters[key] !== filtersUpdatedPartial[key];
       }
     });
+
     if (hasChanged) {
       startTransition(() => {
         const filtersMerged = { ...filters, ...filtersUpdatedPartial };
