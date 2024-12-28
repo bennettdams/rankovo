@@ -9,7 +9,7 @@ async function getRankings(filters: FiltersRankings) {
 
   await new Promise((r) => setTimeout(r, 1000));
 
-  const ratingsFiltered = rankings.filter((ranking) => {
+  const rankingsFiltered = rankings.filter((ranking) => {
     if (
       !!filters.categories &&
       !filters.categories.includes(ranking.category)
@@ -26,7 +26,7 @@ async function getRankings(filters: FiltersRankings) {
     return true;
   });
 
-  return ratingsFiltered;
+  return rankingsFiltered;
 }
 
 export const api = { getRankings };

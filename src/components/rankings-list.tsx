@@ -36,7 +36,6 @@ export async function RankingsList({
 
   return (
     <Card>
-      <span>Rendered at {new Date().toISOString()}</span>
       <CardContent>
         <Table>
           <TableHeader>
@@ -156,7 +155,7 @@ function RankingDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {restaurantName} - {product}

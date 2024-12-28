@@ -70,7 +70,7 @@ export type Ranking = {
   note: string;
 };
 
-export function createMockRankings(): Ranking[] {
+function createMockRankings(): Ranking[] {
   return restaurantNames.map((restaurantName, index) => {
     const product = pickRandomFromArray(products);
     return {
