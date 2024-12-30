@@ -1,4 +1,39 @@
+import { randomUUID } from "crypto";
 import type { Category } from "./static";
+
+export type Ranking = {
+  id: string;
+  restaurantName: string;
+  rating: number;
+  productId: string;
+  productName: string;
+  productNote: string;
+  productCategory: Category;
+  reviews: Review[];
+  numOfReviews: number;
+  lastReviewedAt: Date;
+};
+
+type Product = {
+  id: string;
+  name: string;
+  note: string;
+  category: Category;
+  restaurant: Restaurant;
+};
+
+type Review = {
+  id: string;
+  rating: number;
+  product: Product;
+  reviewedAt: Date;
+  note: string;
+};
+
+type Restaurant = {
+  id: string;
+  name: string;
+};
 
 const restaurantNames: string[] = [
   "Thyme & Again",
@@ -13,26 +48,46 @@ const restaurantNames: string[] = [
   "Ember & Oak",
 ];
 
-const products: { name: string; category: Category }[] = [
+const restaurants: Restaurant[] = restaurantNames.map((name, index) => ({
+  id: (index + 1).toString(),
+  name,
+}));
+
+const products: Product[] = [
   {
+    id: "1",
     name: "Cheeseburger Deluxe",
     category: "burger",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
   },
   {
+    id: "2",
     name: "Fried Fries",
     category: "snack",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
   },
   {
+    id: "3",
     name: "Gemüsedöner",
     category: "kebab",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
   },
   {
+    id: "4",
     name: "Fish & Chips",
     category: "seafood",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
   },
   {
+    id: "5",
     name: "Ceasar Salad",
     category: "salad",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
   },
 ];
 
@@ -60,33 +115,56 @@ function pickRandomFromArray<T>(array: T[] | Readonly<T[]>): T {
   return res;
 }
 
-export type Ranking = {
-  id: string;
-  restaurantName: string;
-  rating: number;
-  product: string;
-  category: Category;
-  reviewedAt: Date;
-  note: string;
-};
+function createMockRankings(reviews: Review[]): Ranking[] {
+  const rankingsMap = new Map<Ranking["productId"], Ranking>();
 
-function createMockRankings(): Ranking[] {
-  return restaurantNames.map((restaurantName, index) => {
-    const product = pickRandomFromArray(products);
-    return {
-      id: (index + 1).toString(),
-      restaurantName,
-      rating: createRandomNumberBetween({
-        min: 0,
-        max: 5,
-        decimalPlaces: 1,
-      }),
-      product: product.name,
-      category: product.category,
-      note: "Delicious",
-      reviewedAt: new Date(),
-    };
+  reviews.forEach((review) => {
+    const ranking = rankingsMap.get(review.product.id);
+    if (ranking) {
+      ranking.rating =
+        (ranking.rating * ranking.numOfReviews + review.rating) /
+        (ranking.numOfReviews + 1);
+      ranking.numOfReviews++;
+      ranking.reviews.push(review);
+    } else {
+      rankingsMap.set(review.product.id, {
+        id: randomUUID(),
+        restaurantName: review.product.restaurant.name,
+        rating: review.rating,
+        productId: review.product.id,
+        productName: review.product.name,
+        productNote: review.note,
+        productCategory: review.product.category,
+        numOfReviews: 1,
+        lastReviewedAt: review.reviewedAt,
+        reviews: [review],
+      });
+    }
   });
+
+  return Array.from(rankingsMap.values());
 }
 
-export const rankings = createMockRankings();
+function createMockReviews(): Review[] {
+  return Array(100)
+    .fill(null)
+    .map((_, index) => {
+      const product = pickRandomFromArray(products);
+
+      const review: Review = {
+        id: (index + 1).toString(),
+        rating: createRandomNumberBetween({
+          min: 0,
+          max: 5,
+          decimalPlaces: 1,
+        }),
+        product,
+        reviewedAt: new Date(),
+        note: "Some review note",
+      };
+
+      return review;
+    });
+}
+
+export const rankings = createMockRankings(createMockReviews());

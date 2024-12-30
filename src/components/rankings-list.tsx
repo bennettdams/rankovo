@@ -2,6 +2,7 @@ import { api } from "@/data/api";
 import type { Ranking } from "@/data/mock-data";
 import type { FiltersRankings } from "@/lib/schemas";
 import Image from "next/image";
+import { Fragment } from "react";
 import { DateTime } from "./date-time";
 import { RatingWithStars } from "./rating-with-stars";
 import { StarsForRating } from "./stars-for-rating";
@@ -59,10 +60,12 @@ export async function RankingsList({
                 key={ranking.id}
                 restaurantName={ranking.restaurantName}
                 rating={ranking.rating}
-                product={ranking.product}
-                category={ranking.category}
-                note={ranking.note}
-                reviewedAt={ranking.reviewedAt}
+                productName={ranking.productName}
+                productCategory={ranking.productCategory}
+                productNote={ranking.productNote}
+                reviewedAt={ranking.lastReviewedAt}
+                numOfReviews={ranking.numOfReviews}
+                reviews={ranking.reviews}
               />
             ))}
           </TableBody>
@@ -86,27 +89,33 @@ export async function RankingsList({
 
 export function RankingsTableRow({
   rating,
-  product,
-  category,
-  note,
+  productName,
+  productCategory,
+  productNote,
   reviewedAt,
   restaurantName,
+  numOfReviews,
+  reviews,
 }: {
   rating: Ranking["rating"];
-  product: Ranking["product"];
-  category: Ranking["category"];
-  note: Ranking["note"];
-  reviewedAt: Ranking["reviewedAt"];
+  productName: Ranking["productName"];
+  productCategory: Ranking["productCategory"];
+  productNote: Ranking["productNote"];
+  reviewedAt: Ranking["lastReviewedAt"];
   restaurantName: Ranking["restaurantName"];
+  numOfReviews: Ranking["numOfReviews"];
+  reviews: Ranking["reviews"];
 }) {
   return (
     <RankingDialog
       restaurantName={restaurantName}
       rating={rating}
-      product={product}
-      category={category}
-      note={note}
+      productName={productName}
+      productCategory={productCategory}
+      productNote={productNote}
       reviewedAt={reviewedAt}
+      numOfReviews={numOfReviews}
+      reviews={reviews}
     >
       <TableRow className="cursor-pointer">
         <TableCell className="min-w-14 p-0">
@@ -119,14 +128,14 @@ export function RankingsTableRow({
           />
         </TableCell>
         <TableCell className="font-medium text-primary">
-          {restaurantName}
+          <span className="line-clamp-2 w-full max-w-96">{restaurantName}</span>
         </TableCell>
         <TableCell className="flex items-center font-medium">
           <RatingWithStars rating={rating} />
         </TableCell>
-        <TableCell className="font-medium">{product}</TableCell>
-        <TableCell className="font-medium">{category}</TableCell>
-        <TableCell className="font-medium">{note}</TableCell>
+        <TableCell className="font-medium">{productName}</TableCell>
+        <TableCell className="font-medium">{productCategory}</TableCell>
+        <TableCell className="font-medium">{productNote}</TableCell>
         <TableCell className="hidden md:table-cell">
           <DateTime format="YYYY-MM-DD" date={reviewedAt} />
         </TableCell>
@@ -137,19 +146,23 @@ export function RankingsTableRow({
 
 function RankingDialog({
   rating,
-  product,
-  category,
-  note,
+  productName,
+  productCategory,
+  productNote,
   reviewedAt,
   restaurantName,
+  numOfReviews,
+  reviews,
   children,
 }: {
   rating: Ranking["rating"];
-  product: Ranking["product"];
-  category: Ranking["category"];
-  note: Ranking["note"];
-  reviewedAt: Ranking["reviewedAt"];
+  productName: Ranking["productName"];
+  productCategory: Ranking["productCategory"];
+  productNote: Ranking["productNote"];
+  reviewedAt: Ranking["lastReviewedAt"];
   restaurantName: Ranking["restaurantName"];
+  numOfReviews: Ranking["numOfReviews"];
+  reviews: Ranking["reviews"];
   children: React.ReactNode;
 }) {
   return (
@@ -158,9 +171,9 @@ function RankingDialog({
       <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {restaurantName} - {product}
+            {restaurantName} - {productName}
           </DialogTitle>
-          <DialogDescription>{category}</DialogDescription>
+          <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center space-x-2">
@@ -169,7 +182,19 @@ function RankingDialog({
               <p className="text-center text-3xl">{rating}</p>
               <StarsForRating rating={rating} />
             </div>
-            <div>Note: {note}</div>
+            <div>Note: {productNote}</div>
+            <div>
+              <span>Number of reviews:</span>
+              <span>{numOfReviews}</span>
+            </div>
+            <div className="grid h-60 grid-cols-2 overflow-y-scroll">
+              {reviews.map((review) => (
+                <Fragment key={review.id}>
+                  <div>{review.rating}</div>
+                  <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+                </Fragment>
+              ))}
+            </div>
             <div>
               Last reviewed at:{" "}
               <DateTime date={reviewedAt} format="YYYY-MM-DD" />

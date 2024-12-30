@@ -12,7 +12,7 @@ async function getRankings(filters: FiltersRankings) {
   const rankingsFiltered = rankings.filter((ranking) => {
     if (
       !!filters.categories &&
-      !filters.categories.includes(ranking.category)
+      !filters.categories.includes(ranking.productCategory)
     ) {
       return false;
     }
