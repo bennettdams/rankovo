@@ -110,9 +110,9 @@ function createRandomNumberBetween({
 }
 
 function pickRandomFromArray<T>(array: T[] | Readonly<T[]>): T {
-  const res = array[Math.floor(Math.random() * array.length)];
-  if (!res) throw new Error("No random element found");
-  return res;
+  const entry = array[Math.floor(Math.random() * array.length)];
+  if (!entry) throw new Error("No random element found");
+  return entry;
 }
 
 function createMockRankings(reviews: Review[]): Ranking[] {
@@ -121,9 +121,14 @@ function createMockRankings(reviews: Review[]): Ranking[] {
   reviews.forEach((review) => {
     const ranking = rankingsMap.get(review.product.id);
     if (ranking) {
+      // We recalculate the rating for every iteration. It should be checked whether just summing up and calculating the
+      // average later is more efficient (as it would probably need more object creation).
       ranking.rating =
-        (ranking.rating * ranking.numOfReviews + review.rating) /
-        (ranking.numOfReviews + 1);
+        Math.round(
+          ((ranking.rating * ranking.numOfReviews + review.rating) /
+            (ranking.numOfReviews + 1)) *
+            100,
+        ) / 100;
       ranking.numOfReviews++;
       ranking.reviews.push(review);
     } else {
