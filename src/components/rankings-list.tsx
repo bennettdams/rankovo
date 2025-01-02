@@ -4,7 +4,6 @@ import type { FiltersRankings } from "@/lib/schemas";
 import Image from "next/image";
 import { Fragment } from "react";
 import { DateTime } from "./date-time";
-import { RatingWithStars } from "./rating-with-stars";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter } from "./ui/card";
@@ -130,8 +129,13 @@ export function RankingsTableRow({
         <TableCell className="font-medium text-primary">
           <span className="line-clamp-2 w-full max-w-96">{restaurantName}</span>
         </TableCell>
-        <TableCell className="flex items-center font-medium">
-          <RatingWithStars rating={rating} />
+        <TableCell>
+          <div className="flex">
+            <span className="text-fg">{rating}</span>
+            <span className="ml-1">
+              <StarsForRating rating={rating} size="small" />
+            </span>
+          </div>
         </TableCell>
         <TableCell className="font-medium">{productName}</TableCell>
         <TableCell className="font-medium">{productCategory}</TableCell>
@@ -176,29 +180,44 @@ function RankingDialog({
           <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <div>
+        <div className="flex flex-col gap-2 space-x-2">
+          <div className="grid grid-cols-6">
+            <div className="col-span-2 col-start-1 flex flex-col justify-center">
+              <div className="line-clamp-1 flex-1" title={productNote}>
+                {productNote + productNote + productNote}
+              </div>
+
+              <div className="flex-1">
+                Last reviewed at:{" "}
+                <DateTime date={reviewedAt} format="YYYY-MM-DD" />
+              </div>
+            </div>
+
+            <div className="col-span-2 col-start-3">
               <p className="text-center text-3xl">{rating}</p>
               <StarsForRating rating={rating} />
             </div>
-            <div>Note: {productNote}</div>
-            <div>
-              <span>Number of reviews:</span>
-              <span>{numOfReviews}</span>
+
+            <div className="col-span-2 col-start-5 flex items-center justify-start">
+              <span className="font-bold">{numOfReviews}</span>
+              <span className="ml-1.5">reviews</span>
             </div>
-            <div className="grid h-60 grid-cols-2 overflow-y-scroll">
-              {reviews.map((review) => (
-                <Fragment key={review.id}>
-                  <div>{review.rating}</div>
+          </div>
+
+          <div className="mt-6 grid h-60 w-full grid-cols-[min-content_min-content_min-content] gap-x-4 overflow-y-scroll">
+            {reviews.map((review) => (
+              <Fragment key={review.id}>
+                <p>{review.rating}</p>
+
+                <div className="flex items-center justify-start">
+                  <StarsForRating size="small" rating={review.rating} />
+                </div>
+
+                <p className="pl-6 text-left">
                   <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
-                </Fragment>
-              ))}
-            </div>
-            <div>
-              Last reviewed at:{" "}
-              <DateTime date={reviewedAt} format="YYYY-MM-DD" />
-            </div>
+                </p>
+              </Fragment>
+            ))}
           </div>
         </div>
 

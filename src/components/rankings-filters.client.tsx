@@ -152,6 +152,7 @@ function FiltersRankingsInternal({
         <div className="col-start-2 row-start-1 text-2xl text-secondary">
           Category
         </div>
+
         <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {categories.map((category) => (
             <FilterRow
@@ -188,7 +189,7 @@ function FilterRow({
   return (
     <div
       className={cn(
-        "rounded p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+        "select-none rounded p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onClick={onClick}
