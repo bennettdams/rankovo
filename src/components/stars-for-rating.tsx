@@ -31,6 +31,8 @@ function StarForRating({
 
   const isFullStarActive =
     !isHalfStarActive &&
+    rating >= fullStarLowerBound * position - halfStarUpperBound;
+
   const starSize = size === "small" ? "h-4 w-4" : "h-6 w-6";
 
   return (
