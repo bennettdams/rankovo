@@ -1,4 +1,5 @@
 import { IconRankovo } from "@/components/icons";
+import { MapWithPlace } from "@/components/map-with-place";
 import { RankingsFilters } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
@@ -24,8 +25,11 @@ export default async function Home({
         </Suspense>
       </div>
 
-      <div className="flex min-h-full flex-col md:flex-row">
-        <div className="w-full md:w-1/2">Map</div>
+      {/* keep gap-x in sync with the other elements (map & rankings list) */}
+      <div className="flex min-h-full flex-col gap-x-10 md:flex-row">
+        <div className="w-full md:w-1/2">
+          <MapWithPlace />
+        </div>
 
         <div className="w-full md:w-1/2">
           <Suspense fallback={<div>Loading rankings...</div>}>

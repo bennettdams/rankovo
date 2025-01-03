@@ -101,7 +101,8 @@ function FiltersRankingsInternal({
         <Button onClick={() => clearFilters()}>Clear all</Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-y-4">
+      {/* keep gap-x in sync with the other elements (map & rankings list) */}
+      <div className="grid grid-cols-2 gap-x-10 gap-y-4">
         <div className="col-start-1 row-start-1 text-2xl text-secondary">
           Rating
         </div>
