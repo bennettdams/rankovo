@@ -89,6 +89,55 @@ const products: Product[] = [
     note: "Some product note",
     restaurant: pickRandomFromArray(restaurants),
   },
+  {
+    id: "6",
+    name: "Avocado Toast",
+    category: "sandwich",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "7",
+    name: "Pasta Carbonara",
+    category: "pasta",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "8",
+    name: "Sushi Set",
+    category: "sushi",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "9",
+    name: "Pizza Margherita",
+    category: "pizza",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "10",
+    name: "Falafel Wrap",
+    category: "sandwich",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "11",
+    name: "Chicken Wings",
+    category: "chicken",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
+  {
+    id: "12",
+    name: "Ice Cream",
+    category: "dessert",
+    note: "Some product note",
+    restaurant: pickRandomFromArray(restaurants),
+  },
 ];
 
 function createRandomNumberBetween({
