@@ -1,6 +1,7 @@
 import { api } from "@/data/api";
 import type { Ranking } from "@/data/mock-data";
 import type { FiltersRankings } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Fragment } from "react";
 import { DateTime } from "./date-time";
@@ -27,7 +28,7 @@ export async function RankingsList({
 
   return (
     <div className="grid gap-2 overflow-x-scroll">
-      {rankings.map((ranking) => (
+      {rankings.map((ranking, index) => (
         <RankingsTableRow
           key={ranking.id}
           restaurantName={ranking.restaurantName}
@@ -38,6 +39,7 @@ export async function RankingsList({
           lastReviewedAt={ranking.lastReviewedAt}
           numOfReviews={ranking.numOfReviews}
           reviews={ranking.reviews}
+          position={index + 1}
         />
       ))}
     </div>
@@ -53,6 +55,7 @@ function RankingsTableRow({
   restaurantName,
   numOfReviews,
   reviews,
+  position,
 }: {
   rating: Ranking["rating"];
   productName: Ranking["productName"];
@@ -62,6 +65,7 @@ function RankingsTableRow({
   restaurantName: Ranking["restaurantName"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
+  position: number;
 }) {
   return (
     <RankingDialog
@@ -83,6 +87,16 @@ function RankingsTableRow({
             src="/image-placeholder.svg"
             width="64"
           />
+        </div>
+        <div
+          className={cn(
+            "grid size-10 h-full place-items-center",
+            position === 1 && "bg-[#FFD966] text-4xl text-white",
+            position === 2 && "bg-[#B7CADB] text-2xl text-white",
+            position === 3 && "bg-[#c27d6e] text-2xl text-white",
+          )}
+        >
+          <p>{position}</p>
         </div>
         <div className="min-w-32" title={productName}>
           <p className="line-clamp-2 font-medium">{productName}</p>
