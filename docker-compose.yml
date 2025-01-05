@@ -1,0 +1,13 @@
+# This is just used for local development.
+services:
+  postgres:
+    container_name: db-rankovo-dev
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/temp/postgres-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=rankovo-dev
+      - POSTGRES_USER=ben
+      - POSTGRES_PASSWORD=password

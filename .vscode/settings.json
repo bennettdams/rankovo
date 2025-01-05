@@ -31,5 +31,17 @@
     ".*Size.*",
     ".*Color.*",
     ".*Variants.*"
+  ],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "Rankovo Dev",
+      "database": "rankovo-dev",
+      "username": "ben",
+      "password": "password"
+    }
   ]
 }
