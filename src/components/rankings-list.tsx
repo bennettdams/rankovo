@@ -6,7 +6,6 @@ import { Fragment } from "react";
 import { DateTime } from "./date-time";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardFooter } from "./ui/card";
 import {
   Dialog,
   DialogClose,
@@ -35,63 +34,45 @@ export async function RankingsList({
   const rankings = await api.getRankings(filters);
 
   return (
-    <Card>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="hidden min-w-16 sm:table-cell">
-                <span className="sr-only">Image</span>
-              </TableHead>
-              <TableHead>Restaurant</TableHead>
-              <TableHead className="hidden md:table-cell">Rating</TableHead>
-              <TableHead className="hidden md:table-cell">Product</TableHead>
-              <TableHead className="hidden md:table-cell">Category</TableHead>
-              <TableHead className="hidden md:table-cell">Note</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Reviewed at
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rankings.map((ranking) => (
-              <RankingsTableRow
-                key={ranking.id}
-                restaurantName={ranking.restaurantName}
-                rating={ranking.rating}
-                productName={ranking.productName}
-                productCategory={ranking.productCategory}
-                productNote={ranking.productNote}
-                reviewedAt={ranking.lastReviewedAt}
-                numOfReviews={ranking.numOfReviews}
-                reviews={ranking.reviews}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-      <CardFooter>
-        <div className="text-xs">
-          {rankings.length === 0 ? (
-            <span>No rankings for your filters</span>
-          ) : (
-            <>
-              <strong>{rankings.length}</strong>
-              <span className="ml-1">ranking{rankings.length > 1 && "s"}</span>
-            </>
-          )}
-        </div>
-      </CardFooter>
-    </Card>
+    <Table className="border-separate border-spacing-y-2">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="min-w-16">
+            <span className="sr-only">Image</span>
+          </TableHead>
+          <TableHead>Restaurant</TableHead>
+          <TableHead>Rating</TableHead>
+          <TableHead>Product</TableHead>
+          <TableHead>Category</TableHead>
+          <TableHead>Note</TableHead>
+          <TableHead className="text-nowrap">Reviewed at</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rankings.map((ranking) => (
+          <RankingsTableRow
+            key={ranking.id}
+            restaurantName={ranking.restaurantName}
+            rating={ranking.rating}
+            productName={ranking.productName}
+            productCategory={ranking.productCategory}
+            productNote={ranking.productNote}
+            lastReviewedAt={ranking.lastReviewedAt}
+            numOfReviews={ranking.numOfReviews}
+            reviews={ranking.reviews}
+          />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
-export function RankingsTableRow({
+function RankingsTableRow({
   rating,
   productName,
   productCategory,
   productNote,
-  reviewedAt,
+  lastReviewedAt,
   restaurantName,
   numOfReviews,
   reviews,
@@ -100,7 +81,7 @@ export function RankingsTableRow({
   productName: Ranking["productName"];
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
-  reviewedAt: Ranking["lastReviewedAt"];
+  lastReviewedAt: Ranking["lastReviewedAt"];
   restaurantName: Ranking["restaurantName"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
@@ -112,19 +93,21 @@ export function RankingsTableRow({
       productName={productName}
       productCategory={productCategory}
       productNote={productNote}
-      reviewedAt={reviewedAt}
+      lastReviewedAt={lastReviewedAt}
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <TableRow className="cursor-pointer">
-        <TableCell className="min-w-14 p-0">
-          <Image
-            alt="Product image"
-            className="aspect-square rounded-md object-cover"
-            height="56"
-            src="/image-placeholder.svg"
-            width="56"
-          />
+      <TableRow className="cursor-pointer bg-white">
+        <TableCell className="p-4">
+          <div className="min-w-16 p-0">
+            <Image
+              alt="Product image"
+              className="aspect-square rounded-md object-cover"
+              height="56"
+              src="/image-placeholder.svg"
+              width="56"
+            />
+          </div>
         </TableCell>
         <TableCell className="font-medium text-primary">
           <span className="line-clamp-2 w-full max-w-96">{restaurantName}</span>
@@ -140,8 +123,8 @@ export function RankingsTableRow({
         <TableCell className="font-medium">{productName}</TableCell>
         <TableCell className="font-medium">{productCategory}</TableCell>
         <TableCell className="font-medium">{productNote}</TableCell>
-        <TableCell className="hidden md:table-cell">
-          <DateTime format="YYYY-MM-DD" date={reviewedAt} />
+        <TableCell>
+          <DateTime format="YYYY-MM-DD" date={lastReviewedAt} />
         </TableCell>
       </TableRow>
     </RankingDialog>
@@ -153,7 +136,7 @@ function RankingDialog({
   productName,
   productCategory,
   productNote,
-  reviewedAt,
+  lastReviewedAt,
   restaurantName,
   numOfReviews,
   reviews,
@@ -163,7 +146,7 @@ function RankingDialog({
   productName: Ranking["productName"];
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
-  reviewedAt: Ranking["lastReviewedAt"];
+  lastReviewedAt: Ranking["lastReviewedAt"];
   restaurantName: Ranking["restaurantName"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
@@ -189,7 +172,7 @@ function RankingDialog({
 
               <div className="flex-1">
                 Last reviewed at:{" "}
-                <DateTime date={reviewedAt} format="YYYY-MM-DD" />
+                <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
               </div>
             </div>
 
