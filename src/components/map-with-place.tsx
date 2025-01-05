@@ -12,6 +12,10 @@ export function MapWithPlace() {
 
   return (
     <div>
+      <iframe
+        className="size-full h-[32rem] overflow-hidden rounded-3xl"
+        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeId}`}
+      />
       <Button
         onClick={() => {
           setPlaceId(getDemoPlace(placeId));
@@ -19,11 +23,6 @@ export function MapWithPlace() {
       >
         Switch
       </Button>
-
-      <iframe
-        className="size-full h-[32rem] overflow-hidden rounded-3xl"
-        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeId}`}
-      />
     </div>
   );
 }

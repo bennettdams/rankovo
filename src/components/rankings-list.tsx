@@ -16,14 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
 
 export async function RankingsList({
   filters: filtersExternal,
@@ -34,36 +26,21 @@ export async function RankingsList({
   const rankings = await api.getRankings(filters);
 
   return (
-    <Table className="border-separate border-spacing-y-2">
-      <TableHeader>
-        <TableRow>
-          <TableHead className="min-w-16">
-            <span className="sr-only">Image</span>
-          </TableHead>
-          <TableHead>Restaurant</TableHead>
-          <TableHead>Rating</TableHead>
-          <TableHead>Product</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Note</TableHead>
-          <TableHead className="text-nowrap">Reviewed at</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rankings.map((ranking) => (
-          <RankingsTableRow
-            key={ranking.id}
-            restaurantName={ranking.restaurantName}
-            rating={ranking.rating}
-            productName={ranking.productName}
-            productCategory={ranking.productCategory}
-            productNote={ranking.productNote}
-            lastReviewedAt={ranking.lastReviewedAt}
-            numOfReviews={ranking.numOfReviews}
-            reviews={ranking.reviews}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="grid gap-2 overflow-x-scroll">
+      {rankings.map((ranking) => (
+        <RankingsTableRow
+          key={ranking.id}
+          restaurantName={ranking.restaurantName}
+          rating={ranking.rating}
+          productName={ranking.productName}
+          productCategory={ranking.productCategory}
+          productNote={ranking.productNote}
+          lastReviewedAt={ranking.lastReviewedAt}
+          numOfReviews={ranking.numOfReviews}
+          reviews={ranking.reviews}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -97,36 +74,37 @@ function RankingsTableRow({
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <TableRow className="cursor-pointer bg-white">
-        <TableCell className="p-4">
-          <div className="min-w-16 p-0">
-            <Image
-              alt="Product image"
-              className="aspect-square rounded-md object-cover"
-              height="56"
-              src="/image-placeholder.svg"
-              width="56"
-            />
-          </div>
-        </TableCell>
-        <TableCell className="font-medium text-primary">
-          <span className="line-clamp-2 w-full max-w-96">{restaurantName}</span>
-        </TableCell>
-        <TableCell>
-          <div className="flex">
-            <span className="text-fg">{rating}</span>
-            <span className="ml-1">
-              <StarsForRating rating={rating} size="small" />
-            </span>
-          </div>
-        </TableCell>
-        <TableCell className="font-medium">{productName}</TableCell>
-        <TableCell className="font-medium">{productCategory}</TableCell>
-        <TableCell className="font-medium">{productNote}</TableCell>
-        <TableCell>
+      <div className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg">
+        <div className="w-16 p-0">
+          <Image
+            alt="Product image"
+            className="aspect-square rounded-md object-cover"
+            height="64"
+            src="/image-placeholder.svg"
+            width="64"
+          />
+        </div>
+        <div className="min-w-32" title={productName}>
+          <p className="line-clamp-2 font-medium">{productName}</p>
+        </div>
+        <div>
+          <span className="text-right">{rating}</span>
+        </div>
+        <div>
+          <StarsForRating rating={rating} size="small" />
+        </div>
+        <div>
+          <span className="w-full text-nowrap">{restaurantName}</span>
+        </div>
+        <div className="font-medium">{productCategory}</div>
+        <div className="min-w-32" title={productNote}>
+          <p className="line-clamp-2 font-medium">{productNote}</p>
+        </div>
+        {/* Last cell should have some padding to give breathing room when scrolling horizontally */}
+        <div className="pr-10">
           <DateTime format="YYYY-MM-DD" date={lastReviewedAt} />
-        </TableCell>
-      </TableRow>
+        </div>
+      </div>
     </RankingDialog>
   );
 }
