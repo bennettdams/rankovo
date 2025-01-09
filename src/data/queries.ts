@@ -1,10 +1,11 @@
 import type { FiltersRankings } from "@/lib/schemas";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { rankings } from "./mock-data";
+import { dataKeys } from "./static";
 
 async function getRankings(filters: FiltersRankings) {
   "use cache";
-  cacheTag("rankings");
+  cacheTag(dataKeys.rankings);
   console.debug("🟦 API rankings");
 
   await new Promise((r) => setTimeout(r, 1000));
@@ -29,4 +30,4 @@ async function getRankings(filters: FiltersRankings) {
   return rankingsFiltered;
 }
 
-export const api = { getRankings };
+export const queries = { getRankings };

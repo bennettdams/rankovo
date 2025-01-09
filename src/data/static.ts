@@ -22,3 +22,7 @@ export type Category = (typeof categories)[number];
 
 export const ratingLowest = 0;
 export const ratingHighest = 5;
+
+export const dataKeys = {
+  rankings: "rankings",
+};

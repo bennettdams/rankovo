@@ -1,5 +1,5 @@
-import { api } from "@/data/api";
 import type { Ranking } from "@/data/mock-data";
+import { queries } from "@/data/queries";
 import type { FiltersRankings } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -24,7 +24,7 @@ export async function RankingsList({
   filters: Promise<FiltersRankings>;
 }) {
   const filters = await filtersExternal;
-  const rankings = await api.getRankings(filters);
+  const rankings = await queries.getRankings(filters);
 
   return (
     <div className="grid gap-2 overflow-x-scroll">
