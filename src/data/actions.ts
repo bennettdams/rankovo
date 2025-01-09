@@ -1,7 +1,10 @@
 "use server";
 
+import { ReviewCreate, reviewsTable } from "@/db/db-schema";
+import { db } from "@/db/drizzle-setup";
 import { revalidateTag } from "next/cache";
 import { type Ranking, rankings } from "./mock-data";
+import { dataKeys } from "./static";
 
 export async function actionUpdateRanking(rankingUpdated: Ranking) {
   console.debug("🟦 ACTION update ranking");
@@ -15,6 +18,23 @@ export async function actionUpdateRanking(rankingUpdated: Ranking) {
     rankings[index] = rankingUpdated;
   }
 
-  revalidateTag("rankings");
+  revalidateTag(dataKeys.rankings);
+  return true;
+}
+
+export async function actionCreateReview(
+  review: Omit<ReviewCreate, "reviewedAt">,
+) {
+  console.debug("🟦 ACTION create review");
+
+  await new Promise((r) => setTimeout(r, 1000));
+  const reviewToCreate: ReviewCreate = {
+    ...review,
+    reviewedAt: new Date(),
+  };
+
+  await db.insert(reviewsTable).values(reviewToCreate);
+
+  revalidateTag(dataKeys.reviews);
   return true;
 }

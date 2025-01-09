@@ -1,5 +1,6 @@
 "use client";
 
+import { actionCreateReview } from "@/data/actions";
 import { categories, ratingHighest, ratingLowest } from "@/data/static";
 import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
@@ -99,6 +100,18 @@ function FiltersRankingsInternal({
 
       <div>
         <Button onClick={() => clearFilters()}>Clear all</Button>
+      </div>
+      <div>
+        <Button
+          onClick={() =>
+            actionCreateReview({
+              rating: 3.5,
+              note: "Some note",
+            })
+          }
+        >
+          Create
+        </Button>
       </div>
 
       {/* keep gap-x in sync with the other elements (map & rankings list) */}

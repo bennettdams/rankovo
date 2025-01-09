@@ -1,16 +1,18 @@
+import { reviewsTable } from "@/db/db-schema";
+import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { rankings } from "./mock-data";
+import { rankings as rankingsMock } from "./mock-data";
 import { dataKeys } from "./static";
 
-async function getRankings(filters: FiltersRankings) {
+async function rankings(filters: FiltersRankings) {
   "use cache";
   cacheTag(dataKeys.rankings);
-  console.debug("🟦 API rankings");
+  console.debug("🟦 QUERY rankings");
 
   await new Promise((r) => setTimeout(r, 1000));
 
-  const rankingsFiltered = rankings.filter((ranking) => {
+  const rankingsFiltered = rankingsMock.filter((ranking) => {
     if (
       !!filters.categories &&
       !filters.categories.includes(ranking.productCategory)
@@ -30,4 +32,12 @@ async function getRankings(filters: FiltersRankings) {
   return rankingsFiltered;
 }
 
-export const queries = { getRankings };
+async function reviews() {
+  "use cache";
+  cacheTag(dataKeys.reviews);
+  console.debug("🟦 QUERY reviews");
+
+  return await db.select().from(reviewsTable);
+}
+
+export const queries = { rankings, reviews };

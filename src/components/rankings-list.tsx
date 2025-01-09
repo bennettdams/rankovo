@@ -24,7 +24,7 @@ export async function RankingsList({
   filters: Promise<FiltersRankings>;
 }) {
   const filters = await filtersExternal;
-  const rankings = await queries.getRankings(filters);
+  const rankings = await queries.rankings(filters);
 
   return (
     <div className="grid gap-2 overflow-x-scroll">
