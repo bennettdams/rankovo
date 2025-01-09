@@ -86,6 +86,7 @@ function FiltersRankingsInternal({
         ratingMin: null,
         ratingMax: null,
       });
+
       router.push("/", { scroll: false });
     });
   }
