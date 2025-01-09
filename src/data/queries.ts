@@ -1,6 +1,7 @@
 import { reviewsTable } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
+import { desc } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { rankings as rankingsMock } from "./mock-data";
 import { dataKeys } from "./static";
@@ -37,7 +38,10 @@ async function reviews() {
   cacheTag(dataKeys.reviews);
   console.debug("🟦 QUERY reviews");
 
-  return await db.select().from(reviewsTable);
+  return await db
+    .select()
+    .from(reviewsTable)
+    .orderBy(desc(reviewsTable.reviewedAt));
 }
 
 export const queries = { rankings, reviews };

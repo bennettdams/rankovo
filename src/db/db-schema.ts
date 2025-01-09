@@ -15,8 +15,11 @@ export const reviewsTable = pgTable("reviews", {
     precision: 6,
     withTimezone: true,
   }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at"),
 });
 
 export type Review = typeof reviewsTable.$inferSelect;
 export type ReviewCreate = Required<typeof reviewsTable.$inferInsert>;
+export type ReviewUpdate = Partial<Review>;
 
