@@ -16,7 +16,8 @@
     "db:push": "npx drizzle-kit push",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
-    "db:s": "npx drizzle-kit studio --verbose"
+    "db:s": "npx drizzle-kit studio --verbose",
+    "db:seed": "bun ./src/db/seed.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
