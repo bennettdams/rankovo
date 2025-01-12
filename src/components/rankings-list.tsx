@@ -32,7 +32,7 @@ export async function RankingsList({
         rankings.map((ranking, index) => (
           <RankingsTableRow
             key={ranking.id}
-            restaurantName={ranking.restaurantName}
+            placeName={ranking.placeName}
             rating={ranking.rating}
             productName={ranking.productName}
             productCategory={ranking.productCategory}
@@ -54,7 +54,7 @@ function RankingsTableRow({
   productCategory,
   productNote,
   lastReviewedAt,
-  restaurantName,
+  placeName,
   numOfReviews,
   reviews,
   position,
@@ -64,14 +64,14 @@ function RankingsTableRow({
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
   lastReviewedAt: Ranking["lastReviewedAt"];
-  restaurantName: Ranking["restaurantName"];
+  placeName: Ranking["placeName"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
   position: number;
 }) {
   return (
     <RankingDialog
-      restaurantName={restaurantName}
+      placeName={placeName}
       rating={rating}
       productName={productName}
       productCategory={productCategory}
@@ -110,7 +110,7 @@ function RankingsTableRow({
           <StarsForRating rating={rating} size="small" />
         </div>
         <div>
-          <span className="w-full text-nowrap">{restaurantName}</span>
+          <span className="w-full text-nowrap">{placeName}</span>
         </div>
         <div className="font-medium">{productCategory}</div>
         <div className="min-w-32" title={productNote ?? undefined}>
@@ -131,7 +131,7 @@ function RankingDialog({
   productCategory,
   productNote,
   lastReviewedAt,
-  restaurantName,
+  placeName,
   numOfReviews,
   reviews,
   children,
@@ -141,7 +141,7 @@ function RankingDialog({
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
   lastReviewedAt: Ranking["lastReviewedAt"];
-  restaurantName: Ranking["restaurantName"];
+  placeName: Ranking["placeName"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
   children: React.ReactNode;
@@ -152,7 +152,7 @@ function RankingDialog({
       <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {restaurantName} - {productName}
+            {placeName} - {productName}
           </DialogTitle>
           <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>

@@ -12,7 +12,7 @@ import { type Category, dataKeys } from "./static";
 
 export type Ranking = {
   id: number;
-  restaurantName: string;
+  placeName: string;
   rating: number;
   productId: number;
   productName: string;
@@ -76,7 +76,7 @@ async function rankings(filters: FiltersRankings) {
     } else {
       rankingsMap.set(review.productId, {
         id: key,
-        restaurantName: review.placeName,
+        placeName: review.placeName,
         rating: review.rating,
         productId: review.productId,
         productName: review.productName,
