@@ -202,6 +202,10 @@ function RankingDialog({
                   <p className="pl-6 text-left">
                     <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
                   </p>
+
+                  <p className="truncate pl-6" title={review.note ?? undefined}>
+                    {review.note}
+                  </p>
                 </div>
               ))}
             </div>

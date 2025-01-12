@@ -17,7 +17,7 @@ export function ReviewListItem({
     <div
       className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center"
       onClick={() =>
-        actionUpdateReview({
+        actionUpdateReview(review.id, {
           ...review,
           rating: createRandomNumberBetween({
             min: ratingLowest,

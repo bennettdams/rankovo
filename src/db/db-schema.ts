@@ -6,6 +6,8 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export const reviewsTable = pgTable("reviews", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -24,8 +26,22 @@ export const reviewsTable = pgTable("reviews", {
 });
 
 export type Review = typeof reviewsTable.$inferSelect;
-export type ReviewCreate = Required<typeof reviewsTable.$inferInsert>;
-export type ReviewUpdate = Partial<Review>;
+
+export const schemaCreateReview = createInsertSchema(reviewsTable)
+  .required()
+  .omit({
+    reviewedAt: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+export type ReviewCreate = z.infer<typeof schemaCreateReview>;
+
+export const schemaUpdateReview = createUpdateSchema(reviewsTable).omit({
+  reviewedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type ReviewUpdate = z.infer<typeof schemaUpdateReview>;
 
 export const placesTable = pgTable("places", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
