@@ -35,6 +35,7 @@ export const placesTable = pgTable("places", {
 });
 
 export type Place = typeof placesTable.$inferSelect;
+export type PlaceCreate = Required<typeof placesTable.$inferInsert>;
 
 export const productsTable = pgTable("products", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -49,3 +50,4 @@ export const productsTable = pgTable("products", {
 });
 
 export type Product = typeof productsTable.$inferSelect;
+export type ProductCreate = Required<typeof productsTable.$inferInsert>;

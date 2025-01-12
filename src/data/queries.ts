@@ -1,10 +1,32 @@
-import { reviewsTable } from "@/db/db-schema";
+import {
+  placesTable,
+  productsTable,
+  type Review,
+  reviewsTable,
+} from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { rankings as rankingsMock } from "./mock-data";
-import { dataKeys } from "./static";
+import { type Category, dataKeys } from "./static";
+
+export type Ranking = {
+  id: number;
+  restaurantName: string;
+  rating: number;
+  productId: number;
+  productName: string;
+  productNote: string | null;
+  productCategory: Category;
+  numOfReviews: number;
+  lastReviewedAt: Date;
+  reviews: {
+    id: number;
+    rating: number;
+    note: string | null;
+    reviewedAt: Date;
+  }[];
+};
 
 async function rankings(filters: FiltersRankings) {
   "use cache";
@@ -13,7 +35,58 @@ async function rankings(filters: FiltersRankings) {
 
   await new Promise((r) => setTimeout(r, 1000));
 
-  const rankingsFiltered = rankingsMock.filter((ranking) => {
+  const reviewsWithProducts = await db
+    .select({
+      id: reviewsTable.id,
+      productId: reviewsTable.productId,
+      rating: reviewsTable.rating,
+      note: reviewsTable.note,
+      productName: productsTable.name,
+      productCategory: productsTable.category,
+      productNote: productsTable.note,
+      placeName: placesTable.name,
+      reviewedAt: reviewsTable.reviewedAt,
+    })
+    .from(reviewsTable)
+    .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id));
+
+  const rankingsMap = new Map<Review["productId"], Ranking>();
+
+  reviewsWithProducts.forEach((review) => {
+    const key = review.productId;
+    const ranking = rankingsMap.get(key);
+
+    if (ranking) {
+      // We recalculate the rating for every iteration. It should be checked whether just summing up and calculating the
+      // average later is more efficient (as it would probably need more object creation).
+      ranking.rating =
+        Math.round(
+          ((ranking.rating * ranking.numOfReviews + review.rating) /
+            (ranking.numOfReviews + 1)) *
+            100,
+        ) / 100;
+      ranking.numOfReviews++;
+      ranking.reviews.push(review);
+    } else {
+      rankingsMap.set(review.productId, {
+        id: key,
+        restaurantName: review.placeName,
+        rating: review.rating,
+        productId: review.productId,
+        productName: review.productName,
+        productNote: review.productNote,
+        productCategory: review.productCategory,
+        numOfReviews: 1,
+        lastReviewedAt: review.reviewedAt,
+        reviews: [review],
+      });
+    }
+  });
+
+  const rankings = Array.from(rankingsMap.values());
+
+  const rankingsFiltered = rankings.filter((ranking) => {
     if (
       !!filters.categories &&
       !filters.categories.includes(ranking.productCategory)
@@ -30,7 +103,7 @@ async function rankings(filters: FiltersRankings) {
     return true;
   });
 
-  return rankingsFiltered;
+  return rankingsFiltered.sort((a, b) => b.rating - a.rating);
 }
 
 async function reviews() {
@@ -41,7 +114,9 @@ async function reviews() {
   return await db
     .select()
     .from(reviewsTable)
-    .orderBy(desc(reviewsTable.reviewedAt));
+    // TODO ordering by updatedAt is just used for dev purposes
+    // .orderBy(desc(reviewsTable.reviewedAt), desc(reviewsTable.updatedAt));
+    .orderBy(desc(reviewsTable.updatedAt));
 }
 
 export const queries = { rankings, reviews };
