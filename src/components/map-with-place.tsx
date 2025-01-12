@@ -17,7 +17,7 @@ export function MapWithPlace() {
         src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeId}`}
       />
       <Button
-        onClick={() => {
+        onMouseDown={() => {
           setPlaceId(getDemoPlace(placeId));
         }}
       >

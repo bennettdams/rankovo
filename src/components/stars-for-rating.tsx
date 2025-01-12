@@ -15,12 +15,12 @@ function StarForRating({
   rating,
   position,
   size,
-  onClick,
+  onMouseDown,
 }: {
   rating: number;
   position: 1 | 2 | 3 | 4 | 5;
   size?: "small" | "medium";
-  onClick?: () => void;
+  onMouseDown?: () => void;
 }) {
   const lowerBoundCalculated =
     fullStarLowerBound * position + halfStarLowerBound - 1;
@@ -38,26 +38,26 @@ function StarForRating({
   return (
     <>
       <Star
-        onClick={onClick}
+        onMouseDown={onMouseDown}
         className={cn(
           starStyles,
           starSize,
           "relative z-0",
           isFullStarActive && "fill-primary text-primary",
-          !!onClick && hoverableStyles,
+          !!onMouseDown && hoverableStyles,
         )}
       >
         {(isHalfStarActive ||
           // Exception: Show half star for first position if the rating is really low
           (position === 1 && rating < halfStarLowerBound)) && (
           <StarHalf
-            onClick={onClick}
+            onMouseDown={onMouseDown}
             className={cn(
               starStyles,
               starSize,
               "absolute inset-0 z-10 fill-primary text-primary",
               // hide for hover as half stars are not clickable
-              !!onClick &&
+              !!onMouseDown &&
                 "group-hover/stars:fill-transparent group-hover/stars:text-transparent",
             )}
           />
@@ -70,14 +70,14 @@ function StarForRating({
 export function StarsForRating({
   rating,
   size,
-  onClick,
+  onMouseDown,
 }: {
   rating: number;
   size?: "small" | "medium";
-  onClick?: (ratingClicked: number) => void;
+  onMouseDown?: (ratingClicked: number) => void;
 }) {
   function handleClick(rating: number) {
-    return !onClick ? undefined : () => onClick(rating);
+    return !onMouseDown ? undefined : () => onMouseDown(rating);
   }
 
   return (
@@ -87,31 +87,31 @@ export function StarsForRating({
       title={`Rating: ${rating}`}
     >
       <StarForRating
-        onClick={handleClick(5)}
+        onMouseDown={handleClick(5)}
         position={5}
         rating={rating}
         size={size}
       />
       <StarForRating
-        onClick={handleClick(4)}
+        onMouseDown={handleClick(4)}
         position={4}
         rating={rating}
         size={size}
       />
       <StarForRating
-        onClick={handleClick(3)}
+        onMouseDown={handleClick(3)}
         position={3}
         rating={rating}
         size={size}
       />
       <StarForRating
-        onClick={handleClick(2)}
+        onMouseDown={handleClick(2)}
         position={2}
         rating={rating}
         size={size}
       />
       <StarForRating
-        onClick={handleClick(1)}
+        onMouseDown={handleClick(1)}
         position={1}
         rating={rating}
         size={size}

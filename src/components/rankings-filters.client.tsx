@@ -100,14 +100,15 @@ function FiltersRankingsInternal({
       <pre>pending: {isPending + ""}</pre>
 
       <div>
-        <Button onClick={() => clearFilters()}>Clear all</Button>
+        <Button onMouseDown={() => clearFilters()}>Clear all</Button>
       </div>
       <div>
         <Button
-          onClick={() =>
+          onMouseDown={() =>
             actionCreateReview({
               rating: 3.5,
               note: "Some note",
+              productId: 1,
             })
           }
         >
@@ -130,7 +131,7 @@ function FiltersRankingsInternal({
           <div>
             <StarsForRating
               rating={ratingMaxUncommited ?? ratingHighest}
-              onClick={(ratingClicked) => {
+              onMouseDown={(ratingClicked) => {
                 setRatingMinUncommited(ratingClicked);
                 setRatingMaxUncommited(ratingHighest);
                 changeFilters({
@@ -177,7 +178,7 @@ function FiltersRankingsInternal({
                   ? true
                   : filters.categories.includes(category)
               }
-              onClick={() =>
+              onMouseDown={() =>
                 changeFilters({
                   categories: updateArray(filters.categories, category),
                 })
@@ -194,11 +195,11 @@ function FiltersRankingsInternal({
 
 function FilterRow({
   isActive,
-  onClick,
+  onMouseDown,
   children,
 }: {
   isActive: boolean;
-  onClick: () => void;
+  onMouseDown: () => void;
   children: React.ReactNode;
 }) {
   return (
@@ -207,7 +208,7 @@ function FilterRow({
         "select-none rounded p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
-      onClick={onClick}
+      onMouseDown={onMouseDown}
     >
       {children}
     </div>
