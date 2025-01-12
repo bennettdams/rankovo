@@ -6,7 +6,7 @@ import {
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { type Category, dataKeys } from "./static";
 
@@ -48,6 +48,11 @@ async function rankings(filters: FiltersRankings) {
       reviewedAt: reviewsTable.reviewedAt,
     })
     .from(reviewsTable)
+    .where(
+      !filters.categories
+        ? undefined
+        : inArray(productsTable.category, filters.categories),
+    )
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id));
 
@@ -86,13 +91,11 @@ async function rankings(filters: FiltersRankings) {
 
   const rankings = Array.from(rankingsMap.values());
 
+  /*
+   * These filters are not applied in the SQL query because users are just supposed to filter for visbility,
+   * but the actual reviews are still needed to calculate the average rating.
+   */
   const rankingsFiltered = rankings.filter((ranking) => {
-    if (
-      !!filters.categories &&
-      !filters.categories.includes(ranking.productCategory)
-    ) {
-      return false;
-    }
     if (!!filters.ratingMin && ranking.rating < filters.ratingMin) {
       return false;
     }
@@ -114,9 +117,7 @@ async function reviews() {
   return await db
     .select()
     .from(reviewsTable)
-    // TODO ordering by updatedAt is just used for dev purposes
-    // .orderBy(desc(reviewsTable.reviewedAt), desc(reviewsTable.updatedAt));
-    .orderBy(desc(reviewsTable.updatedAt));
+    .orderBy(desc(reviewsTable.reviewedAt), desc(reviewsTable.updatedAt));
 }
 
 export const queries = { rankings, reviews };
