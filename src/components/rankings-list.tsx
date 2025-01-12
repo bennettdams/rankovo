@@ -1,9 +1,7 @@
-import type { Ranking } from "@/data/mock-data";
-import { queries } from "@/data/queries";
+import { queries, type Ranking } from "@/data/queries";
 import type { FiltersRankings } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { Fragment } from "react";
 import { DateTime } from "./date-time";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -28,20 +26,24 @@ export async function RankingsList({
 
   return (
     <div className="grid gap-2 overflow-x-scroll">
-      {rankings.map((ranking, index) => (
-        <RankingsTableRow
-          key={ranking.id}
-          restaurantName={ranking.restaurantName}
-          rating={ranking.rating}
-          productName={ranking.productName}
-          productCategory={ranking.productCategory}
-          productNote={ranking.productNote}
-          lastReviewedAt={ranking.lastReviewedAt}
-          numOfReviews={ranking.numOfReviews}
-          reviews={ranking.reviews}
-          position={index + 1}
-        />
-      ))}
+      {rankings.length === 0 ? (
+        <p>No rankings for your filters.</p>
+      ) : (
+        rankings.map((ranking, index) => (
+          <RankingsTableRow
+            key={ranking.id}
+            restaurantName={ranking.restaurantName}
+            rating={ranking.rating}
+            productName={ranking.productName}
+            productCategory={ranking.productCategory}
+            productNote={ranking.productNote}
+            lastReviewedAt={ranking.lastReviewedAt}
+            numOfReviews={ranking.numOfReviews}
+            reviews={ranking.reviews}
+            position={index + 1}
+          />
+        ))
+      )}
     </div>
   );
 }
@@ -111,7 +113,7 @@ function RankingsTableRow({
           <span className="w-full text-nowrap">{restaurantName}</span>
         </div>
         <div className="font-medium">{productCategory}</div>
-        <div className="min-w-32" title={productNote}>
+        <div className="min-w-32" title={productNote ?? undefined}>
           <p className="line-clamp-2 font-medium">{productNote}</p>
         </div>
         {/* Last cell should have some padding to give breathing room when scrolling horizontally */}
@@ -158,8 +160,11 @@ function RankingDialog({
         <div className="flex flex-col gap-2 space-x-2">
           <div className="grid grid-cols-6">
             <div className="col-span-2 col-start-1 flex flex-col justify-center">
-              <div className="line-clamp-1 flex-1" title={productNote}>
-                {productNote + productNote + productNote}
+              <div
+                className="line-clamp-1 flex-1"
+                title={productNote ?? undefined}
+              >
+                {!productNote ? null : productNote}
               </div>
 
               <div className="flex-1">
@@ -179,20 +184,27 @@ function RankingDialog({
             </div>
           </div>
 
-          <div className="mt-6 grid h-60 w-full grid-cols-[min-content_min-content_min-content] gap-x-4 overflow-y-scroll">
-            {reviews.map((review) => (
-              <Fragment key={review.id}>
-                <p>{review.rating}</p>
+          <div className="mt-6 w-full">
+            <p className="font-bold">Reviews</p>
 
-                <div className="flex items-center justify-start">
-                  <StarsForRating size="small" rating={review.rating} />
+            <div className="grid h-60 auto-rows-min gap-x-4 overflow-y-scroll">
+              {reviews.map((review) => (
+                <div
+                  className="col-span-12 grid h-6 grid-cols-subgrid items-center"
+                  key={review.id}
+                >
+                  <p>{review.rating}</p>
+
+                  <div className="flex items-center justify-start">
+                    <StarsForRating size="small" rating={review.rating} />
+                  </div>
+
+                  <p className="pl-6 text-left">
+                    <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+                  </p>
                 </div>
-
-                <p className="pl-6 text-left">
-                  <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
-                </p>
-              </Fragment>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
