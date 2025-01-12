@@ -24,6 +24,11 @@ export function Navbar() {
           <IconRankovo className="h-6 w-6" />
           <span className="sr-only">Acme Inc</span>
         </Link>
+
+        <Link href="/" className="transition-colors hover:text-primary">
+          Rankings
+        </Link>
+
         <Link href="/reviews" className="transition-colors hover:text-primary">
           Reviews
         </Link>

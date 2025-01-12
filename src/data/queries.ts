@@ -6,7 +6,7 @@ import {
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
-import { desc, eq, inArray } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { type Category, dataKeys } from "./static";
 
@@ -72,7 +72,11 @@ async function rankings(filters: FiltersRankings) {
             100,
         ) / 100;
       ranking.numOfReviews++;
-      ranking.reviews.push(review);
+
+      // We don't want to show all reviews for each ranking, so we only keep the last 20 reviews. This could be done without
+      // limit via pagination instead in the future, but it would need to have a way to apply it to a specific ranking – maybe with an
+      // intercepting route.
+      if (ranking.reviews.length <= 20) ranking.reviews.push(review);
     } else {
       rankingsMap.set(review.productId, {
         id: key,
@@ -109,7 +113,9 @@ async function rankings(filters: FiltersRankings) {
   return rankingsFiltered.sort((a, b) => b.rating - a.rating);
 }
 
-async function reviews() {
+const pageSizeReviews = 20;
+
+async function reviews(page = 1) {
   "use cache";
   cacheTag(dataKeys.reviews);
   console.debug("🟦 QUERY reviews");
@@ -117,7 +123,14 @@ async function reviews() {
   return await db
     .select()
     .from(reviewsTable)
-    .orderBy(desc(reviewsTable.reviewedAt), desc(reviewsTable.updatedAt));
+    .orderBy(
+      desc(reviewsTable.reviewedAt),
+      desc(reviewsTable.updatedAt),
+      // order by ID for pagination
+      asc(reviewsTable.id),
+    )
+    .limit(pageSizeReviews)
+    .offset((page - 1) * pageSizeReviews);
 }
 
 export const queries = { rankings, reviews };

@@ -152,7 +152,7 @@ function RankingDialog({
       <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {placeName} - {productName}
+            {productName} {placeName}
           </DialogTitle>
           <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>
@@ -185,7 +185,7 @@ function RankingDialog({
           </div>
 
           <div className="mt-6 w-full">
-            <p className="font-bold">Reviews</p>
+            <p className="font-bold">Last 20 reviews</p>
 
             <div className="grid h-60 auto-rows-min gap-x-4 overflow-y-scroll">
               {reviews.map((review) => (
