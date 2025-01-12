@@ -108,6 +108,7 @@ function FiltersRankingsInternal({
             actionCreateReview({
               rating: 3.5,
               note: "Some note",
+              reviewedAt: new Date(),
               productId: 1,
             })
           }

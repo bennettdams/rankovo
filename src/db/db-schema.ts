@@ -30,7 +30,6 @@ export type Review = typeof reviewsTable.$inferSelect;
 export const schemaCreateReview = createInsertSchema(reviewsTable)
   .required()
   .omit({
-    reviewedAt: true,
     createdAt: true,
     updatedAt: true,
   });

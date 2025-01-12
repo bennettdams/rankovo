@@ -8,6 +8,8 @@ import {
 } from "./db-schema";
 import { db } from "./drizzle-setup";
 
+const numOfReviews = 10_000;
+
 async function main() {
   console.log("########## Seeding");
 
@@ -28,28 +30,24 @@ async function createReviews() {
 
   const products = await db.select().from(productsTable);
 
-  const reviewsMock = Array(100)
-    .fill(null)
-    .map(() => {
-      const product = pickRandomFromArray(products);
+  for (let index = 0; index < numOfReviews; index++) {
+    if (index % 1000 === 0) console.log("index: ", index);
 
-      const review: ReviewCreate = {
-        rating: createRandomNumberBetween({
-          min: ratingLowest,
-          max: ratingHighest,
-          decimalPlaces: 1,
-        }),
-        note: Math.random() > 0.5 ? "Some review note" : null,
-        productId: product.id,
-        reviewedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: null,
-      };
+    const product = pickRandomFromArray(products);
 
-      return review;
-    });
+    const review: ReviewCreate = {
+      rating: createRandomNumberBetween({
+        min: ratingLowest,
+        max: ratingHighest,
+        decimalPlaces: 1,
+      }),
+      note: Math.random() > 0.5 ? "Some review note" : null,
+      productId: product.id,
+      reviewedAt: new Date(),
+    };
 
-  await db.insert(reviewsTable).values(reviewsMock);
+    await db.insert(reviewsTable).values(review);
+  }
 }
 
 async function createProducts() {
@@ -63,96 +61,72 @@ async function createProducts() {
       category: "burger",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Fried Fries",
       category: "snack",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Gemüsedöner",
       category: "kebab",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Fish & Chips",
       category: "seafood",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Ceasar Salad",
       category: "salad",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Avocado Toast",
       category: "sandwich",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Pasta Carbonara",
       category: "pasta",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Sushi Set",
       category: "sushi",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Pizza Margherita",
       category: "pizza",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Falafel Wrap",
       category: "sandwich",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Chicken Wings",
       category: "chicken",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
     {
       name: "Ice Cream",
       category: "dessert",
       note: Math.random() > 0.5 ? "Some product note" : null,
       placeId: pickRandomFromArray(places).id,
-      createdAt: new Date(),
-      updatedAt: null,
     },
   ]);
 }
