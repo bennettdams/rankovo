@@ -1,9 +1,9 @@
 "use client";
 
 import { actionUpdateReview } from "@/data/actions";
-import { createRandomNumberBetween } from "@/data/mock-data";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import type { Review } from "@/db/db-schema";
+import { createRandomNumberBetween } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 export function ReviewListItem({
