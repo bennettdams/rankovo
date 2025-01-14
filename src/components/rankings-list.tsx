@@ -25,7 +25,7 @@ export async function RankingsList({
   const rankings = await queries.rankings(filters);
 
   return (
-    <div className="grid gap-2 overflow-x-scroll">
+    <div className="grid gap-x-3 gap-y-2 overflow-x-scroll">
       {rankings.length === 0 ? (
         <p>No rankings for your filters.</p>
       ) : (
@@ -80,26 +80,25 @@ function RankingsTableRow({
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <div className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg">
-        <div className="w-16 p-0">
-          <Image
-            alt="Product image"
-            className="aspect-square rounded-md object-cover"
-            height="64"
-            src="/image-placeholder.svg"
-            width="64"
-          />
-        </div>
+      <div className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg">
         <div
           className={cn(
-            "grid size-12 place-items-center rounded-full",
-            "border-2 border-gray text-xl text-fg",
+            "ml-3 grid size-12 place-items-center rounded-full border-2 border-gray text-xl group-hover/ranking-row:text-secondary-fg",
             position === 1 && "border-none bg-[#FFD966] text-4xl text-white",
             position === 2 && "border-none bg-[#B7CADB] text-2xl text-white",
             position === 3 && "border-none bg-[#c27d6e] text-2xl text-white",
           )}
         >
           <p>{position}</p>
+        </div>
+        <div className="w-12 p-0">
+          <Image
+            alt="Product image"
+            className="aspect-square rounded-md object-cover"
+            height="48"
+            src="/image-placeholder.svg"
+            width="48"
+          />
         </div>
         <div className="min-w-32" title={productName}>
           <p className="line-clamp-2 font-medium">{productName}</p>

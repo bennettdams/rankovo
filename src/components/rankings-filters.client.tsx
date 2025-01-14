@@ -6,7 +6,7 @@ import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { use, useOptimistic, useState, useTransition } from "react";
+import { startTransition, use, useOptimistic, useState } from "react";
 import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -42,7 +42,6 @@ function FiltersRankingsInternal({
   filters: FiltersRankings;
 }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
   const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
   const [ratingMinUncommited, setRatingMinUncommited] = useState(
@@ -92,37 +91,11 @@ function FiltersRankingsInternal({
   }
 
   return (
-    <div className="text-center">
-      <h2 className="text-2xl text-secondary">Filters</h2>
-
-      <pre>{JSON.stringify(filters, null, 0)}</pre>
-
-      <pre>pending: {isPending + ""}</pre>
-
+    <div className="flex flex-col gap-y-10">
       <div>
-        <Button onMouseDown={() => clearFilters()}>Clear all</Button>
-      </div>
-      <div>
-        <Button
-          onMouseDown={() =>
-            actionCreateReview({
-              rating: 3.5,
-              note: "Some note",
-              reviewedAt: new Date(),
-              productId: 1,
-            })
-          }
-        >
-          Create
-        </Button>
-      </div>
+        <h3>Rating</h3>
 
-      {/* keep gap-x in sync with the other elements (map & rankings list) */}
-      <div className="grid grid-cols-2 gap-x-10 gap-y-4">
-        <div className="col-start-1 row-start-1 text-2xl text-secondary">
-          Rating
-        </div>
-        <div className="col-start-1 row-start-2 flex flex-col items-center justify-start">
+        <div className="mt-4 flex flex-col items-center justify-start">
           <span className="text-3xl">
             {ratingMinUncommited || ratingMaxUncommited
               ? `${ratingMinToShow} - ${ratingMaxToShow}`
@@ -165,14 +138,14 @@ function FiltersRankingsInternal({
             />
           </div>
         </div>
+      </div>
 
-        <div className="col-start-2 row-start-1 text-2xl text-secondary">
-          Category
-        </div>
+      <div>
+        <h3>Categories</h3>
 
-        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
           {categories.map((category) => (
-            <FilterRow
+            <CategoryFilterRow
               key={category}
               isActive={
                 filters.categories === null
@@ -186,15 +159,33 @@ function FiltersRankingsInternal({
               }
             >
               <span className="capitalize">{category}</span>
-            </FilterRow>
+            </CategoryFilterRow>
           ))}
         </div>
+      </div>
+
+      <div>
+        <Button onMouseDown={() => clearFilters()}>Clear all</Button>
+      </div>
+      <div>
+        <Button
+          onMouseDown={() =>
+            actionCreateReview({
+              rating: 3.5,
+              note: "Some note",
+              reviewedAt: new Date(),
+              productId: 1,
+            })
+          }
+        >
+          Create
+        </Button>
       </div>
     </div>
   );
 }
 
-function FilterRow({
+function CategoryFilterRow({
   isActive,
   onMouseDown,
   children,
@@ -206,7 +197,7 @@ function FilterRow({
   return (
     <div
       className={cn(
-        "select-none rounded-full p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+        "select-none rounded-full px-3 py-1 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onMouseDown={onMouseDown}

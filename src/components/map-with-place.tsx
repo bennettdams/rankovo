@@ -13,7 +13,7 @@ export function MapWithPlace() {
   return (
     <div>
       <iframe
-        className="aspect-square size-full overflow-hidden rounded-3xl"
+        className="size-full overflow-hidden rounded-3xl"
         src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeId}`}
       />
       <Button

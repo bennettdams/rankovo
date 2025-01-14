@@ -19,21 +19,21 @@ export default async function Home({
     <div className="pt-8 md:pt-12">
       <HeroSection />
 
-      <Suspense fallback={<div>Loading filters...</div>}>
-        <RankingsFilters filters={filters} />
-      </Suspense>
-
-      {/* keep gap-x in sync with the other elements (map & rankings list) */}
-      <div className="mt-10 grid min-h-full grid-cols-2 gap-x-10">
-        <div className="col-span-2 md:col-span-1">
-          <MapWithPlace />
+      <div className="flex flex-row gap-x-4">
+        <div className="basis-1/3">
+          <Suspense fallback={<div>Loading filters...</div>}>
+            <RankingsFilters filters={filters} />
+          </Suspense>
         </div>
-
-        <div className="col-span-2 md:col-span-1">
+        <div className="basis-2/3 overflow-x-scroll">
           <Suspense fallback={<div>Loading rankings...</div>}>
             <RankingsList filters={filters} />
           </Suspense>
         </div>
+      </div>
+
+      <div className="mt-10 grid h-[30rem]">
+        <MapWithPlace />
       </div>
     </div>
   );
