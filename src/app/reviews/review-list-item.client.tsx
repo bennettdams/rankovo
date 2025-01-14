@@ -15,7 +15,7 @@ export function ReviewListItem({
 }) {
   return (
     <div
-      className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center"
+      className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg"
       onClick={() =>
         actionUpdateReview(review.id, {
           ...review,

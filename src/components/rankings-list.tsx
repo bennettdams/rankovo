@@ -152,7 +152,8 @@ function RankingDialog({
       <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {productName} {placeName}
+            <span className="text-xl">{productName}</span>
+            <span className="ml-2 text-secondary">{placeName}</span>
           </DialogTitle>
           <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>
