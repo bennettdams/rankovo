@@ -57,9 +57,7 @@ export const productsTable = pgTable("products", {
   name: varchar({ length: 255 }).notNull(),
   note: varchar({ length: 255 }),
   category: varchar({ length: 255, enum: categories }).notNull(),
-  placeId: integer("place_id")
-    .references(() => placesTable.id)
-    .notNull(),
+  placeId: integer("place_id").references(() => placesTable.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });

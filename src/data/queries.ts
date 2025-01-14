@@ -12,12 +12,12 @@ import { type Category, dataKeys } from "./static";
 
 export type Ranking = {
   id: number;
-  placeName: string;
   rating: number;
   productId: number;
   productName: string;
   productNote: string | null;
   productCategory: Category;
+  placeName: string | null;
   numOfReviews: number;
   lastReviewedAt: Date;
   reviews: {
@@ -54,7 +54,7 @@ async function rankings(filters: FiltersRankings) {
         : inArray(productsTable.category, filters.categories),
     )
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
-    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id));
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
 
   const rankingsMap = new Map<Review["productId"], Ranking>();
 
