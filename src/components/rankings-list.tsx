@@ -92,10 +92,11 @@ function RankingsTableRow({
         </div>
         <div
           className={cn(
-            "grid size-10 h-full place-items-center",
-            position === 1 && "bg-[#FFD966] text-4xl text-white",
-            position === 2 && "bg-[#B7CADB] text-2xl text-white",
-            position === 3 && "bg-[#c27d6e] text-2xl text-white",
+            "grid size-12 place-items-center rounded-full",
+            "border-2 border-gray text-xl text-fg",
+            position === 1 && "border-none bg-[#FFD966] text-4xl text-white",
+            position === 2 && "border-none bg-[#B7CADB] text-2xl text-white",
+            position === 3 && "border-none bg-[#c27d6e] text-2xl text-white",
           )}
         >
           <p>{position}</p>

@@ -129,7 +129,7 @@ function FiltersRankingsInternal({
               : "All"}
           </span>
 
-          <div>
+          <div className="mt-2">
             <StarsForRating
               rating={ratingMaxUncommited ?? ratingHighest}
               onMouseDown={(ratingClicked) => {
@@ -143,7 +143,7 @@ function FiltersRankingsInternal({
             />
           </div>
 
-          <div className="w-3/4">
+          <div className="mt-4 w-2/4">
             <SliderDual
               min={ratingLowest}
               max={ratingHighest}
@@ -206,7 +206,7 @@ function FilterRow({
   return (
     <div
       className={cn(
-        "select-none rounded p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+        "select-none rounded-full p-3 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onMouseDown={onMouseDown}
