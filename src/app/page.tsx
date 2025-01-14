@@ -19,14 +19,30 @@ export default async function Home({
     <div className="pt-8 md:pt-12">
       <HeroSection />
 
-      <div className="flex flex-row gap-x-4">
+      {/* The max. height has to match the height of the rankings list with its number of entries. */}
+      <div className="flex max-h-[45rem] flex-row gap-x-4">
         <div className="basis-1/3">
           <Suspense fallback={<div>Loading filters...</div>}>
             <RankingsFilters filters={filters} />
           </Suspense>
         </div>
-        <div className="basis-2/3 overflow-x-scroll">
-          <Suspense fallback={<div>Loading rankings...</div>}>
+
+        <div className="basis-2/3 overflow-y-hidden">
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-y-6">
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <div
+                    className="mx-auto flex flex-row items-center"
+                    key={index}
+                  >
+                    <div className="size-12 animate-pulse rounded-full bg-white/80" />
+                    <div className="ml-10 h-12 w-72 animate-pulse rounded-lg bg-white/80" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
             <RankingsList filters={filters} />
           </Suspense>
         </div>
