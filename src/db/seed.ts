@@ -1,10 +1,13 @@
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { createRandomNumberBetween, pickRandomFromArray } from "@/lib/utils";
+import { asc } from "drizzle-orm";
 import {
+  criticsTable,
   placesTable,
   productsTable,
   ReviewCreate,
   reviewsTable,
+  usersTable,
 } from "./db-schema";
 import { db } from "./drizzle-setup";
 
@@ -15,11 +18,15 @@ async function main() {
 
   console.log("Delete all data");
   await db.delete(reviewsTable).execute();
+  await db.delete(criticsTable).execute();
+  await db.delete(usersTable).execute();
   await db.delete(productsTable).execute();
   await db.delete(placesTable).execute();
 
   await createPlaces();
   await createProducts();
+  await createUsers();
+  await createCritics();
   await createReviews();
 
   console.log("########## Seeding done");
@@ -29,11 +36,13 @@ async function createReviews() {
   console.log("Create reviews");
 
   const products = await db.select().from(productsTable);
+  const users = await db.select().from(usersTable);
 
   for (let index = 0; index < numOfReviews; index++) {
     if (index % 1000 === 0) console.log("index: ", index);
 
     const product = pickRandomFromArray(products);
+    const user = pickRandomFromArray(users);
 
     const review: ReviewCreate = {
       rating: createRandomNumberBetween({
@@ -43,6 +52,7 @@ async function createReviews() {
       }),
       note: Math.random() > 0.5 ? "Some review note" : null,
       productId: product.id,
+      authorId: user.id,
       reviewedAt: new Date(),
     };
 
@@ -150,6 +160,39 @@ async function createPlaces() {
         "Ember & Oak",
       ].map((name) => ({ name })),
     );
+}
+
+async function createCritics() {
+  console.log("Create critics");
+
+  const userIdFirst = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .orderBy(asc(usersTable.id))
+      .limit(1)
+  ).at(0)?.id;
+  if (!userIdFirst) throw new Error("No user found");
+
+  await db.insert(criticsTable).values([
+    { userId: userIdFirst, url: "https://www.youtube.com/critic1" },
+    { userId: null, url: "https://www.instagram.com/critic2" },
+    { userId: userIdFirst + 2, url: "https://www.x.com/critic3" },
+  ]);
+}
+
+async function createUsers() {
+  console.log("Create users");
+
+  await db
+    .insert(usersTable)
+    .values([
+      { name: "Holle21614" },
+      { name: "Bennett" },
+      { name: "Rust Cohle" },
+      { name: "Denis Villeneuve" },
+      { name: "David Fincher" },
+    ]);
 }
 
 main();

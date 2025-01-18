@@ -9,6 +9,19 @@ import {
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const usersTable = pgTable("users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+});
+export type User = typeof criticsTable.$inferSelect;
+
+export const criticsTable = pgTable("critics", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => usersTable.id),
+  url: varchar({ length: 255 }).notNull(),
+});
+export type Critic = typeof criticsTable.$inferSelect;
+
 export const reviewsTable = pgTable("reviews", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   // 0 to 5 – Note: "real" is an inexact floating point number (e.g. has a problem with 0.1 + 0.2 = 0.30000000000000004)
@@ -16,6 +29,9 @@ export const reviewsTable = pgTable("reviews", {
   note: varchar({ length: 255 }),
   productId: integer("product_id")
     .references(() => productsTable.id)
+    .notNull(),
+  authorId: integer("author_id")
+    .references(() => usersTable.id)
     .notNull(),
   reviewedAt: timestamp("reviewed_at", {
     precision: 6,
