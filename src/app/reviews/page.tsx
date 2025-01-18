@@ -21,6 +21,7 @@ async function ReviewsList() {
         <ReviewListItem key={review.id} review={review}>
           <div>{review.id}</div>
           <div>{review.rating}</div>
+          <div>{review.username}</div>
           <div>created {review.createdAt.toISOString()}</div>
           <div>reviewed {review.reviewedAt.toISOString()}</div>
           <div>updated {review.updatedAt?.toISOString()}</div>

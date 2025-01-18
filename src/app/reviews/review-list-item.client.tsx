@@ -1,8 +1,8 @@
 "use client";
 
 import { actionUpdateReview } from "@/data/actions";
+import type { ReviewQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
-import type { Review } from "@/db/db-schema";
 import { createRandomNumberBetween } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -10,7 +10,7 @@ export function ReviewListItem({
   review,
   children,
 }: {
-  review: Review;
+  review: ReviewQuery;
   children: ReactNode;
 }) {
   return (

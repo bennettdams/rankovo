@@ -200,6 +200,8 @@ function RankingDialog({
                     <StarsForRating size="small" rating={review.rating} />
                   </div>
 
+                  <p>{review.username}</p>
+
                   <p className="pl-6 text-left">
                     <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
                   </p>

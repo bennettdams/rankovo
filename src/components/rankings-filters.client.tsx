@@ -1,10 +1,12 @@
 "use client";
 
 import { actionCreateReview } from "@/data/actions";
+import { CriticQuery } from "@/data/queries";
 import { categories, ratingHighest, ratingLowest } from "@/data/static";
 import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, use, useOptimistic, useState } from "react";
 import { SliderDual } from "./slider-dual";
@@ -28,18 +30,23 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
 // TODO Separate RSC instead of `use` here?
 export function RankingsFilters({
   filters: filtersFromSearchParams,
+  criticsPromise,
 }: {
   filters: Promise<FiltersRankings>;
+  criticsPromise: Promise<CriticQuery[]>;
 }) {
   const filters = use(filtersFromSearchParams);
+  const critics = use(criticsPromise);
 
-  return <FiltersRankingsInternal filters={filters} />;
+  return <FiltersRankingsInternal filters={filters} critics={critics} />;
 }
 
 function FiltersRankingsInternal({
   filters: filtersExternal,
+  critics,
 }: {
   filters: FiltersRankings;
+  critics: CriticQuery[];
 }) {
   const router = useRouter();
 
@@ -164,6 +171,30 @@ function FiltersRankingsInternal({
         </div>
       </div>
 
+      <div>
+        <h3>Critics</h3>
+
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+          {critics.map((critic) => (
+            <div
+              className="flex h-12 flex-row items-center rounded-full bg-tertiary text-tertiary-fg"
+              key={critic.id}
+            >
+              <div className="w-12 p-0">
+                <Image
+                  alt="Critic image"
+                  className="rounded-full object-cover"
+                  height="48"
+                  src="/image-placeholder.svg"
+                  width="48"
+                />
+              </div>
+
+              <span className="pl-1.5 pr-2.5">{critic.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       <div>
         <Button onMouseDown={() => clearFilters()}>Clear all</Button>
       </div>

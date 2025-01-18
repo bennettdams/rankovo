@@ -39,8 +39,8 @@ const SliderDual = React.forwardRef<
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
       <SliderPrimitive.Range className="absolute h-full bg-primary" />
     </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="focus-visible:ring-ring block h-5 w-5 rounded-full border-2 border-secondary bg-primary ring-offset-tertiary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50" />
-    <SliderPrimitive.Thumb className="focus-visible:ring-ring block h-5 w-5 rounded-full border-2 border-secondary bg-primary ring-offset-tertiary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50" />
+    <SliderPrimitive.Thumb className="focus-visible:ring-ring block h-5 w-5 rounded-full bg-primary shadow-md ring-offset-tertiary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50" />
+    <SliderPrimitive.Thumb className="focus-visible:ring-ring block h-5 w-5 rounded-full bg-primary shadow-md ring-offset-tertiary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50" />
   </SliderPrimitive.Root>
 ));
 SliderDual.displayName = SliderPrimitive.Root.displayName;

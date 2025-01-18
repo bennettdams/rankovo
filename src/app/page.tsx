@@ -3,6 +3,7 @@ import { MapWithPlace } from "@/components/map-with-place";
 import { RankingsFilters } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
+import { queries } from "@/data/queries";
 import { schemaFiltersRankings } from "@/lib/schemas";
 import { Suspense } from "react";
 
@@ -14,6 +15,7 @@ export default async function Home({
   const filters = searchParams.then((params) =>
     schemaFiltersRankings.parse(params),
   );
+  const criticsPromise = queries.critics();
 
   return (
     <div className="pt-8 md:pt-12">
@@ -23,7 +25,10 @@ export default async function Home({
       <div className="flex max-h-[45rem] flex-row gap-x-4">
         <div className="basis-1/3">
           <Suspense fallback={<div>Loading filters...</div>}>
-            <RankingsFilters filters={filters} />
+            <RankingsFilters
+              filters={filters}
+              criticsPromise={criticsPromise}
+            />
           </Suspense>
         </div>
 
