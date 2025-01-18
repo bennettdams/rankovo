@@ -13,12 +13,20 @@ import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { dataKeys } from "./static";
 
-export async function actionCreateReview(reviewToCreate: ReviewCreate) {
+const userIdFake = 1;
+
+export async function actionCreateReview(
+  reviewToCreate: Omit<ReviewCreate, "authorId">,
+) {
   console.debug("🟦 ACTION create review");
 
   await new Promise((r) => setTimeout(r, 1000));
 
-  const reviewParsed = schemaCreateReview.parse(reviewToCreate);
+  const reviewToCreateFixed: ReviewCreate = {
+    ...reviewToCreate,
+    authorId: userIdFake,
+  };
+  const reviewParsed = schemaCreateReview.parse(reviewToCreateFixed);
 
   await db.insert(reviewsTable).values({
     ...reviewParsed,

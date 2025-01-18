@@ -1,8 +1,10 @@
 import {
+  criticsTable,
   placesTable,
   productsTable,
   type Review,
   reviewsTable,
+  usersTable,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
@@ -24,6 +26,7 @@ export type Ranking = {
     id: number;
     rating: number;
     note: string | null;
+    username: string | null;
     reviewedAt: Date;
   }[];
 };
@@ -35,6 +38,7 @@ async function rankings(filters: FiltersRankings) {
 
   await new Promise((r) => setTimeout(r, 1000));
 
+  // TODO: Make sure to only take the latest review of each user
   const reviewsWithProducts = await db
     .select({
       id: reviewsTable.id,
@@ -44,6 +48,7 @@ async function rankings(filters: FiltersRankings) {
       productName: productsTable.name,
       productCategory: productsTable.category,
       productNote: productsTable.note,
+      username: usersTable.name,
       placeName: placesTable.name,
       reviewedAt: reviewsTable.reviewedAt,
     })
@@ -54,7 +59,9 @@ async function rankings(filters: FiltersRankings) {
         : inArray(productsTable.category, filters.categories),
     )
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .leftJoin(criticsTable, eq(reviewsTable.authorId, criticsTable.userId))
+    .innerJoin(usersTable, eq(criticsTable.userId, usersTable.id));
 
   const rankingsMap = new Map<Review["productId"], Ranking>();
 
@@ -121,8 +128,18 @@ async function reviews(page = 1) {
   console.debug("🟦 QUERY reviews");
 
   return await db
-    .select()
+    .select({
+      id: reviewsTable.id,
+      rating: reviewsTable.rating,
+      note: reviewsTable.note,
+      createdAt: reviewsTable.createdAt,
+      updatedAt: reviewsTable.updatedAt,
+      productId: reviewsTable.productId,
+      username: usersTable.name,
+      reviewedAt: reviewsTable.reviewedAt,
+    })
     .from(reviewsTable)
+    .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
     .orderBy(
       desc(reviewsTable.reviewedAt),
       desc(reviewsTable.updatedAt),
@@ -132,5 +149,18 @@ async function reviews(page = 1) {
     .limit(pageSizeReviews)
     .offset((page - 1) * pageSizeReviews);
 }
+export type ReviewQuery = Awaited<ReturnType<typeof reviews>>[number];
 
-export const queries = { rankings, reviews };
+async function critics() {
+  "use cache";
+  cacheTag(dataKeys.critics);
+  console.debug("🟦 QUERY critics");
+
+  return await db
+    .select({ id: criticsTable.id, name: usersTable.name })
+    .from(criticsTable)
+    .leftJoin(usersTable, eq(criticsTable.userId, usersTable.id));
+}
+export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
+
+export const queries = { rankings, reviews, critics };

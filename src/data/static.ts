@@ -26,4 +26,5 @@ export const ratingHighest = 5;
 export const dataKeys = {
   rankings: "rankings",
   reviews: "reviews",
+  critics: "critics",
 };
