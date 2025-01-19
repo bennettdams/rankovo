@@ -8,7 +8,7 @@ import {
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { type Category, dataKeys } from "./static";
 
@@ -30,6 +30,46 @@ export type Ranking = {
     reviewedAt: Date;
   }[];
 };
+
+// WIP query for rankings
+export async function test() {
+  const latestReviews = db
+    .select({
+      productId: reviewsTable.productId,
+      authorId: reviewsTable.authorId,
+      latestReviewedAt: sql`MAX(${reviewsTable.reviewedAt})`.as(
+        "latestReviewedAt",
+      ),
+    })
+    .from(reviewsTable)
+    .groupBy(reviewsTable.productId, reviewsTable.authorId)
+    .as("latestReviews");
+
+  const sub = await db.select().from(latestReviews);
+  console.log("sub", sub);
+
+  // Join products with the filtered reviews and calculate the average rating
+  const averageRatings = db
+    .select({
+      productId: productsTable.id,
+      productName: productsTable.name,
+      averageRating: sql`AVG(${reviewsTable.rating})`,
+    })
+    .from(productsTable)
+    .leftJoin(latestReviews, eq(productsTable.id, latestReviews.productId))
+    .leftJoin(
+      reviewsTable,
+      and(
+        eq(productsTable.id, reviewsTable.productId),
+        eq(reviewsTable.reviewedAt, latestReviews.latestReviewedAt),
+        eq(reviewsTable.authorId, latestReviews.authorId),
+      ),
+    )
+    .groupBy(productsTable.id, productsTable.name)
+    .orderBy(productsTable.id);
+
+  return averageRatings;
+}
 
 async function rankings(filters: FiltersRankings) {
   "use cache";
@@ -58,10 +98,11 @@ async function rankings(filters: FiltersRankings) {
         ? undefined
         : inArray(productsTable.category, filters.categories),
     )
+    // Joins ordered from largest to smallest tables for better performance
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
-    .leftJoin(criticsTable, eq(reviewsTable.authorId, criticsTable.userId))
-    .innerJoin(usersTable, eq(criticsTable.userId, usersTable.id));
+    .innerJoin(usersTable, eq(usersTable.id, reviewsTable.authorId))
+    // LEFT JOIN at the end as it's less restrictive
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
 
   const rankingsMap = new Map<Review["productId"], Ranking>();
 
@@ -134,11 +175,12 @@ async function reviews(page = 1) {
       note: reviewsTable.note,
       createdAt: reviewsTable.createdAt,
       updatedAt: reviewsTable.updatedAt,
-      productId: reviewsTable.productId,
+      productName: productsTable.name,
       username: usersTable.name,
       reviewedAt: reviewsTable.reviewedAt,
     })
     .from(reviewsTable)
+    .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
     .orderBy(
       desc(reviewsTable.reviewedAt),

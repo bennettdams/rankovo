@@ -27,12 +27,43 @@ async function main() {
   await createProducts();
   await createUsers();
   await createCritics();
-  await createReviews();
+  await createReviewsSpecific();
+  // await createReviewsBulk();
 
   console.log("########## Seeding done");
+
+  process.exit(0);
 }
 
-async function createReviews() {
+async function createReviewsSpecific() {
+  const products = await db.select().from(productsTable).limit(1);
+  const users = await db.select().from(usersTable).limit(2);
+
+  const productId = products.at(0)?.id;
+  const userId = users.at(0)?.id;
+  const userId2 = users.at(1)?.id;
+  if (!productId || !userId || !userId2)
+    throw new Error("No product or user found");
+
+  await db.insert(reviewsTable).values([
+    {
+      rating: 3,
+      note: null,
+      productId,
+      authorId: userId,
+      reviewedAt: new Date(),
+    },
+    {
+      rating: 2,
+      note: null,
+      productId,
+      authorId: userId2,
+      reviewedAt: new Date(),
+    },
+  ]);
+}
+
+async function createReviewsBulk() {
   console.log("Create reviews");
 
   const products = await db.select().from(productsTable);
