@@ -1,4 +1,4 @@
-import { ratingHighest, ratingLowest } from "@/data/static";
+import { cities, ratingHighest, ratingLowest } from "@/data/static";
 import { createRandomNumberBetween, pickRandomFromArray } from "@/lib/utils";
 import { asc, sql } from "drizzle-orm";
 import {
@@ -30,14 +30,15 @@ async function main() {
   await createProducts();
   await createUsers();
   await createCritics();
-  await createReviewsSpecific();
-  // await createReviewsBulk();
+  // await createReviewsSpecific();
+  await createReviewsBulk();
 
   console.info("########## Seeding done");
 
   process.exit(0);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsSpecific() {
   const products = await db.select().from(productsTable).limit(1);
   const users = await db.select().from(usersTable).limit(2);
@@ -178,22 +179,23 @@ async function createProducts() {
 async function createPlaces() {
   console.info("Create places");
 
-  await db
-    .insert(placesTable)
-    .values(
-      [
-        "Thyme & Again",
-        "Fork & Dagger",
-        "The Daily Grind",
-        "Searious Eats",
-        "Pour Decisions",
-        "Basil & Barrel",
-        "Chop House Rules",
-        "The Roasted Palette",
-        "Cask & Cleaver",
-        "Ember & Oak",
-      ].map((name) => ({ name })),
-    );
+  await db.insert(placesTable).values(
+    [
+      "Thyme & Again",
+      "Fork & Dagger",
+      "The Daily Grind",
+      "Searious Eats",
+      "Pour Decisions",
+      "Basil & Barrel",
+      "Chop House Rules",
+      "The Roasted Palette",
+      "Cask & Cleaver",
+      "Ember & Oak",
+    ].map((name) => ({
+      name,
+      city: Math.random() < 0.33 ? null : pickRandomFromArray(cities),
+    })),
+  );
 }
 
 async function createCritics() {

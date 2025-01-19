@@ -1,4 +1,4 @@
-import { categories } from "@/data/static";
+import { categories, cities } from "@/data/static";
 import { schemaRating } from "@/lib/schemas";
 import {
   integer,
@@ -67,6 +67,7 @@ export type ReviewUpdate = z.infer<typeof schemaUpdateReview>;
 export const placesTable = pgTable("places", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
+  city: varchar({ length: 255, enum: cities }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });

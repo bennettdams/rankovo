@@ -28,3 +28,16 @@ export const dataKeys = {
   reviews: "reviews",
   critics: "critics",
 };
+
+export const cities = [
+  "Berlin",
+  "Bremen",
+  "Dortmund",
+  "Düsseldorf",
+  "Frankfurt",
+  "Hamburg",
+  "Köln",
+  "Leipzig",
+  "München",
+  "Stuttgart",
+] as const;

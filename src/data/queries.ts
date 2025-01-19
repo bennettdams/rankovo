@@ -2,15 +2,15 @@ import {
   criticsTable,
   placesTable,
   productsTable,
-  type Review,
   reviewsTable,
   usersTable,
+  type Review,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import type { FiltersRankings } from "@/lib/schemas";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { type Category, dataKeys } from "./static";
+import { dataKeys, type Category } from "./static";
 
 export type Ranking = {
   id: number;
@@ -20,6 +20,7 @@ export type Ranking = {
   productNote: string | null;
   productCategory: Category;
   placeName: string | null;
+  city: string | null;
   numOfReviews: number;
   lastReviewedAt: Date;
   reviews: {
@@ -90,6 +91,7 @@ async function rankings(filters: FiltersRankings) {
       productNote: productsTable.note,
       username: usersTable.name,
       placeName: placesTable.name,
+      city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,
     })
     .from(reviewsTable)
@@ -134,6 +136,7 @@ async function rankings(filters: FiltersRankings) {
         productName: review.productName,
         productNote: review.productNote,
         productCategory: review.productCategory,
+        city: review.city,
         numOfReviews: 1,
         lastReviewedAt: review.reviewedAt,
         reviews: [review],
