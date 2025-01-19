@@ -1,6 +1,6 @@
 import { IconRankovo } from "@/components/icons";
 import { MapWithPlace } from "@/components/map-with-place";
-import { RankingsFilters } from "@/components/rankings-filters.client";
+import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
@@ -25,10 +25,7 @@ export default async function Home({
       <div className="flex max-h-[45rem] flex-row gap-x-4">
         <div className="basis-1/3">
           <Suspense fallback={<div>Loading filters...</div>}>
-            <RankingsFilters
-              filters={filters}
-              criticsPromise={criticsPromise}
-            />
+            <RankingFilters filters={filters} critics={criticsPromise} />
           </Suspense>
         </div>
 
