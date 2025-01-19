@@ -2,6 +2,7 @@ import { queries, type Ranking } from "@/data/queries";
 import type { FiltersRankings } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -119,7 +120,9 @@ function RankingsTableRow({
         <div>
           <span className="w-full text-nowrap">{city}</span>
         </div>
-        <div className="font-medium">{productCategory}</div>
+        <div className="font-medium">
+          <CategoryBadge category={productCategory} />
+        </div>
         <div className="min-w-32" title={productNote ?? undefined}>
           <p className="line-clamp-2 font-medium">{productNote}</p>
         </div>
@@ -170,7 +173,9 @@ function RankingDialog({
               </>
             )}
           </DialogTitle>
-          <DialogDescription>{productCategory}</DialogDescription>
+          <DialogDescription>
+            <CategoryBadge category={productCategory} />
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2 space-x-2">

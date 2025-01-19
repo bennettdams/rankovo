@@ -223,7 +223,7 @@ function FilterButton({
   return (
     <div
       className={cn(
-        "select-none rounded-full px-3 py-1 hover:bg-primary hover:text-primary-fg active:scale-105 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+        "select-none rounded-full px-3 py-1 duration-200 hover:bg-primary hover:text-primary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onMouseDown={onMouseDown}
