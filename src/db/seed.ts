@@ -1,11 +1,11 @@
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { createRandomNumberBetween, pickRandomFromArray } from "@/lib/utils";
-import { asc } from "drizzle-orm";
+import { asc, sql } from "drizzle-orm";
 import {
   criticsTable,
   placesTable,
   productsTable,
-  ReviewCreate,
+  ReviewCreateDb,
   reviewsTable,
   usersTable,
 } from "./db-schema";
@@ -14,14 +14,17 @@ import { db } from "./drizzle-setup";
 const numOfReviews = 10_000;
 
 async function main() {
-  console.log("########## Seeding");
+  console.info("########## Seeding");
 
-  console.log("Delete all data");
+  console.info("Delete all data");
   await db.delete(reviewsTable).execute();
   await db.delete(criticsTable).execute();
   await db.delete(usersTable).execute();
   await db.delete(productsTable).execute();
   await db.delete(placesTable).execute();
+  // await db.execute(sql`TRUNCATE TABLE ${usersTable} RESTART IDENTITY;`);
+  await db.execute(sql`ALTER SEQUENCE products_id_seq RESTART WITH 1`);
+  await db.execute(sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`);
 
   await createPlaces();
   await createProducts();
@@ -30,7 +33,7 @@ async function main() {
   await createReviewsSpecific();
   // await createReviewsBulk();
 
-  console.log("########## Seeding done");
+  console.info("########## Seeding done");
 
   process.exit(0);
 }
@@ -64,18 +67,18 @@ async function createReviewsSpecific() {
 }
 
 async function createReviewsBulk() {
-  console.log("Create reviews");
+  console.info("Create reviews");
 
   const products = await db.select().from(productsTable);
   const users = await db.select().from(usersTable);
 
   for (let index = 0; index < numOfReviews; index++) {
-    if (index % 1000 === 0) console.log("index: ", index);
+    if (index % 1000 === 0) console.info("index: ", index);
 
     const product = pickRandomFromArray(products);
     const user = pickRandomFromArray(users);
 
-    const review: ReviewCreate = {
+    const review: ReviewCreateDb = {
       rating: createRandomNumberBetween({
         min: ratingLowest,
         max: ratingHighest,
@@ -92,7 +95,7 @@ async function createReviewsBulk() {
 }
 
 async function createProducts() {
-  console.log("Create products");
+  console.info("Create products");
 
   const places = await db.select().from(placesTable);
 
@@ -173,7 +176,7 @@ async function createProducts() {
 }
 
 async function createPlaces() {
-  console.log("Create places");
+  console.info("Create places");
 
   await db
     .insert(placesTable)
@@ -194,7 +197,7 @@ async function createPlaces() {
 }
 
 async function createCritics() {
-  console.log("Create critics");
+  console.info("Create critics");
 
   const userIdFirst = (
     await db
@@ -213,7 +216,7 @@ async function createCritics() {
 }
 
 async function createUsers() {
-  console.log("Create users");
+  console.info("Create users");
 
   await db
     .insert(usersTable)

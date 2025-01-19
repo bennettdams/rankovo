@@ -49,7 +49,7 @@ export const schemaCreateReview = createInsertSchema(reviewsTable)
     createdAt: true,
     updatedAt: true,
   });
-export type ReviewCreate = z.infer<typeof schemaCreateReview>;
+export type ReviewCreateDb = z.infer<typeof schemaCreateReview>;
 
 export const schemaUpdateReview = createUpdateSchema(reviewsTable).omit({
   reviewedAt: true,

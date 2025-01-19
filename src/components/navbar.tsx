@@ -32,6 +32,13 @@ export function Navbar() {
         <Link href="/reviews" className="transition-colors hover:text-primary">
           Reviews
         </Link>
+
+        <Link
+          href="/review/create"
+          className="transition-colors hover:text-primary"
+        >
+          Create
+        </Link>
       </nav>
 
       <Sheet>
