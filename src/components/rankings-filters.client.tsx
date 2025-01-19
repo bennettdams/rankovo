@@ -8,7 +8,7 @@ import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { startTransition, use, useOptimistic, useState } from "react";
+import { startTransition, useOptimistic, useState } from "react";
 import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -27,21 +27,7 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
   }
 }
 
-// TODO Separate RSC instead of `use` here?
-export function RankingsFilters({
-  filters: filtersFromSearchParams,
-  criticsPromise,
-}: {
-  filters: Promise<FiltersRankings>;
-  criticsPromise: Promise<CriticQuery[]>;
-}) {
-  const filters = use(filtersFromSearchParams);
-  const critics = use(criticsPromise);
-
-  return <FiltersRankingsInternal filters={filters} critics={critics} />;
-}
-
-function FiltersRankingsInternal({
+export function RankingsFiltersClient({
   filters: filtersExternal,
   critics,
 }: {
