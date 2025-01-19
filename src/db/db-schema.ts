@@ -1,4 +1,5 @@
 import { categories } from "@/data/static";
+import { schemaRating } from "@/lib/schemas";
 import {
   integer,
   pgTable,
@@ -45,17 +46,20 @@ export type Review = typeof reviewsTable.$inferSelect;
 
 export const schemaCreateReview = createInsertSchema(reviewsTable)
   .required()
+  .extend({ rating: schemaRating })
   .omit({
     createdAt: true,
     updatedAt: true,
   });
 export type ReviewCreateDb = z.infer<typeof schemaCreateReview>;
 
-export const schemaUpdateReview = createUpdateSchema(reviewsTable).omit({
-  reviewedAt: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const schemaUpdateReview = createUpdateSchema(reviewsTable)
+  .extend({ rating: schemaRating.optional() })
+  .omit({
+    reviewedAt: true,
+    createdAt: true,
+    updatedAt: true,
+  });
 export type ReviewUpdate = z.infer<typeof schemaUpdateReview>;
 
 export const placesTable = pgTable("places", {

@@ -23,7 +23,11 @@ function schemaSearchParamSingle<TSchema extends z.ZodSchema>(schema: TSchema) {
 
 export const schemaCategory = z.enum(categories);
 
-export const schemaRating = z.number().min(ratingLowest).max(ratingHighest);
+const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
+export const schemaRating = z
+  .number()
+  .min(ratingLowest, messageRating)
+  .max(ratingHighest, messageRating);
 
 export const schemaFiltersRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
