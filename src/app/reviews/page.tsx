@@ -23,6 +23,7 @@ async function ReviewsList() {
           <div>{review.rating}</div>
           <div>{review.username}</div>
           <div>{review.productName}</div>
+          <div>{review.city}</div>
           <div>created {review.createdAt.toISOString()}</div>
           <div>reviewed {review.reviewedAt.toISOString()}</div>
           <div>updated {review.updatedAt?.toISOString()}</div>

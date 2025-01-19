@@ -96,9 +96,12 @@ async function rankings(filters: FiltersRankings) {
     })
     .from(reviewsTable)
     .where(
-      !filters.categories
-        ? undefined
-        : inArray(productsTable.category, filters.categories),
+      and(
+        !filters.categories
+          ? undefined
+          : inArray(productsTable.category, filters.categories),
+        !filters.cities ? undefined : inArray(placesTable.city, filters.cities),
+      ),
     )
     // Joins ordered from largest to smallest tables for better performance
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
@@ -161,7 +164,7 @@ async function rankings(filters: FiltersRankings) {
     return true;
   });
 
-  return rankingsFiltered.sort((a, b) => b.rating - a.rating);
+  return rankingsFiltered.sort((a, b) => b.rating - a.rating).slice(0, 10);
 }
 
 const pageSizeReviews = 20;
@@ -180,11 +183,13 @@ async function reviews(page = 1) {
       updatedAt: reviewsTable.updatedAt,
       productName: productsTable.name,
       username: usersTable.name,
+      city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,
     })
     .from(reviewsTable)
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .orderBy(
       desc(reviewsTable.reviewedAt),
       desc(reviewsTable.updatedAt),

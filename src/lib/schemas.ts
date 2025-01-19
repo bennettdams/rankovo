@@ -1,4 +1,4 @@
-import { categories, ratingHighest, ratingLowest } from "@/data/static";
+import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
 import { z } from "zod";
 
 function schemaSearchParamMultiple<TSchema extends z.ZodSchema>(
@@ -22,6 +22,7 @@ function schemaSearchParamSingle<TSchema extends z.ZodSchema>(schema: TSchema) {
 }
 
 export const schemaCategory = z.enum(categories);
+export const schemaCity = z.enum(cities);
 
 const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
 export const schemaRating = z
@@ -33,6 +34,7 @@ export const schemaFiltersRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
   ratingMin: schemaSearchParamSingle(schemaRating),
   ratingMax: schemaSearchParamSingle(schemaRating),
+  cities: schemaSearchParamMultiple(schemaCity),
 });
 
 export type FiltersRankings = z.output<typeof schemaFiltersRankings>;

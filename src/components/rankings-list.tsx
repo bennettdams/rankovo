@@ -37,6 +37,7 @@ export async function RankingsList({
             productName={ranking.productName}
             productCategory={ranking.productCategory}
             productNote={ranking.productNote}
+            city={ranking.city}
             lastReviewedAt={ranking.lastReviewedAt}
             numOfReviews={ranking.numOfReviews}
             reviews={ranking.reviews}
@@ -55,6 +56,7 @@ function RankingsTableRow({
   productNote,
   lastReviewedAt,
   placeName,
+  city,
   numOfReviews,
   reviews,
   position,
@@ -65,6 +67,7 @@ function RankingsTableRow({
   productNote: Ranking["productNote"];
   lastReviewedAt: Ranking["lastReviewedAt"];
   placeName: Ranking["placeName"];
+  city: Ranking["city"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
   position: number;
@@ -76,6 +79,7 @@ function RankingsTableRow({
       productName={productName}
       productCategory={productCategory}
       productNote={productNote}
+      city={city}
       lastReviewedAt={lastReviewedAt}
       numOfReviews={numOfReviews}
       reviews={reviews}
@@ -112,6 +116,9 @@ function RankingsTableRow({
         <div>
           <span className="w-full text-nowrap">{placeName}</span>
         </div>
+        <div>
+          <span className="w-full text-nowrap">{city}</span>
+        </div>
         <div className="font-medium">{productCategory}</div>
         <div className="min-w-32" title={productNote ?? undefined}>
           <p className="line-clamp-2 font-medium">{productNote}</p>
@@ -132,6 +139,7 @@ function RankingDialog({
   productNote,
   lastReviewedAt,
   placeName,
+  city,
   numOfReviews,
   reviews,
   children,
@@ -142,6 +150,7 @@ function RankingDialog({
   productNote: Ranking["productNote"];
   lastReviewedAt: Ranking["lastReviewedAt"];
   placeName: Ranking["placeName"];
+  city: Ranking["city"];
   numOfReviews: Ranking["numOfReviews"];
   reviews: Ranking["reviews"];
   children: React.ReactNode;
@@ -154,6 +163,12 @@ function RankingDialog({
           <DialogTitle>
             <span className="text-xl">{productName}</span>
             <span className="ml-2 text-secondary">{placeName}</span>
+            {city && (
+              <>
+                <span className="ml-2 text-secondary">|</span>
+                <span className="ml-2 text-secondary">{city}</span>
+              </>
+            )}
           </DialogTitle>
           <DialogDescription>{productCategory}</DialogDescription>
         </DialogHeader>

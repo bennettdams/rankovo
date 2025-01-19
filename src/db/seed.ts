@@ -193,7 +193,7 @@ async function createPlaces() {
       "Ember & Oak",
     ].map((name) => ({
       name,
-      city: Math.random() < 0.33 ? null : pickRandomFromArray(cities),
+      city: Math.random() < 0.2 ? null : pickRandomFromArray(cities),
     })),
   );
 }

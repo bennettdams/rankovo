@@ -1,8 +1,7 @@
 "use client";
 
-import { actionCreateReview } from "@/data/actions";
 import { CriticQuery } from "@/data/queries";
-import { categories, ratingHighest, ratingLowest } from "@/data/static";
+import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
 import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
@@ -75,6 +74,7 @@ export function RankingsFiltersClient({
     startTransition(() => {
       setOptimisticFilters({
         categories: null,
+        cities: null,
         ratingMin: null,
         ratingMax: null,
       });
@@ -138,7 +138,7 @@ export function RankingsFiltersClient({
 
         <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
           {categories.map((category) => (
-            <CategoryFilterRow
+            <FilterButton
               key={category}
               isActive={
                 filters.categories === null
@@ -152,7 +152,7 @@ export function RankingsFiltersClient({
               }
             >
               <span className="capitalize">{category}</span>
-            </CategoryFilterRow>
+            </FilterButton>
           ))}
         </div>
       </div>
@@ -181,28 +181,37 @@ export function RankingsFiltersClient({
           ))}
         </div>
       </div>
+
+      <div>
+        <h3>City</h3>
+
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+          {cities.map((city) => (
+            <FilterButton
+              key={city}
+              isActive={
+                filters.cities === null ? true : filters.cities.includes(city)
+              }
+              onMouseDown={() =>
+                changeFilters({
+                  cities: updateArray(filters.cities, city),
+                })
+              }
+            >
+              <span className="capitalize">{city}</span>
+            </FilterButton>
+          ))}
+        </div>
+      </div>
+
       <div>
         <Button onMouseDown={() => clearFilters()}>Clear all</Button>
-      </div>
-      <div>
-        <Button
-          onMouseDown={() =>
-            actionCreateReview({
-              rating: 3.5,
-              note: "Some note",
-              reviewedAt: new Date(),
-              productId: 1,
-            })
-          }
-        >
-          Create
-        </Button>
       </div>
     </div>
   );
 }
 
-function CategoryFilterRow({
+function FilterButton({
   isActive,
   onMouseDown,
   children,

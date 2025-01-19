@@ -21,8 +21,7 @@ export default async function Home({
     <div className="pt-8 md:pt-12">
       <HeroSection />
 
-      {/* The max. height has to match the height of the rankings list with its number of entries. */}
-      <div className="flex max-h-[45rem] flex-row gap-x-4">
+      <div className="flex flex-row gap-x-4">
         <div className="basis-1/3">
           <Suspense fallback={<div>Loading filters...</div>}>
             <RankingFilters filters={filters} critics={criticsPromise} />
