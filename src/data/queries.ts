@@ -1,3 +1,4 @@
+import type { FiltersRankings } from "@/app/page";
 import {
   criticsTable,
   placesTable,
@@ -7,7 +8,6 @@ import {
   type Review,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import type { FiltersRankings } from "@/lib/schemas";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { dataKeys, type Category } from "./static";
@@ -101,6 +101,10 @@ async function rankings(filters: FiltersRankings) {
           ? undefined
           : inArray(productsTable.category, filters.categories),
         !filters.cities ? undefined : inArray(placesTable.city, filters.cities),
+        !filters.critics
+          ? undefined
+          : // would be safer to use the critic's ID instead of the name, but we want to show it in the URL
+            inArray(usersTable.name, filters.critics),
       ),
     )
     // Joins ordered from largest to smallest tables for better performance

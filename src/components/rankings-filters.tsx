@@ -1,5 +1,5 @@
+import type { FiltersRankings } from "@/app/page";
 import type { CriticQuery } from "@/data/queries";
-import type { FiltersRankings } from "@/lib/schemas";
 import { RankingsFiltersClient } from "./rankings-filters.client";
 
 export async function RankingFilters({

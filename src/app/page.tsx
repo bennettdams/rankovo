@@ -4,8 +4,24 @@ import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
-import { schemaFiltersRankings } from "@/lib/schemas";
+import { cities } from "@/data/static";
+import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
+import {
+  schemaSearchParamMultiple,
+  schemaSearchParamSingle,
+} from "@/lib/schemas";
 import { Suspense } from "react";
+import { z } from "zod";
+
+const schemaFiltersRankings = z.object({
+  categories: schemaSearchParamMultiple(schemaCategory),
+  cities: schemaSearchParamMultiple(z.enum(cities)),
+  critics: schemaSearchParamMultiple(schemaUsername),
+  ratingMin: schemaSearchParamSingle(schemaRating),
+  ratingMax: schemaSearchParamSingle(schemaRating),
+});
+
+export type FiltersRankings = z.output<typeof schemaFiltersRankings>;
 
 export default async function Home({
   searchParams,

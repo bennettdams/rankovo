@@ -1,5 +1,4 @@
-import { categories, cities } from "@/data/static";
-import { schemaRating } from "@/lib/schemas";
+import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
 import {
   integer,
   pgTable,
@@ -7,7 +6,11 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 import { z } from "zod";
 
 export const usersTable = pgTable("users", {
@@ -15,6 +18,7 @@ export const usersTable = pgTable("users", {
   name: varchar({ length: 255 }).notNull(),
 });
 export type User = typeof criticsTable.$inferSelect;
+export const schemaUsername = z.string().trim().min(1).max(30);
 
 export const criticsTable = pgTable("critics", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -45,6 +49,12 @@ export const reviewsTable = pgTable("reviews", {
 });
 
 export type Review = typeof reviewsTable.$inferSelect;
+
+const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
+export const schemaRating = z
+  .number()
+  .min(ratingLowest, messageRating)
+  .max(ratingHighest, messageRating);
 
 export const schemaCreateReview = createInsertSchema(reviewsTable)
   .required()
@@ -84,6 +94,8 @@ export const productsTable = pgTable("products", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
+
+export const schemaCategory = createSelectSchema(productsTable).shape.category;
 
 export type Product = typeof productsTable.$inferSelect;
 export type ProductCreate = Required<typeof productsTable.$inferInsert>;

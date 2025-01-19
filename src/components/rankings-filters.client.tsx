@@ -1,8 +1,8 @@
 "use client";
 
+import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
 import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
-import { type FiltersRankings } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
 import { cn, isKeyOfObj } from "@/lib/utils";
 import Image from "next/image";
@@ -75,6 +75,7 @@ export function RankingsFiltersClient({
       setOptimisticFilters({
         categories: null,
         cities: null,
+        critics: null,
         ratingMin: null,
         ratingMax: null,
       });
@@ -161,24 +162,38 @@ export function RankingsFiltersClient({
         <h3>Critics</h3>
 
         <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
-          {critics.map((critic) => (
-            <div
-              className="flex h-12 flex-row items-center rounded-full bg-tertiary text-tertiary-fg"
-              key={critic.id}
-            >
-              <div className="w-12 p-0">
-                <Image
-                  alt="Critic image"
-                  className="rounded-full object-cover"
-                  height="48"
-                  src="/image-placeholder.svg"
-                  width="48"
-                />
-              </div>
+          {critics.map((critic) => {
+            const isActive =
+              filters.critics === null
+                ? true
+                : filters.critics.includes(critic.name);
+            return (
+              <div
+                key={critic.id}
+                className={cn(
+                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-primary hover:text-primary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
+                )}
+                onMouseDown={() =>
+                  changeFilters({
+                    critics: updateArray(filters.critics, critic.name),
+                  })
+                }
+              >
+                <div className="w-12 p-0">
+                  <Image
+                    alt="Critic image"
+                    className="rounded-full object-cover"
+                    height="48"
+                    src="/image-placeholder.svg"
+                    width="48"
+                  />
+                </div>
 
-              <span className="pl-1.5 pr-2.5">{critic.name}</span>
-            </div>
-          ))}
+                <span className="pl-1.5 pr-2.5">{critic.name}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

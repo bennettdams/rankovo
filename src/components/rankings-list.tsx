@@ -1,5 +1,5 @@
+import type { FiltersRankings } from "@/app/page";
 import { queries, type Ranking } from "@/data/queries";
-import type { FiltersRankings } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
