@@ -209,9 +209,15 @@ async function createCritics() {
   if (!userIdFirst) throw new Error("No user found");
 
   await db.insert(criticsTable).values([
-    { userId: userIdFirst, url: "https://www.youtube.com/critic1" },
-    { userId: null, url: "https://www.instagram.com/critic2" },
-    { userId: userIdFirst + 2, url: "https://www.x.com/critic3" },
+    {
+      userId: userIdFirst,
+      url: "https://www.youtube.com/c/Holle21614",
+    },
+    { userId: userIdFirst + 1, url: "https://www.instagram.com/critic2" },
+    {
+      userId: userIdFirst + 2,
+      url: "https://www.x.com/critic3",
+    },
   ]);
 }
 
@@ -222,6 +228,8 @@ async function createUsers() {
     .insert(usersTable)
     .values([
       { name: "Holle21614" },
+      { name: "AbuGoku" },
+      { name: "Evanijo" },
       { name: "Bennett" },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },

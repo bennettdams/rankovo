@@ -201,7 +201,7 @@ async function critics() {
   return await db
     .select({ id: criticsTable.id, name: usersTable.name })
     .from(criticsTable)
-    .leftJoin(usersTable, eq(criticsTable.userId, usersTable.id));
+    .innerJoin(usersTable, eq(criticsTable.userId, usersTable.id));
 }
 export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
 

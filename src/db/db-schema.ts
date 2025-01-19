@@ -18,7 +18,9 @@ export type User = typeof criticsTable.$inferSelect;
 
 export const criticsTable = pgTable("critics", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").references(() => usersTable.id),
+  userId: integer("user_id")
+    .references(() => usersTable.id)
+    .notNull(),
   url: varchar({ length: 255 }).notNull(),
 });
 export type Critic = typeof criticsTable.$inferSelect;

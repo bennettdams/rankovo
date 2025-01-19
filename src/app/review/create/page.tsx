@@ -62,52 +62,56 @@ export default function PageReviewCreate() {
   const [state, formAction, pending] = useActionState(createReview, null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-y-4">
-      <Fieldset>
-        <Label htmlFor={formKeys.productId}>Product ID</Label>
-        <Input
-          name={formKeys.productId}
-          type="text"
-          placeholder="Product"
-          defaultValue={state?.values?.productId ?? ""}
-        />
-        <FieldError errorMsg={state?.errors?.productId} />
-      </Fieldset>
+    <div>
+      <h1 className="text-center text-3xl text-primary">Create Review</h1>
 
-      <Fieldset>
-        <Label htmlFor={formKeys.rating}>Rating</Label>
-        <Input
-          name={formKeys.rating}
-          type="number"
-          className="w-32"
-          step="0.1"
-          lang="en"
-          placeholder={`${ratingLowest} to ${ratingHighest}`}
-          defaultValue={state?.values?.rating ?? ""}
-        />
-        <FieldError errorMsg={state?.errors?.rating} />
-      </Fieldset>
+      <form action={formAction} className="mt-10 flex flex-col gap-y-4">
+        <Fieldset>
+          <Label htmlFor={formKeys.productId}>Product ID</Label>
+          <Input
+            name={formKeys.productId}
+            type="text"
+            placeholder="Product"
+            defaultValue={state?.values?.productId ?? ""}
+          />
+          <FieldError errorMsg={state?.errors?.productId} />
+        </Fieldset>
 
-      <Fieldset>
-        <Label htmlFor={formKeys.note}>Note</Label>
-        <Textarea
-          name={formKeys.note}
-          placeholder="Want to note something?"
-          defaultValue={state?.values?.note ?? ""}
-        />
-        <FieldError errorMsg={state?.errors?.note} />
-      </Fieldset>
+        <Fieldset>
+          <Label htmlFor={formKeys.rating}>Rating</Label>
+          <Input
+            name={formKeys.rating}
+            type="number"
+            className="w-32"
+            step="0.1"
+            lang="en"
+            placeholder={`${ratingLowest} to ${ratingHighest}`}
+            defaultValue={state?.values?.rating ?? ""}
+          />
+          <FieldError errorMsg={state?.errors?.rating} />
+        </Fieldset>
 
-      <Button className="w-min" type="submit" disabled={pending}>
-        {pending ? "Submitting..." : "Submit"}
-      </Button>
+        <Fieldset>
+          <Label htmlFor={formKeys.note}>Note</Label>
+          <Textarea
+            name={formKeys.note}
+            placeholder="Want to note something?"
+            defaultValue={state?.values?.note ?? ""}
+          />
+          <FieldError errorMsg={state?.errors?.note} />
+        </Fieldset>
 
-      {state?.success && (
-        <p aria-live="polite" className="text-green-700">
-          Review submitted successfully!
-        </p>
-      )}
-    </form>
+        <Button className="w-min" type="submit" disabled={pending}>
+          {pending ? "Submitting..." : "Submit"}
+        </Button>
+
+        {state?.success && (
+          <p aria-live="polite" className="text-green-700">
+            Review submitted successfully!
+          </p>
+        )}
+      </form>
+    </div>
   );
 }
 
