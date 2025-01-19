@@ -23,6 +23,7 @@ export default {
         tertiary: "var(--tertiary)",
         "tertiary-fg": "var(--tertiary-fg)",
         gray: "var(--gray)",
+        error: "var(--error)",
       },
     },
   },

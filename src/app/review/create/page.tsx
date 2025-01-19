@@ -1,6 +1,10 @@
 "use client";
 
-import { actionCreateReview, ReviewCreate } from "@/data/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { actionCreateReview, type ReviewCreate } from "@/data/actions";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
 import { useActionState } from "react";
@@ -58,57 +62,69 @@ export default function PageReviewCreate() {
   const [state, formAction, pending] = useActionState(createReview, null);
 
   return (
-    <form action={formAction}>
-      <fieldset>
-        <label htmlFor={formKeys.productId}>Product ID</label>
-        <input
+    <form action={formAction} className="flex flex-col gap-y-4">
+      <Fieldset>
+        <Label htmlFor={formKeys.productId}>Product ID</Label>
+        <Input
           name={formKeys.productId}
           type="text"
           placeholder="Product"
           defaultValue={state?.values?.productId ?? ""}
         />
-        {state?.errors?.productId && (
-          <p aria-live="polite">{state.errors.productId}</p>
-        )}
-      </fieldset>
+        <FieldError errorMsg={state?.errors?.productId} />
+      </Fieldset>
 
-      <fieldset>
-        <label htmlFor={formKeys.note}>Note</label>
-        <textarea
+      <Fieldset>
+        <Label htmlFor={formKeys.rating}>Rating</Label>
+        <Input
+          name={formKeys.rating}
+          type="number"
+          className="w-32"
+          step="0.1"
+          lang="en"
+          placeholder={`${ratingLowest} to ${ratingHighest}`}
+          defaultValue={state?.values?.rating ?? ""}
+        />
+        <FieldError errorMsg={state?.errors?.rating} />
+      </Fieldset>
+
+      <Fieldset>
+        <Label htmlFor={formKeys.note}>Note</Label>
+        <Textarea
           name={formKeys.note}
           placeholder="Want to note something?"
           defaultValue={state?.values?.note ?? ""}
         />
-        {state?.errors?.note && <p aria-live="polite">{state.errors.note}</p>}
-      </fieldset>
+        <FieldError errorMsg={state?.errors?.note} />
+      </Fieldset>
 
-      <fieldset>
-        <label htmlFor={formKeys.rating}>Rating</label>
-        <input
-          name={formKeys.rating}
-          type="number"
-          className="w-20"
-          min={ratingLowest}
-          max={ratingHighest}
-          step="0.1"
-          lang="en"
-          placeholder={`${ratingLowest} - ${ratingHighest}`}
-          defaultValue={state?.values?.rating ?? ""}
-        />
-        {state?.errors?.rating && (
-          <p aria-live="polite">{state.errors.rating}</p>
-        )}
-      </fieldset>
+      <Button className="w-min" type="submit" disabled={pending}>
+        {pending ? "Submitting..." : "Submit"}
+      </Button>
 
       {state?.success && (
         <p aria-live="polite" className="text-green-700">
           Review submitted successfully!
         </p>
       )}
-
-      <button type="submit" disabled={pending}>
-        {pending ? "Submitting..." : "Submit"}
-      </button>
     </form>
+  );
+}
+
+function Fieldset({ children }: { children: React.ReactNode }) {
+  return (
+    <fieldset className="grid w-full max-w-sm items-center gap-1.5">
+      {children}
+    </fieldset>
+  );
+}
+
+function FieldError({ errorMsg }: { errorMsg: string[] | undefined }) {
+  return (
+    errorMsg && (
+      <p aria-live="polite" className="text-error">
+        {errorMsg}
+      </p>
+    )
   );
 }

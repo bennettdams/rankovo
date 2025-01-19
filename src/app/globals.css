@@ -12,6 +12,7 @@
   --tertiary: #6c3e6e;
   --tertiary-fg: white;
   --gray: #d6d3d1;
+  --error: #9f3216;
 }
 
 @layer base {
