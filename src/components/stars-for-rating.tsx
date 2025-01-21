@@ -8,18 +8,25 @@ const fullStarLowerBound = 1;
 
 const starStyles = "fill-gray text-gray";
 
+const starSizes = {
+  small: "h-4 w-4",
+  medium: "h-6 w-6",
+  large: "h-8 w-8",
+};
+type StarSize = keyof typeof starSizes;
+
 const hoverableStyles =
   "active:scale-125 active:transition-transform peer peer-hover:fill-secondary hover:fill-secondary peer-hover:text-secondary hover:text-secondary";
 
 function StarForRating({
   rating,
   position,
-  size,
+  size = "medium",
   onMouseDown,
 }: {
   rating: number;
   position: 1 | 2 | 3 | 4 | 5;
-  size?: "small" | "medium";
+  size?: StarSize;
   onMouseDown?: () => void;
 }) {
   const lowerBoundCalculated =
@@ -33,7 +40,7 @@ function StarForRating({
     !isHalfStarActive &&
     rating >= fullStarLowerBound * position - halfStarUpperBound;
 
-  const starSize = size === "small" ? "h-4 w-4" : "h-6 w-6";
+  const starSize = starSizes[size];
 
   return (
     <>
@@ -73,7 +80,7 @@ export function StarsForRating({
   onMouseDown,
 }: {
   rating: number;
-  size?: "small" | "medium";
+  size?: StarSize;
   onMouseDown?: (ratingClicked: number) => void;
 }) {
   function handleClick(rating: number) {

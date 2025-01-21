@@ -1,5 +1,6 @@
 import type { FiltersRankings } from "@/app/page";
 import { queries, type Ranking } from "@/data/queries";
+import { formatDateTime } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
@@ -10,7 +11,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -163,48 +163,50 @@ function RankingDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="w-full md:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>
-            <span className="text-xl">{productName}</span>
-            <span className="ml-2 text-secondary">{placeName}</span>
-            {city && (
-              <>
-                <span className="ml-2 text-secondary">|</span>
-                <span className="ml-2 text-secondary">{city}</span>
-              </>
-            )}
+          <DialogTitle className="font-normal">
+            <div className="flex">
+              <div className="grow">
+                <p className="line-clamp-1 text-3xl">{productName}</p>
+
+                <div className="mt-4">
+                  <span className="text-xl text-secondary">{placeName}</span>
+
+                  {city && (
+                    <>
+                      <span className="ml-2 text-secondary">|</span>
+                      <span className="ml-2 text-secondary">{city}</span>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-4 flex flex-row items-center gap-2">
+                  <CategoryBadge category={productCategory} />
+                  <div
+                    className="line-clamp-1 flex-1"
+                    title={productNote ?? undefined}
+                  >
+                    {!productNote ? null : productNote}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                title={`Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`}
+                className="flex flex-col items-center gap-y-2 pr-10 text-center"
+              >
+                <p className="text-center text-5xl">{rating}</p>
+                <StarsForRating size="large" rating={rating} />
+
+                <div>
+                  <span className="font-bold">{numOfReviews}</span>
+                  <span className="ml-1.5">reviews</span>
+                </div>
+              </div>
+            </div>
           </DialogTitle>
-          <DialogDescription>
-            <CategoryBadge category={productCategory} />
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2 space-x-2">
-          <div className="grid grid-cols-6">
-            <div className="col-span-2 col-start-1 flex flex-col justify-center">
-              <div
-                className="line-clamp-1 flex-1"
-                title={productNote ?? undefined}
-              >
-                {!productNote ? null : productNote}
-              </div>
-
-              <div className="flex-1">
-                Last reviewed at:{" "}
-                <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
-              </div>
-            </div>
-
-            <div className="col-span-2 col-start-3">
-              <p className="text-center text-3xl">{rating}</p>
-              <StarsForRating rating={rating} />
-            </div>
-
-            <div className="col-span-2 col-start-5 flex items-center justify-start">
-              <span className="font-bold">{numOfReviews}</span>
-              <span className="ml-1.5">reviews</span>
-            </div>
-          </div>
-
+        <div>
           <div className="mt-6 w-full">
             <p className="font-bold">Last 20 reviews</p>
 
