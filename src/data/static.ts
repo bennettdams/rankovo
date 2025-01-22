@@ -27,6 +27,7 @@ export const dataKeys = {
   rankings: "rankings",
   reviews: "reviews",
   critics: "critics",
+  products: "products",
 };
 
 export const cities = [
@@ -41,3 +42,5 @@ export const cities = [
   "München",
   "Stuttgart",
 ] as const;
+
+export const minCharsSearchProduct = 3;

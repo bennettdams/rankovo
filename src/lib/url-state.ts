@@ -1,6 +1,8 @@
-export function stringifySearchParams(params: Record<string, unknown>): string {
+import type { ReadonlyURLSearchParams } from "next/navigation";
+
+export function stringifySearchParams(obj: Record<string, unknown>): string {
   const urlParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
+  Object.entries(obj).forEach(([key, value]) => {
     if (typeof value === "string") {
       urlParams.append(key, value);
     } else if (typeof value === "number") {
@@ -14,4 +16,15 @@ export function stringifySearchParams(params: Record<string, unknown>): string {
   });
 
   return urlParams.toString();
+}
+
+export function createQueryString(
+  name: string,
+  value: string,
+  searchParams: ReadonlyURLSearchParams,
+) {
+  const params = new URLSearchParams(searchParams.toString());
+  params.set(name, value);
+
+  return params.toString();
 }

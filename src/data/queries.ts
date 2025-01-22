@@ -8,7 +8,7 @@ import {
   type Review,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { dataKeys, type Category } from "./static";
 
@@ -217,4 +217,28 @@ async function critics() {
 }
 export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
 
-export const queries = { rankings, reviews, critics };
+async function searchProduct(productName: string) {
+  "use cache";
+  cacheTag(dataKeys.products, productName);
+  console.debug("🟦 QUERY searchProduct", productName);
+
+  return await db
+    .select({
+      id: productsTable.id,
+      name: productsTable.name,
+      category: productsTable.category,
+      note: productsTable.note,
+    })
+    .from(productsTable)
+    .where(ilike(productsTable.name, `%${productName}%`));
+}
+export type ProductSearchQuery = Awaited<
+  ReturnType<typeof searchProduct>
+>[number];
+
+export const queries = {
+  rankings,
+  reviews,
+  critics,
+  searchProduct,
+};
