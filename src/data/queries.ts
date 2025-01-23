@@ -10,7 +10,7 @@ import {
 import { db } from "@/db/drizzle-setup";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { dataKeys, type Category } from "./static";
+import { dataKeys, minCharsSearch, type Category } from "./static";
 
 export type Ranking = {
   id: number;
@@ -217,10 +217,20 @@ async function critics() {
 }
 export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
 
-async function searchProduct(productName: string) {
-  "use cache";
-  cacheTag(dataKeys.products, productName);
-  console.debug("🟦 QUERY searchProduct", productName);
+async function searchProduct({
+  productName,
+  placeName,
+}: {
+  productName: string | null;
+  placeName: string | null;
+}) {
+  console.debug(
+    "🟦 QUERY searchProduct",
+    " product: ",
+    productName,
+    " place: ",
+    placeName,
+  );
 
   return await db
     .select({
@@ -228,9 +238,20 @@ async function searchProduct(productName: string) {
       name: productsTable.name,
       category: productsTable.category,
       note: productsTable.note,
+      placeName: placesTable.name,
     })
     .from(productsTable)
-    .where(ilike(productsTable.name, `%${productName}%`));
+    .where(
+      and(
+        !productName || productName.length < minCharsSearch
+          ? undefined
+          : ilike(productsTable.name, `%${productName}%`),
+        !placeName || placeName.length < minCharsSearch
+          ? undefined
+          : ilike(placesTable.name, `%${placeName}%`),
+      ),
+    )
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
 }
 export type ProductSearchQuery = Awaited<
   ReturnType<typeof searchProduct>

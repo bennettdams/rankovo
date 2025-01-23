@@ -1,6 +1,6 @@
 "use server";
 
-import type { FormState } from "@/app/review/create/page";
+import type { FormState } from "@/app/review/create/create-review-form.client";
 import {
   type Review,
   type ReviewCreateDb,

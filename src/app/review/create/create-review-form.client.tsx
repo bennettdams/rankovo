@@ -1,20 +1,16 @@
 "use client";
 
+import { FieldError, Fieldset } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { actionCreateReview, type ReviewCreate } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
-import {
-  minCharsSearchProduct,
-  ratingHighest,
-  ratingLowest,
-} from "@/data/static";
+import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
-import { createQueryString } from "@/lib/url-state";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useActionState } from "react";
+import { ProductSearch } from "./product-search.client";
 
 const formKeys = {
   productId: "productId",
@@ -70,91 +66,23 @@ export function CreateReviewForm({
 }: {
   products: ProductSearchQuery[];
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const [state, formAction, isPendingAction] = useActionState(
     createReview,
     null,
   );
 
-  const query = searchParams.get("q") ?? null;
-
-  function updateSearchTerm(productName: string) {
-    if (productName === "") {
-      router.replace(pathname);
-    } else if (productName.length < minCharsSearchProduct) {
-      window.history.replaceState(
-        null,
-        "",
-        `?${createQueryString("q", productName, searchParams)}`,
-      );
-    } else {
-      router.replace(
-        pathname + "?" + createQueryString("q", productName, searchParams),
-        {
-          scroll: false,
-        },
-      );
-    }
-  }
-
   return (
-    <div>
-      <h1 className="text-center text-3xl text-primary">Create Review</h1>
-
+    <div className="flex flex-col gap-y-8">
       <div>
-        <h2>1. Search for a product</h2>
+        <h2 className="text-2xl">1. Search for a product</h2>
 
-        <Fieldset>
-          <Label htmlFor="filter-product-name">Filter by product name</Label>
-          <Input
-            name="filter-product-name"
-            type="text"
-            placeholder="e.g. Cheeseburger"
-            defaultValue={query ?? undefined}
-            onChange={(e) => updateSearchTerm(e.target.value)}
-          />
-        </Fieldset>
-
-        {!!query && (
-          <div className="mt-4">
-            {query.length < minCharsSearchProduct ? (
-              <p>Enter more characters</p>
-            ) : products.length === 0 ? (
-              <p>No products found</p>
-            ) : (
-              <div className="w-30 flex flex-row flex-wrap gap-2">
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    className="grid h-32 w-60 cursor-pointer rounded-md bg-white p-2 hover:bg-secondary hover:text-secondary-fg"
-                  >
-                    <p className="text-xl">{product.name}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        <Fieldset>
-          <Label htmlFor="filter-place-name">Filter by place name</Label>
-          <Input
-            name="filter-place-name"
-            type="text"
-            placeholder="e.g. Five Guys"
-            defaultValue={query ?? undefined}
-            onChange={(e) => updateSearchTerm(e.target.value)}
-          />
-        </Fieldset>
+        <ProductSearch products={products} />
       </div>
 
       <div>
-        <h2>2. Add your verdict</h2>
+        <h2 className="text-2xl">2. Add your verdict</h2>
 
-        <form action={formAction} className="mt-10 flex flex-col gap-y-4">
+        <form action={formAction} className="mt-10 flex flex-col">
           <Fieldset>
             <Label htmlFor={formKeys.productId}>Product ID</Label>
             <Input
@@ -202,23 +130,5 @@ export function CreateReviewForm({
         </form>
       </div>
     </div>
-  );
-}
-
-function Fieldset({ children }: { children: React.ReactNode }) {
-  return (
-    <fieldset className="grid w-full max-w-sm items-center gap-1.5">
-      {children}
-    </fieldset>
-  );
-}
-
-function FieldError({ errorMsg }: { errorMsg: string[] | undefined }) {
-  return (
-    errorMsg && (
-      <p aria-live="polite" className="text-error">
-        {errorMsg}
-      </p>
-    )
   );
 }

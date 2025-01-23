@@ -43,4 +43,4 @@ export const cities = [
   "Stuttgart",
 ] as const;
 
-export const minCharsSearchProduct = 3;
+export const minCharsSearch = 3;
