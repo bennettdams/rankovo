@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ProductSearchQuery } from "@/data/queries";
 import { minCharsSearch } from "@/data/static";
 import { stringifySearchParams } from "@/lib/url-state";
-import { isKeyOfObj } from "@/lib/utils";
+import { cn, isKeyOfObj } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SearchParamsCreateReview } from "./page";
 
@@ -17,8 +17,12 @@ const searchParamKeys = {
 
 export function ProductSearch({
   products,
+  selectedProductId,
+  onProductSelect,
 }: {
   products: ProductSearchQuery[];
+  selectedProductId: number | null;
+  onProductSelect: (productId: number) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -109,11 +113,17 @@ export function ProductSearch({
           (products.length === 0 ? (
             <p>No products found</p>
           ) : (
-            <div className="flex h-full flex-row gap-2 bg-red-100">
+            <div className="flex h-full flex-row gap-2">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="h-full w-52 min-w-52 cursor-pointer rounded-md bg-gray p-2 hover:bg-secondary hover:text-secondary-fg"
+                  onClick={() => onProductSelect(product.id)}
+                  className={cn(
+                    "h-32 w-52 min-w-52 cursor-pointer rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
+                    product.id === selectedProductId
+                      ? "bg-secondary text-secondary-fg"
+                      : "bg-gray hover:bg-secondary hover:text-secondary-fg",
+                  )}
                 >
                   <p className="text-xs">{product.name}</p>
                   <p className="text-xs">{product.category}</p>

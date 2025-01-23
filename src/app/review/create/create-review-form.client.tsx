@@ -9,7 +9,7 @@ import { actionCreateReview, type ReviewCreate } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ProductSearch } from "./product-search.client";
 
 const formKeys = {
@@ -70,26 +70,35 @@ export function CreateReviewForm({
     createReview,
     null,
   );
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null,
+  );
 
   return (
     <div className="flex flex-col gap-y-8">
       <div>
         <h2 className="text-2xl">1. Search for a product</h2>
 
-        <ProductSearch products={products} />
+        <FieldError errorMsg={state?.errors?.productId} />
+
+        <ProductSearch
+          products={products}
+          selectedProductId={selectedProductId}
+          onProductSelect={setSelectedProductId}
+        />
       </div>
 
       <div>
         <h2 className="text-2xl">2. Add your verdict</h2>
 
         <form action={formAction} className="mt-10 flex flex-col">
-          <Fieldset>
+          <Fieldset className="hidden">
             <Label htmlFor={formKeys.productId}>Product ID</Label>
             <Input
               name={formKeys.productId}
-              type="text"
+              type="hidden"
               placeholder="Product"
-              defaultValue={state?.values?.productId ?? ""}
+              defaultValue={selectedProductId ?? ""}
             />
             <FieldError errorMsg={state?.errors?.productId} />
           </Fieldset>
@@ -123,7 +132,7 @@ export function CreateReviewForm({
           </Button>
 
           {state?.success && (
-            <p aria-live="polite" className="text-green-700">
+            <p aria-live="polite" className="text-xl text-green-700">
               Review submitted successfully!
             </p>
           )}

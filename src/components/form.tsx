@@ -1,6 +1,16 @@
-export function Fieldset({ children }: { children: React.ReactNode }) {
+import { cn } from "@/lib/utils";
+
+export function Fieldset({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <fieldset className="grid w-80 items-center gap-1.5">{children}</fieldset>
+    <fieldset className={cn("grid w-80 items-center gap-1.5", className)}>
+      {children}
+    </fieldset>
   );
 }
 

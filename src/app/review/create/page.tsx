@@ -23,7 +23,7 @@ export default async function PageReviewCreate({
   return (
     <div>
       <h1 className="text-center text-3xl text-primary">Create a Review</h1>
-      <CreateReviewForm products={productsFound} />;
+      <CreateReviewForm products={productsFound} />
     </div>
   );
 }
