@@ -16,12 +16,14 @@ export function Fieldset({
 
 export function FieldError({
   errorMsg,
+  className,
 }: {
   errorMsg: string | string[] | undefined;
+  className?: string;
 }) {
   return (
     errorMsg && (
-      <p aria-live="polite" className="text-error">
+      <p aria-live="polite" className={cn("text-error", className)}>
         {errorMsg}
       </p>
     )

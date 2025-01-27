@@ -1,5 +1,6 @@
 "use client";
 
+import { CategoryBadge } from "@/components/category-badge";
 import { FieldError, Fieldset } from "@/components/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,7 @@ export function ProductSearch({
 }: {
   products: ProductSearchQuery[];
   selectedProductId: number | null;
-  onProductSelect: (productId: number) => void;
+  onProductSelect: (productId: number | null) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -67,9 +68,14 @@ export function ProductSearch({
     }
   }
 
+  const hasValidSearch =
+    (!!filters.productName && filters.productName.length >= minCharsSearch) ||
+    (!!filters.placeName && filters.placeName.length >= minCharsSearch);
+
   return (
-    <div className="mt-10 flex flex-row">
-      <div>
+    <div className="flex flex-col">
+      {/* INPUTS */}
+      <div className="flex items-start gap-x-6">
         <Fieldset>
           <Label htmlFor="filter-product-name">Filter by product name</Label>
           <Input
@@ -88,6 +94,8 @@ export function ProductSearch({
             }
           />
         </Fieldset>
+
+        <div className="hitespace-nowrap mt-6">&mdash; & &mdash;</div>
 
         <Fieldset>
           <Label htmlFor="filter-place-name">Filter by place name</Label>
@@ -108,27 +116,34 @@ export function ProductSearch({
         </Fieldset>
       </div>
 
-      <div className="ml-10 flex items-center overflow-x-auto">
-        {(!!filters.productName || !!filters.placeName) &&
+      {/* PRODUCTS LIST */}
+      <div className="mt-8 flex items-center overflow-x-auto">
+        {hasValidSearch &&
           (products.length === 0 ? (
             <p>No products found</p>
           ) : (
-            <div className="flex h-full flex-row gap-2">
+            <div className="flex h-full flex-row gap-x-4">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  onClick={() => onProductSelect(product.id)}
+                  onClick={() =>
+                    onProductSelect(
+                      product.id === selectedProductId ? null : product.id,
+                    )
+                  }
                   className={cn(
                     "h-32 w-52 min-w-52 cursor-pointer rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
                     product.id === selectedProductId
-                      ? "bg-secondary text-secondary-fg"
-                      : "bg-gray hover:bg-secondary hover:text-secondary-fg",
+                      ? "bg-primary text-primary-fg"
+                      : "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
                   )}
                 >
-                  <p className="text-xs">{product.name}</p>
-                  <p className="text-xs">{product.category}</p>
-                  <p className="text-xs">{product.note}</p>
-                  <p className="text-xs">{product.placeName}</p>
+                  <p className="line-clamp-2">{product.name + product.name}</p>
+                  <div className="flow-row flex items-center justify-start gap-x-1.5">
+                    <CategoryBadge size="sm" category={product.category} />
+                    <p className="text-xs">{product.placeName}</p>
+                  </div>
+                  <p className="line-clamp-1 text-xs">{product.note}</p>
                 </div>
               ))}
             </div>

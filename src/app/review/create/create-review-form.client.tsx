@@ -91,7 +91,13 @@ export function CreateReviewForm({
       <div>
         <h2 className="text-2xl">2. Add your verdict</h2>
 
-        <form action={formAction} className="mt-10 flex flex-col">
+        <form
+          action={(formData) => {
+            setSelectedProductId(null);
+            formAction(formData);
+          }}
+          className="flex flex-col gap-y-6"
+        >
           <Fieldset className="hidden">
             <Label htmlFor={formKeys.productId}>Product ID</Label>
             <Input

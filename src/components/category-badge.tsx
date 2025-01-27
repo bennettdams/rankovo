@@ -1,8 +1,25 @@
 import { Category } from "@/data/static";
+import { cn } from "@/lib/utils";
 
-export function CategoryBadge({ category }: { category: Category }) {
+const sizes = {
+  sm: "px-2 py-1 text-xs",
+  md: "px-3 py-1 text-sm",
+};
+
+export function CategoryBadge({
+  category,
+  size = "md",
+}: {
+  category: Category;
+  size?: keyof typeof sizes;
+}) {
   return (
-    <span className="rounded-full bg-gray px-3 py-1 text-sm font-medium capitalize text-fg">
+    <span
+      className={cn(
+        "rounded-full bg-gray font-medium capitalize text-fg",
+        sizes[size],
+      )}
+    >
       {category}
     </span>
   );

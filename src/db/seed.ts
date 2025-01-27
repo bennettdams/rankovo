@@ -180,6 +180,12 @@ async function createProducts() {
       placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
     },
     {
+      name: "Margarita",
+      category: "drinks",
+      note: Math.random() > 0.5 ? null : "Some product note",
+      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+    },
+    {
       name: "Steak Frites",
       category: "grill & barbecue",
       note: Math.random() > 0.5 ? null : "Some product note",
@@ -192,7 +198,19 @@ async function createProducts() {
       placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
     },
     {
-      name: "Margarita",
+      name: "Vegan Burger",
+      category: "burger",
+      note: Math.random() > 0.5 ? null : "Some product note",
+      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+    },
+    {
+      name: "Pancakes",
+      category: "breakfast",
+      note: Math.random() > 0.5 ? null : "Some product note",
+      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+    },
+    {
+      name: "Cappuccino",
       category: "drinks",
       note: Math.random() > 0.5 ? null : "Some product note",
       placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
