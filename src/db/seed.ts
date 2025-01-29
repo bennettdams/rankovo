@@ -11,7 +11,7 @@ import {
 } from "./db-schema";
 import { db } from "./drizzle-setup";
 
-const numOfReviews = 10_000;
+const numOfReviews = 1_000;
 
 async function main() {
   console.info("########## Seeding");
@@ -51,10 +51,24 @@ async function createReviewsSpecific() {
 
   await db.insert(reviewsTable).values([
     {
-      rating: 3,
+      rating: 5,
       note: null,
       productId,
       authorId: userId,
+      reviewedAt: new Date(),
+    },
+    {
+      rating: 2,
+      note: null,
+      productId,
+      authorId: userId2,
+      reviewedAt: new Date(),
+    },
+    {
+      rating: 2,
+      note: null,
+      productId,
+      authorId: userId2,
       reviewedAt: new Date(),
     },
     {

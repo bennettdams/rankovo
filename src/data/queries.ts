@@ -8,7 +8,17 @@ import {
   type Review,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  lte,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { dataKeys, minCharsSearch, type Category } from "./static";
 
@@ -46,9 +56,6 @@ export async function test() {
     .groupBy(reviewsTable.productId, reviewsTable.authorId)
     .as("latestReviews");
 
-  const sub = await db.select().from(latestReviews);
-  console.log("sub", sub);
-
   // Join products with the filtered reviews and calculate the average rating
   const averageRatings = db
     .select({
@@ -79,6 +86,14 @@ async function rankings(filters: FiltersRankings) {
 
   await new Promise((r) => setTimeout(r, 1000));
 
+  const filtersSQL: SQL[] = [];
+  if (filters.categories)
+    filtersSQL.push(inArray(productsTable.category, filters.categories));
+  if (filters.cities)
+    filtersSQL.push(inArray(placesTable.city, filters.cities));
+  if (filters.critics)
+    filtersSQL.push(inArray(usersTable.name, filters.critics));
+
   // TODO: Make sure to only take the latest review of each user
   const reviewsWithProducts = await db
     .select({
@@ -95,18 +110,10 @@ async function rankings(filters: FiltersRankings) {
       reviewedAt: reviewsTable.reviewedAt,
     })
     .from(reviewsTable)
-    .where(
-      and(
-        !filters.categories
-          ? undefined
-          : inArray(productsTable.category, filters.categories),
-        !filters.cities ? undefined : inArray(placesTable.city, filters.cities),
-        !filters.critics
-          ? undefined
-          : // would be safer to use the critic's ID instead of the name, but we want to show it in the URL
-            inArray(usersTable.name, filters.critics),
-      ),
-    )
+    .where(and(...filtersSQL))
+    // Ordering is not done here for performance reasons. We later cut off the reviews and then it is sorted.
+    // .orderBy(desc(reviewsTable.reviewedAt))
+    // -----------
     // Joins ordered from largest to smallest tables for better performance
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(usersTable.id, reviewsTable.authorId))
@@ -232,27 +239,84 @@ async function searchProduct({
     placeName,
   );
 
-  return await db
+  const filtersSQL: SQL[] = [];
+  if (!!productName && productName.length >= minCharsSearch)
+    filtersSQL.push(ilike(productsTable.name, `%${productName}%`));
+  if (!!placeName && placeName.length >= minCharsSearch)
+    filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
+
+  const numOfReviews = 10;
+
+  /** products & places for given filters */
+  const queryProductsFiltered = db
     .select({
       id: productsTable.id,
-      name: productsTable.name,
-      category: productsTable.category,
-      note: productsTable.note,
-      placeName: placesTable.name,
     })
     .from(productsTable)
-    .where(
+    .where(and(...filtersSQL))
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .as("queryProductsFiltered");
+
+  /** 10 last reviews for each product */
+  const queryReviewsRanked = db
+    .select({
+      productId: reviewsTable.productId,
+      rating: reviewsTable.rating,
+      rowNumber: sql<number>`row_number() over (
+        partition by ${reviewsTable.productId}
+        order by ${reviewsTable.reviewedAt} desc
+      )`.as("rowNumber"),
+    })
+    .from(reviewsTable)
+    .innerJoin(
+      queryProductsFiltered,
+      eq(reviewsTable.productId, queryProductsFiltered.id),
+    )
+    .as("queryReviewsRanked");
+
+  /**
+   * rating aggregation, so it later can also be used for ordering after grouping
+   *
+   * TODO would it make sense to use queryProductsFiltered instead of productsTable here?
+   */
+  const queryProductsAggregated = db
+    .select({
+      id: productsTable.id,
+      productName: productsTable.name,
+      category: productsTable.category,
+      placeId: productsTable.placeId,
+      note: productsTable.note,
+      averageRating: sql`avg(${queryReviewsRanked.rating})`
+        .mapWith(Number)
+        .as("averageRating"),
+    })
+    .from(productsTable)
+    .innerJoin(
+      queryReviewsRanked,
       and(
-        !productName || productName.length < minCharsSearch
-          ? undefined
-          : ilike(productsTable.name, `%${productName}%`),
-        !placeName || placeName.length < minCharsSearch
-          ? undefined
-          : ilike(placesTable.name, `%${placeName}%`),
+        eq(productsTable.id, queryReviewsRanked.productId),
+        lte(queryReviewsRanked.rowNumber, numOfReviews),
       ),
     )
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
+    .groupBy(productsTable.id)
+    .as("queryProductsAggregated");
+
+  const queryProductsFinal = db
+    .select({
+      id: queryProductsAggregated.id,
+      productName: queryProductsAggregated.productName,
+      category: queryProductsAggregated.category,
+      note: queryProductsAggregated.note,
+      placeName: placesTable.name,
+      averageRating: queryProductsAggregated.averageRating,
+    })
+    .from(queryProductsAggregated)
+    .orderBy(desc(queryProductsAggregated.averageRating))
+    .leftJoin(placesTable, eq(queryProductsAggregated.placeId, placesTable.id));
+
+  return await queryProductsFinal;
 }
+
 export type ProductSearchQuery = Awaited<
   ReturnType<typeof searchProduct>
 >[number];

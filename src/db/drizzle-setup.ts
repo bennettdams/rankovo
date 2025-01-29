@@ -7,4 +7,7 @@ loadEnvConfig(projectDir);
 
 const client = postgres(process.env.DATABASE_URL!);
 
-export const db = drizzle({ client });
+export const db = drizzle({
+  client,
+  // logger: process.env.NODE_ENV === "development" ? true : undefined,
+});
