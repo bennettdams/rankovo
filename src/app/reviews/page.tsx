@@ -1,3 +1,4 @@
+import { NumberFormatted } from "@/components/number-formatted";
 import { queries } from "@/data/queries";
 import { Suspense } from "react";
 import { ReviewListItem } from "./review-list-item.client";
@@ -20,7 +21,7 @@ async function ReviewsList() {
       {reviews.map((review) => (
         <ReviewListItem key={review.id} review={review}>
           <div>{review.id}</div>
-          <div>{review.rating}</div>
+          <NumberFormatted num={review.rating} min={1} max={1} />
           <div>{review.username}</div>
           <div>{review.productName}</div>
           <div>{review.city}</div>

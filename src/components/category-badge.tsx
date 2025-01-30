@@ -2,7 +2,7 @@ import { Category } from "@/data/static";
 import { cn } from "@/lib/utils";
 
 const sizes = {
-  sm: "px-2 py-1 text-xs",
+  sm: "px-2 py-0.5 text-xs",
   md: "px-3 py-1 text-sm",
 };
 

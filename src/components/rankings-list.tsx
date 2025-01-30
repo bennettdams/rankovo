@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
+import { NumberFormatted } from "./number-formatted";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 import {
@@ -216,7 +217,7 @@ function RankingDialog({
                   className="col-span-12 grid h-6 grid-cols-subgrid items-center"
                   key={review.id}
                 >
-                  <p>{review.rating}</p>
+                  <NumberFormatted num={review.rating} min={1} max={1} />
 
                   <div className="flex items-center justify-start">
                     <StarsForRating size="small" rating={review.rating} />
