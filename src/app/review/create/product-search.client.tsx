@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductSearchQuery } from "@/data/queries";
 import { minCharsSearch } from "@/data/static";
-import { stringifySearchParams } from "@/lib/url-state";
-import { cn, isKeyOfObj } from "@/lib/utils";
+import {
+  prepareFiltersForUpdate,
+  stringifySearchParams,
+} from "@/lib/url-state";
+import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SearchParamsCreateReview } from "./page";
 
@@ -57,16 +60,9 @@ export function ProductSearch({
   function changeFilters(
     filtersUpdatedPartial: Partial<SearchParamsCreateReview>,
   ) {
-    // a bit of overhead, but this way we save a network request (as updating search params also reloads the RSC page)
-    const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
-      if (isKeyOfObj(filters, key)) {
-        return filters[key] !== filtersUpdatedPartial[key];
-      }
-    });
-
-    if (hasChanged) {
-      const filtersMerged = { ...filters, ...filtersUpdatedPartial };
-      updateSearchParams(filtersMerged);
+    const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
+    if (filtersNew) {
+      updateSearchParams(filtersNew);
     }
   }
 

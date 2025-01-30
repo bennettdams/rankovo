@@ -280,6 +280,10 @@ async function createCritics() {
       userId: userIdFirst + 3,
       url: "https://www.youtube.com/playlist?list=PLsksxTH4pR3JcsqeJahL_3JMwPgAf1DsX",
     },
+    {
+      userId: userIdFirst + 4,
+      url: "https://www.youtube.com/@JunkFoodGuru/videos",
+    },
   ]);
 }
 
@@ -293,6 +297,7 @@ async function createUsers() {
       { name: "AbuGoku" },
       { name: "Evanijo" },
       { name: "Colin Gäbel" },
+      { name: "JunkFoodGuru" },
       { name: "Bennett" },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },

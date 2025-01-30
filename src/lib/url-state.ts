@@ -1,4 +1,5 @@
 import type { ReadonlyURLSearchParams } from "next/navigation";
+import { isKeyOfObj } from "./utils";
 
 export function stringifySearchParams(obj: Record<string, unknown>): string {
   const urlParams = new URLSearchParams();
@@ -28,4 +29,24 @@ export function createQueryString(
   params.set(name, value);
 
   return params.toString();
+}
+
+export function prepareFiltersForUpdate<
+  TFilters extends Record<string, unknown>,
+>(
+  filtersUpdatedPartial: NoInfer<Partial<TFilters>>,
+  filtersExisting: TFilters,
+): TFilters | false {
+  // a bit of overhead, but this way we save a network request (as updating search params also reloads the RSC page)
+  const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
+    if (isKeyOfObj(filtersExisting, key)) {
+      return filtersExisting[key] !== filtersUpdatedPartial[key];
+    }
+  });
+
+  if (hasChanged) {
+    return { ...filtersExisting, ...filtersUpdatedPartial };
+  } else {
+    return false;
+  }
 }

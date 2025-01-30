@@ -3,8 +3,11 @@
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
 import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
-import { stringifySearchParams } from "@/lib/url-state";
-import { cn, isKeyOfObj } from "@/lib/utils";
+import {
+  prepareFiltersForUpdate,
+  stringifySearchParams,
+} from "@/lib/url-state";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
@@ -51,19 +54,9 @@ export function RankingsFiltersClient({
   }
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
-    // a bit of overhead, but this way we save a network request (as updating search params also reloads the RSC page)
-    const hasChanged = Object.keys(filtersUpdatedPartial).some((key) => {
-      if (isKeyOfObj(filters, key)) {
-        return filters[key] !== filtersUpdatedPartial[key];
-      }
-    });
-
-    if (hasChanged) {
-      startTransition(() => {
-        const filtersMerged = { ...filters, ...filtersUpdatedPartial };
-        setOptimisticFilters(filtersMerged);
-        updateSearchParams(filtersMerged);
-      });
+    const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
+    if (filtersNew) {
+      updateSearchParams(filtersNew);
     }
   }
 
