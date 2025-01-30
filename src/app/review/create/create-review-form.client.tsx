@@ -77,7 +77,9 @@ export function CreateReviewForm({
   return (
     <div className="flex flex-col gap-y-8">
       <div>
-        <h2 className="text-2xl">1. Search for a product</h2>
+        <h2 className="mb-4 text-2xl text-secondary">
+          1. Search for a product
+        </h2>
 
         <FieldError errorMsg={state?.errors?.productId} />
 
@@ -89,7 +91,7 @@ export function CreateReviewForm({
       </div>
 
       <div>
-        <h2 className="text-2xl">2. Add your verdict</h2>
+        <h2 className="mb-4 text-2xl text-secondary">2. Add your verdict</h2>
 
         <form
           action={(formData) => {
@@ -97,6 +99,7 @@ export function CreateReviewForm({
             formAction(formData);
           }}
           className="flex flex-col gap-y-6"
+          noValidate
         >
           <Fieldset className="hidden">
             <Label htmlFor={formKeys.productId}>Product ID</Label>
@@ -115,7 +118,6 @@ export function CreateReviewForm({
               name={formKeys.rating}
               type="number"
               className="w-32"
-              step="0.1"
               lang="en"
               placeholder={`${ratingLowest} to ${ratingHighest}`}
               defaultValue={state?.values?.rating ?? ""}

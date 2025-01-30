@@ -1,4 +1,6 @@
+import { DateTime } from "@/components/date-time";
 import { NumberFormatted } from "@/components/number-formatted";
+import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
 import { Suspense } from "react";
 import { ReviewListItem } from "./review-list-item.client";
@@ -20,15 +22,25 @@ async function ReviewsList() {
     <div className="grid gap-2 overflow-x-scroll">
       {reviews.map((review) => (
         <ReviewListItem key={review.id} review={review}>
-          <div>{review.id}</div>
-          <NumberFormatted num={review.rating} min={1} max={1} />
-          <div>{review.username}</div>
           <div>{review.productName}</div>
-          <div>{review.city}</div>
-          <div>created {review.createdAt.toISOString()}</div>
-          <div>reviewed {review.reviewedAt.toISOString()}</div>
-          <div>updated {review.updatedAt?.toISOString()}</div>
+          <NumberFormatted num={review.rating} min={2} max={2} />
+          <StarsForRating rating={review.rating} />
+          <div>{review.username}</div>
           <div>{review.note}</div>
+          <div>{review.placeName}</div>
+          <div>{review.city}</div>
+          <div>
+            Reviewed at{" "}
+            <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+          </div>
+          <div>
+            Updated{" "}
+            {!review.updatedAt ? (
+              "-"
+            ) : (
+              <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
+            )}
+          </div>
         </ReviewListItem>
       ))}
     </div>

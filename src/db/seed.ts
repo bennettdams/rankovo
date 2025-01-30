@@ -276,6 +276,10 @@ async function createCritics() {
       userId: userIdFirst + 2,
       url: "https://www.x.com/critic3",
     },
+    {
+      userId: userIdFirst + 3,
+      url: "https://www.youtube.com/playlist?list=PLsksxTH4pR3JcsqeJahL_3JMwPgAf1DsX",
+    },
   ]);
 }
 
@@ -288,6 +292,7 @@ async function createUsers() {
       { name: "Holle21614" },
       { name: "AbuGoku" },
       { name: "Evanijo" },
+      { name: "Colin Gäbel" },
       { name: "Bennett" },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },

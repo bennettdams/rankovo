@@ -87,7 +87,7 @@ export function RankingsFiltersClient({
   return (
     <div className="flex flex-col gap-y-10">
       <div>
-        <h3>Rating</h3>
+        <h3 className="font-medium">Rating</h3>
 
         <div className="mt-4 flex flex-col items-center justify-start">
           <span className="text-3xl">
@@ -135,7 +135,7 @@ export function RankingsFiltersClient({
       </div>
 
       <div>
-        <h3>Categories</h3>
+        <h3 className="font-medium">Categories</h3>
 
         <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
           {categories.map((category) => (
@@ -159,7 +159,7 @@ export function RankingsFiltersClient({
       </div>
 
       <div>
-        <h3>Critics</h3>
+        <h3 className="font-medium">Critics</h3>
 
         <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
           {critics.map((critic) => {
@@ -171,7 +171,7 @@ export function RankingsFiltersClient({
               <div
                 key={critic.id}
                 className={cn(
-                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-primary hover:text-primary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
                   isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
                 )}
                 onMouseDown={() =>
@@ -198,7 +198,7 @@ export function RankingsFiltersClient({
       </div>
 
       <div>
-        <h3>City</h3>
+        <h3 className="font-medium">City</h3>
 
         <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
           {cities.map((city) => (
@@ -238,7 +238,7 @@ function FilterButton({
   return (
     <div
       className={cn(
-        "select-none rounded-full px-3 py-1 duration-200 hover:bg-primary hover:text-primary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+        "select-none rounded-full px-3 py-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
         isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
       )}
       onMouseDown={onMouseDown}

@@ -193,6 +193,7 @@ async function reviews(page = 1) {
       createdAt: reviewsTable.createdAt,
       updatedAt: reviewsTable.updatedAt,
       productName: productsTable.name,
+      placeName: placesTable.name,
       username: usersTable.name,
       city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,

@@ -1,5 +1,6 @@
 import { queries } from "@/data/queries";
 import { schemaSearchParamSingle } from "@/lib/schemas";
+import { NotepadText } from "lucide-react";
 import { z } from "zod";
 import { CreateReviewForm } from "./create-review-form.client";
 
@@ -22,7 +23,10 @@ export default async function PageReviewCreate({
 
   return (
     <div>
-      <h1 className="text-center text-3xl text-primary">Create a Review</h1>
+      <h1 className="mb-20 mt-10 flex flex-col items-center text-center text-4xl text-primary">
+        <NotepadText className="size-14 text-secondary" />
+        <span className="mt-6">Create a review</span>
+      </h1>
       <CreateReviewForm products={productsFound} />
     </div>
   );

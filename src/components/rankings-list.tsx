@@ -217,7 +217,7 @@ function RankingDialog({
                   className="col-span-12 grid h-6 grid-cols-subgrid items-center"
                   key={review.id}
                 >
-                  <NumberFormatted num={review.rating} min={1} max={1} />
+                  <NumberFormatted num={review.rating} min={2} max={2} />
 
                   <div className="flex items-center justify-start">
                     <StarsForRating size="small" rating={review.rating} />
