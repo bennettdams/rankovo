@@ -9,6 +9,7 @@ import { actionCreateReview, type ReviewCreate } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
+import { Save } from "lucide-react";
 import { useActionState, useState } from "react";
 import { ProductSearch } from "./product-search.client";
 
@@ -136,12 +137,12 @@ export function CreateReviewForm({
           </Fieldset>
 
           <Button className="w-min" type="submit" disabled={isPendingAction}>
-            {isPendingAction ? "Submitting..." : "Submit"}
+            <Save /> {isPendingAction ? "Saving..." : "Save"}
           </Button>
 
           {state?.success && (
             <p aria-live="polite" className="text-xl text-green-700">
-              Review submitted successfully!
+              Review saved successfully!
             </p>
           )}
         </form>
