@@ -99,13 +99,8 @@ export function RankingsFiltersClient({
         )}
       </div>
 
-      <div>
-        <div className="flex items-center">
-          <h3 className="text-xl font-medium">Categories</h3>
-          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
-        </div>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+      <FilterRow label="Categories">
+        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {categories.map((category) => (
             <FilterButton
               key={category}
@@ -124,15 +119,10 @@ export function RankingsFiltersClient({
             </FilterButton>
           ))}
         </div>
-      </div>
+      </FilterRow>
 
-      <div>
-        <div className="flex items-center">
-          <h3 className="text-xl font-medium">Critics</h3>
-          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
-        </div>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+      <FilterRow label="Critics">
+        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {critics.map((critic) => {
             const isActive =
               filters.critics === null
@@ -166,15 +156,10 @@ export function RankingsFiltersClient({
             );
           })}
         </div>
-      </div>
+      </FilterRow>
 
-      <div>
-        <div className="flex items-center">
-          <h3 className="text-xl font-medium">City</h3>
-          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
-        </div>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+      <FilterRow label="Critics">
+        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {cities.map((city) => (
             <FilterButton
               key={city}
@@ -191,15 +176,10 @@ export function RankingsFiltersClient({
             </FilterButton>
           ))}
         </div>
-      </div>
+      </FilterRow>
 
-      <div>
-        <div className="flex items-center">
-          <h3 className="text-xl font-medium">Rating</h3>
-          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
-        </div>
-
-        <div className="mt-4 flex flex-col items-center justify-start">
+      <FilterRow label="Rating">
+        <div className="flex flex-col items-center justify-start">
           <span className="text-3xl">
             {ratingMinUncommited || ratingMaxUncommited
               ? `${ratingMinToShow} - ${ratingMaxToShow}`
@@ -242,7 +222,7 @@ export function RankingsFiltersClient({
             />
           </div>
         </div>
-      </div>
+      </FilterRow>
     </div>
   );
 }
@@ -264,6 +244,25 @@ function FilterButton({
       )}
       onMouseDown={onMouseDown}
     >
+      {children}
+    </div>
+  );
+}
+
+function FilterRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="mb-4 flex items-center">
+        <h3 className="text-xl font-medium">{label}</h3>
+        <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+      </div>
+
       {children}
     </div>
   );
