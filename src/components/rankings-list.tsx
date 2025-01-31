@@ -116,7 +116,7 @@ function RankingsTableRow({
           <StarsForRating rating={rating} size="small" />
         </div>
         <div>
-          <span className="w-full text-nowrap">{placeName}</span>
+          <span className="w-full text-nowrap text-secondary">{placeName}</span>
         </div>
         <div>
           <span className="w-full text-nowrap">{city}</span>

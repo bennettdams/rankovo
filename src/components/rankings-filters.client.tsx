@@ -8,6 +8,7 @@ import {
   stringifySearchParams,
 } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
+import { FilterX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
@@ -56,7 +57,10 @@ export function RankingsFiltersClient({
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
     if (filtersNew) {
-      updateSearchParams(filtersNew);
+      startTransition(() => {
+        setOptimisticFilters(filtersNew);
+        updateSearchParams(filtersNew);
+      });
     }
   }
 
@@ -77,10 +81,123 @@ export function RankingsFiltersClient({
     });
   }
 
+  const hasFilters = Object.values(filters).some((x) => x !== null);
+
   return (
     <div className="flex flex-col gap-y-10">
+      <div className="relative">
+        <h2 className="text-center text-2xl text-secondary">Filters</h2>
+        {hasFilters && (
+          <Button
+            onMouseDown={() => clearFilters()}
+            variant="outline"
+            size="sm"
+            className="absolute left-0 top-0 flex items-center"
+          >
+            <FilterX /> <span>Clear</span>
+          </Button>
+        )}
+      </div>
+
       <div>
-        <h3 className="font-medium">Rating</h3>
+        <div className="flex items-center">
+          <h3 className="text-xl font-medium">Categories</h3>
+          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+        </div>
+
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <FilterButton
+              key={category}
+              isActive={
+                filters.categories === null
+                  ? true
+                  : filters.categories.includes(category)
+              }
+              onMouseDown={() =>
+                changeFilters({
+                  categories: updateArray(filters.categories, category),
+                })
+              }
+            >
+              <span className="capitalize">{category}</span>
+            </FilterButton>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center">
+          <h3 className="text-xl font-medium">Critics</h3>
+          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+        </div>
+
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+          {critics.map((critic) => {
+            const isActive =
+              filters.critics === null
+                ? true
+                : filters.critics.includes(critic.name);
+            return (
+              <div
+                key={critic.id}
+                className={cn(
+                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
+                )}
+                onMouseDown={() =>
+                  changeFilters({
+                    critics: updateArray(filters.critics, critic.name),
+                  })
+                }
+              >
+                <div className="w-12 p-0">
+                  <Image
+                    alt="Critic image"
+                    className="rounded-full object-cover"
+                    height="48"
+                    src="/image-placeholder.svg"
+                    width="48"
+                  />
+                </div>
+
+                <span className="pl-1.5 pr-2.5">{critic.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center">
+          <h3 className="text-xl font-medium">City</h3>
+          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+        </div>
+
+        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
+          {cities.map((city) => (
+            <FilterButton
+              key={city}
+              isActive={
+                filters.cities === null ? true : filters.cities.includes(city)
+              }
+              onMouseDown={() =>
+                changeFilters({
+                  cities: updateArray(filters.cities, city),
+                })
+              }
+            >
+              <span className="capitalize">{city}</span>
+            </FilterButton>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center">
+          <h3 className="text-xl font-medium">Rating</h3>
+          <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+        </div>
 
         <div className="mt-4 flex flex-col items-center justify-start">
           <span className="text-3xl">
@@ -125,95 +242,6 @@ export function RankingsFiltersClient({
             />
           </div>
         </div>
-      </div>
-
-      <div>
-        <h3 className="font-medium">Categories</h3>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <FilterButton
-              key={category}
-              isActive={
-                filters.categories === null
-                  ? true
-                  : filters.categories.includes(category)
-              }
-              onMouseDown={() =>
-                changeFilters({
-                  categories: updateArray(filters.categories, category),
-                })
-              }
-            >
-              <span className="capitalize">{category}</span>
-            </FilterButton>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="font-medium">Critics</h3>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
-          {critics.map((critic) => {
-            const isActive =
-              filters.critics === null
-                ? true
-                : filters.critics.includes(critic.name);
-            return (
-              <div
-                key={critic.id}
-                className={cn(
-                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
-                  isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
-                )}
-                onMouseDown={() =>
-                  changeFilters({
-                    critics: updateArray(filters.critics, critic.name),
-                  })
-                }
-              >
-                <div className="w-12 p-0">
-                  <Image
-                    alt="Critic image"
-                    className="rounded-full object-cover"
-                    height="48"
-                    src="/image-placeholder.svg"
-                    width="48"
-                  />
-                </div>
-
-                <span className="pl-1.5 pr-2.5">{critic.name}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="font-medium">City</h3>
-
-        <div className="col-start-2 row-start-2 mt-4 flex flex-wrap gap-2">
-          {cities.map((city) => (
-            <FilterButton
-              key={city}
-              isActive={
-                filters.cities === null ? true : filters.cities.includes(city)
-              }
-              onMouseDown={() =>
-                changeFilters({
-                  cities: updateArray(filters.cities, city),
-                })
-              }
-            >
-              <span className="capitalize">{city}</span>
-            </FilterButton>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Button onMouseDown={() => clearFilters()}>Clear all</Button>
       </div>
     </div>
   );
