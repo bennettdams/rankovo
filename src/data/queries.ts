@@ -93,6 +93,8 @@ async function rankings(filters: FiltersRankings) {
     filtersSQL.push(inArray(placesTable.city, filters.cities));
   if (filters.critics)
     filtersSQL.push(inArray(usersTable.name, filters.critics));
+  if (!!filters.productName && filters.productName.length >= minCharsSearch)
+    filtersSQL.push(ilike(productsTable.name, `%${filters.productName}%`));
 
   // TODO: Make sure to only take the latest review of each user
   const reviewsWithProducts = await db

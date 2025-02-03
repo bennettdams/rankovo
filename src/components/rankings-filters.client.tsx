@@ -2,7 +2,13 @@
 
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
-import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
+import {
+  categories,
+  cities,
+  minCharsSearch,
+  ratingHighest,
+  ratingLowest,
+} from "@/data/static";
 import {
   prepareFiltersForUpdate,
   stringifySearchParams,
@@ -12,9 +18,11 @@ import { FilterX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
+import { FieldError } from "./form";
 import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 function updateArray<T extends string>(arr: T[] | null, entry: T) {
   if (arr === null) {
@@ -51,7 +59,12 @@ export function RankingsFiltersClient({
 
   function updateSearchParams(newFilters: FiltersRankings) {
     const queryString = stringifySearchParams(newFilters);
-    router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
+
+    // We might use native history here for "product name < min search", but trying it out showed that updated search params produce weird in-between states
+    //  window.history.replaceState(null, "", pathWithQuery);
+    router.replace(queryString ? `/?${queryString}` : "/", {
+      scroll: false,
+    });
   }
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
@@ -75,13 +88,14 @@ export function RankingsFiltersClient({
         critics: null,
         ratingMin: null,
         ratingMax: null,
+        productName: null,
       });
 
       router.push("/", { scroll: false });
     });
   }
 
-  const hasFilters = Object.values(filters).some((x) => x !== null);
+  const hasFilters = Object.values(filters).every((x) => !!x);
 
   return (
     <div className="flex flex-col gap-y-10">
@@ -119,6 +133,23 @@ export function RankingsFiltersClient({
             </FilterButton>
           ))}
         </div>
+      </FilterRow>
+
+      <FilterRow label="Product name">
+        <Input
+          name="filter-product-name"
+          type="text"
+          placeholder="e.g. Cheeseburger"
+          defaultValue={filters.productName ?? undefined}
+          onChange={(e) => changeFilters({ productName: e.target.value })}
+        />
+        <FieldError
+          errorMsg={
+            !!filters.productName && filters.productName.length < minCharsSearch
+              ? `At least ${minCharsSearch} characters`
+              : undefined
+          }
+        />
       </FilterRow>
 
       <FilterRow label="Critics">

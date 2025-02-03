@@ -19,6 +19,7 @@ const schemaFiltersRankings = z.object({
   critics: schemaSearchParamMultiple(schemaUsername),
   ratingMin: schemaSearchParamSingle(schemaRating, "number"),
   ratingMax: schemaSearchParamSingle(schemaRating, "number"),
+  productName: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 
 export type FiltersRankings = z.output<typeof schemaFiltersRankings>;
