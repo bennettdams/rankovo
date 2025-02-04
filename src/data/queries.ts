@@ -307,10 +307,11 @@ async function searchProduct({
   const queryProductsFinal = db
     .select({
       id: queryProductsAggregated.id,
-      productName: queryProductsAggregated.productName,
+      name: queryProductsAggregated.productName,
       category: queryProductsAggregated.category,
       note: queryProductsAggregated.note,
       placeName: placesTable.name,
+      city: placesTable.city,
       averageRating: queryProductsAggregated.averageRating,
     })
     .from(queryProductsAggregated)

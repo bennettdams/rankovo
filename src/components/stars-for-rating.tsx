@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { Star, StarHalf } from "lucide-react";
 
@@ -6,14 +7,14 @@ const halfStarLowerBound = 0.25;
 const halfStarUpperBound = 0.75;
 const fullStarLowerBound = 1;
 
-const starStyles = "fill-gray text-gray";
-
 const starSizes = {
   small: "h-4 w-4",
   medium: "h-6 w-6",
   large: "h-8 w-8",
 };
 type StarSize = keyof typeof starSizes;
+
+const starStyles = "fill-gray text-gray drop-shadow-sm";
 
 const hoverableStyles =
   "active:scale-125 active:transition-transform peer peer-hover:fill-secondary hover:fill-secondary peer-hover:text-secondary hover:text-secondary";

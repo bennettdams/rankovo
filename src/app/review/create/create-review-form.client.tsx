@@ -82,12 +82,16 @@ export function CreateReviewForm({
           1. Search for a product
         </h2>
 
-        <FieldError errorMsg={state?.errors?.productId} />
-
         <ProductSearch
           products={products}
           selectedProductId={selectedProductId}
           onProductSelect={setSelectedProductId}
+        />
+
+        <FieldError
+          errorMsg={
+            !state?.errors?.productId ? undefined : "Please select a product"
+          }
         />
       </div>
 

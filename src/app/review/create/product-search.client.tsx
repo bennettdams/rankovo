@@ -130,20 +130,24 @@ export function ProductSearch({
                     )
                   }
                   className={cn(
-                    "flex h-32 w-52 min-w-52 cursor-pointer flex-col justify-between rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
+                    "flex h-32 w-64 min-w-52 cursor-pointer flex-col justify-between rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
                     product.id === selectedProductId
                       ? "bg-primary text-primary-fg"
                       : "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
                   )}
                 >
-                  <p className="line-clamp-2 min-h-10">{product.productName}</p>
+                  <p className="line-clamp-2 min-h-10">{product.name}</p>
                   <div className="flow-row flex items-center justify-start gap-x-1.5">
                     <CategoryBadge size="sm" category={product.category} />
-                    <p className="text-xs">{product.placeName}</p>
+                    <p className="line-clamp-1 text-xs">
+                      {product.note ?? <>&nbsp;</>}
+                    </p>
                   </div>
-                  <p className="line-clamp-1 text-xs">
-                    {product.note ?? <>&nbsp;</>}
-                  </p>
+                  <div className="flow-row flex items-center justify-start gap-x-1.5">
+                    <p className="text-xs">{product.placeName}</p>
+                    <p className="text-xs"> | </p>
+                    <p className="text-xs">{product.city}</p>
+                  </div>
                   <div className="flex flex-row items-center">
                     <NumberFormatted
                       num={product.averageRating}
