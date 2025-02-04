@@ -22,11 +22,11 @@ const searchParamKeys = {
 } satisfies SearchParamsCreateReview;
 
 export function ProductSearch({
-  products,
+  productsForSearch,
   selectedProductId,
   onProductSelect,
 }: {
-  products: ProductSearchQuery[];
+  productsForSearch: ProductSearchQuery[];
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
@@ -66,6 +66,7 @@ export function ProductSearch({
     }
   }
 
+  const hasNoSearch = !filters.productName && !filters.placeName;
   const hasValidSearch =
     (!!filters.productName && filters.productName.length >= minCharsSearch) ||
     (!!filters.placeName && filters.placeName.length >= minCharsSearch);
@@ -116,12 +117,15 @@ export function ProductSearch({
 
       {/* PRODUCTS LIST */}
       <div className="mt-8 flex items-center overflow-x-auto">
-        {hasValidSearch &&
-          (products.length === 0 ? (
+        {hasNoSearch ? (
+          <p className="italic">No filters for search.</p>
+        ) : (
+          hasValidSearch &&
+          (productsForSearch.length === 0 ? (
             <p>No products found</p>
           ) : (
             <div className="flex h-full flex-row gap-x-4">
-              {products.map((product) => (
+              {productsForSearch.map((product) => (
                 <div
                   key={product.id}
                   onClick={() =>
@@ -162,7 +166,8 @@ export function ProductSearch({
                 </div>
               ))}
             </div>
-          ))}
+          ))
+        )}
       </div>
     </div>
   );

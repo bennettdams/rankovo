@@ -16,7 +16,7 @@ export default async function PageReviewCreate({
   searchParams: Promise<unknown>;
 }) {
   const paramsParsed = schemaSearchParams.parse(await searchParams);
-  const productsFound =
+  const productsForSearch =
     !paramsParsed.productName && !paramsParsed.placeName
       ? []
       : await queries.searchProduct(paramsParsed);
@@ -27,7 +27,7 @@ export default async function PageReviewCreate({
         <NotepadText className="size-14 text-secondary" />
         <span className="mt-6">Create a review</span>
       </h1>
-      <CreateReviewForm products={productsFound} />
+      <CreateReviewForm productsForSearch={productsForSearch} />
     </div>
   );
 }

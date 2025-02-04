@@ -4,12 +4,13 @@ import { FieldError, Fieldset } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { actionCreateReview, type ReviewCreate } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
-import { Save } from "lucide-react";
+import { FilePlus, Save, Search } from "lucide-react";
 import { useActionState, useState } from "react";
 import { ProductSearch } from "./product-search.client";
 
@@ -63,9 +64,9 @@ function createReview(_: unknown, formData: FormData) {
 }
 
 export function CreateReviewForm({
-  products,
+  productsForSearch,
 }: {
-  products: ProductSearchQuery[];
+  productsForSearch: ProductSearchQuery[];
 }) {
   const [state, formAction, isPendingAction] = useActionState(
     createReview,
@@ -76,17 +77,37 @@ export function CreateReviewForm({
   );
 
   return (
-    <div className="flex flex-col gap-y-8">
+    <div className="flex flex-col gap-y-16">
       <div>
-        <h2 className="mb-4 text-2xl text-secondary">
-          1. Search for a product
+        <h2 className="mb-4 flex items-center text-2xl text-secondary">
+          <span className="flex size-12 items-center justify-center rounded-full bg-primary text-3xl leading-none text-primary-fg">
+            1
+          </span>
+          <span className="ml-4">Select a product</span>
         </h2>
 
-        <ProductSearch
-          products={products}
-          selectedProductId={selectedProductId}
-          onProductSelect={setSelectedProductId}
-        />
+        <Tabs defaultValue="search">
+          <TabsList className="mb-10 grid w-96 grid-cols-2">
+            <TabsTrigger value="search">
+              <Search className="size-5" />
+              <span className="ml-2">Search existing</span>
+            </TabsTrigger>
+            <TabsTrigger value="create">
+              <FilePlus className="size-5" />
+              <span className="ml-2">Create new</span>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="search">
+            <ProductSearch
+              productsForSearch={productsForSearch}
+              selectedProductId={selectedProductId}
+              onProductSelect={setSelectedProductId}
+            />
+          </TabsContent>
+          <TabsContent value="create">
+            <div className="bg-white">TODO</div>
+          </TabsContent>
+        </Tabs>
 
         <FieldError
           errorMsg={
@@ -96,7 +117,12 @@ export function CreateReviewForm({
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl text-secondary">2. Add your verdict</h2>
+        <h2 className="mb-4 flex items-center text-2xl text-secondary">
+          <span className="flex size-12 items-center justify-center rounded-full bg-primary text-3xl leading-none text-primary-fg">
+            2
+          </span>
+          <span className="ml-4">Add your verdict</span>
+        </h2>
 
         <form
           action={(formData) => {
