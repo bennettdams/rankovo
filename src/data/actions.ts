@@ -1,6 +1,6 @@
 "use server";
 
-import type { FormState } from "@/app/review/create/create-review-form.client";
+import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import {
   type Review,
   type ReviewCreateDb,
@@ -19,7 +19,7 @@ const userIdFake = 1;
 export type ReviewCreate = Omit<ReviewCreateDb, "authorId">;
 export async function actionCreateReview(
   reviewToCreate: ReviewCreate,
-  formState: FormState,
+  formState: FormStateCreateReview,
 ) {
   console.debug("🟦 ACTION create review");
 
