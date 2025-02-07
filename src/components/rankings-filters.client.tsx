@@ -3,7 +3,6 @@
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
 import {
-  categories,
   cities,
   minCharsSearch,
   ratingHighest,
@@ -18,6 +17,8 @@ import { FilterX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
+import { CategoriesSelection } from "./categories-selection";
+import { FilterButton } from "./filter-button";
 import { FieldError } from "./form";
 import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
@@ -95,7 +96,9 @@ export function RankingsFiltersClient({
     });
   }
 
-  const hasFilters = Object.values(filters).every((x) => !!x);
+  const hasFilters = Object.values(filters).some(
+    (filterEntry) => !!filterEntry,
+  );
 
   return (
     <div className="flex flex-col gap-y-10">
@@ -115,23 +118,14 @@ export function RankingsFiltersClient({
 
       <FilterRow label="Categories">
         <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <FilterButton
-              key={category}
-              isActive={
-                filters.categories === null
-                  ? true
-                  : filters.categories.includes(category)
-              }
-              onMouseDown={() =>
-                changeFilters({
-                  categories: updateArray(filters.categories, category),
-                })
-              }
-            >
-              <span className="capitalize">{category}</span>
-            </FilterButton>
-          ))}
+          <CategoriesSelection
+            onClick={(category) =>
+              changeFilters({
+                categories: updateArray(filters.categories, category),
+              })
+            }
+            categoriesActive={filters.categories}
+          />
         </div>
       </FilterRow>
 
@@ -254,28 +248,6 @@ export function RankingsFiltersClient({
           </div>
         </div>
       </FilterRow>
-    </div>
-  );
-}
-
-function FilterButton({
-  isActive,
-  onMouseDown,
-  children,
-}: {
-  isActive: boolean;
-  onMouseDown: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        "select-none rounded-full px-3 py-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
-        isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
-      )}
-      onMouseDown={onMouseDown}
-    >
-      {children}
     </div>
   );
 }
