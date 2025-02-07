@@ -6,11 +6,7 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from "drizzle-zod";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const usersTable = pgTable("users", {
@@ -82,9 +78,6 @@ export const placesTable = pgTable("places", {
   updatedAt: timestamp("updated_at"),
 });
 
-export type Place = typeof placesTable.$inferSelect;
-export type PlaceCreate = Required<typeof placesTable.$inferInsert>;
-
 export const productsTable = pgTable("products", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
@@ -95,7 +88,16 @@ export const productsTable = pgTable("products", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const schemaCategory = createSelectSchema(productsTable).shape.category;
+export const schemaCategory = z.enum(categories, {
+  message: "Please pick a category",
+});
 
-export type Product = typeof productsTable.$inferSelect;
-export type ProductCreate = Required<typeof productsTable.$inferInsert>;
+export const schemaCreateProduct = createInsertSchema(productsTable, {
+  category: schemaCategory,
+})
+  .required()
+  .omit({
+    createdAt: true,
+    updatedAt: true,
+  });
+export type ProductCreateDb = z.infer<typeof schemaCreateProduct>;

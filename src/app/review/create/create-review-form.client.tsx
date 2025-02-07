@@ -13,6 +13,7 @@ import { schemaCreateReview } from "@/db/db-schema";
 import { transformFromStringToNumber } from "@/lib/form-utils";
 import { FilePlus, Save, Search } from "lucide-react";
 import { useActionState, useState } from "react";
+import { CreateProductForm } from "./create-product-form.client";
 import { ProductSearch } from "./product-search.client";
 
 const formKeys = {
@@ -27,12 +28,12 @@ export type FormStateCreateReview = ReturnType<
 
 export function prepareFormDataReviewCreate(formData: FormData) {
   return {
-    note: formData.get(formKeys.note) as string | undefined,
+    note: (formData.get(formKeys.note) as string | null) || null,
     productId: transformFromStringToNumber(
-      formData.get(formKeys.productId) as string,
+      formData.get(formKeys.productId) as string | null,
     ),
     rating: transformFromStringToNumber(
-      formData.get(formKeys.rating) as string,
+      formData.get(formKeys.rating) as string | null,
     ),
     reviewedAt: new Date(),
   } satisfies Record<keyof ReviewCreate, unknown>;
@@ -99,7 +100,7 @@ export function CreateReviewForm({
             />
           </TabsContent>
           <TabsContent value="create">
-            <div className="bg-white">TODO</div>
+            <CreateProductForm />
           </TabsContent>
         </Tabs>
 
@@ -132,7 +133,7 @@ export function CreateReviewForm({
               name={formKeys.productId}
               type="hidden"
               placeholder="Product"
-              defaultValue={selectedProductId ?? ""}
+              defaultValue={selectedProductId ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.productId} />
           </Fieldset>
@@ -145,7 +146,7 @@ export function CreateReviewForm({
               className="w-32"
               lang="en"
               placeholder={`${ratingLowest} to ${ratingHighest}`}
-              defaultValue={state?.values?.rating ?? ""}
+              defaultValue={state?.values?.rating ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.rating} />
           </Fieldset>
@@ -155,7 +156,7 @@ export function CreateReviewForm({
             <Textarea
               name={formKeys.note}
               placeholder="Want to note something?"
-              defaultValue={state?.values?.note ?? ""}
+              defaultValue={state?.values?.note ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.note} />
           </Fieldset>

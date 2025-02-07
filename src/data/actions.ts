@@ -1,11 +1,15 @@
 "use server";
 
+import { FormStateCreateProduct } from "@/app/review/create/create-product-form.client";
 import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import {
+  ProductCreateDb,
+  productsTable,
   type Review,
   type ReviewCreateDb,
   reviewsTable,
   type ReviewUpdate,
+  schemaCreateProduct,
   schemaCreateReview,
   schemaUpdateReview,
 } from "@/db/db-schema";
@@ -74,4 +78,39 @@ export async function actionUpdateReview(
 
   revalidateTag(dataKeys.reviews);
   return true;
+}
+
+export type ProductCreate = ProductCreateDb;
+export async function actionCreateProduct(
+  productToCreate: ProductCreate,
+  formState: FormStateCreateProduct,
+) {
+  console.debug("🟦 ACTION create product");
+
+  await new Promise((r) => setTimeout(r, 1000));
+
+  const {
+    success,
+    error,
+    data: productParsed,
+  } = schemaCreateProduct.safeParse(productToCreate);
+
+  if (!success) {
+    return {
+      errors: error.flatten().fieldErrors,
+      values: formState,
+    };
+  }
+
+  await db.insert(productsTable).values({
+    ...productParsed,
+    createdAt: new Date(),
+    updatedAt: null,
+  });
+
+  revalidateTag(dataKeys.products);
+
+  return {
+    success: true,
+  };
 }
