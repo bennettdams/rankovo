@@ -134,7 +134,7 @@ export function RankingsFiltersClient({
           name="filter-product-name"
           type="text"
           placeholder="e.g. Cheeseburger"
-          defaultValue={filters.productName ?? undefined}
+          value={filters.productName ?? ""}
           onChange={(e) => changeFilters({ productName: e.target.value })}
         />
         <FieldError

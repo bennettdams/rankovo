@@ -15,6 +15,7 @@ import {
 } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { startTransition, useOptimistic } from "react";
 import { SearchParamsCreateReview } from "./page";
 
 const searchParamKeys = {
@@ -37,10 +38,10 @@ export function ProductSearch({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const filters = {
+  const [filters, setOptimisticFilters] = useOptimistic({
     productName: searchParams.get(searchParamKeys.productName) ?? null,
     placeName: searchParams.get(searchParamKeys.placeName) ?? null,
-  } satisfies SearchParamsCreateReview;
+  } satisfies SearchParamsCreateReview);
 
   function updateSearchParams(newFilters: SearchParamsCreateReview) {
     const queryString = stringifySearchParams(newFilters);
@@ -65,7 +66,10 @@ export function ProductSearch({
   ) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
     if (filtersNew) {
-      updateSearchParams(filtersNew);
+      startTransition(() => {
+        setOptimisticFilters(filtersNew);
+        updateSearchParams(filtersNew);
+      });
     }
   }
 
@@ -90,7 +94,7 @@ export function ProductSearch({
             name="filter-product-name"
             type="text"
             placeholder="e.g. Cheeseburger"
-            defaultValue={filters.productName ?? undefined}
+            value={filters.productName ?? ""}
             onChange={(e) => changeFilters({ productName: e.target.value })}
           />
           <FieldError
@@ -111,7 +115,7 @@ export function ProductSearch({
             name="filter-place-name"
             type="text"
             placeholder="e.g. Five Guys"
-            defaultValue={filters.placeName ?? undefined}
+            value={filters.placeName ?? ""}
             onChange={(e) => changeFilters({ placeName: e.target.value })}
           />
           <FieldError
