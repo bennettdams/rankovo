@@ -9,6 +9,17 @@ export function isServer() {
   return typeof window === "undefined";
 }
 
+type Entries<T> = {
+  [K in keyof T]: [K, T[K]];
+}[keyof T][];
+
+/** Type-safe `Object.entries`. Keeps the string literal key instead of widening it to a string. */
+export function objectEntries<T extends Record<string, unknown>>(
+  object: T,
+): Entries<T> {
+  return Object.entries(object) as Entries<T>;
+}
+
 /**
  * @throws Error if key not in object
  */

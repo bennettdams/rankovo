@@ -16,7 +16,7 @@ export function CategoryBadge({
   return (
     <span
       className={cn(
-        "rounded-full bg-gray font-medium capitalize text-fg",
+        "text-nowrap rounded-full bg-gray font-medium capitalize text-fg",
         sizes[size],
       )}
     >
