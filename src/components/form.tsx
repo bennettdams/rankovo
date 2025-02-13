@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+export const formInputWidth = "w-80";
+
 export function Fieldset({
   children,
   className,
@@ -8,7 +10,9 @@ export function Fieldset({
   className?: string;
 }) {
   return (
-    <fieldset className={cn("grid w-80 items-center gap-1.5", className)}>
+    <fieldset
+      className={cn("grid items-center gap-1.5", formInputWidth, className)}
+    >
       {children}
     </fieldset>
   );

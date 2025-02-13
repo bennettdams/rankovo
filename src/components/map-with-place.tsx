@@ -1,28 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "./ui/button";
+import type { City } from "@/data/static";
 
-function getDemoPlace(p: string) {
-  return p === "Five Guys Hamburg" ? "Buns Hamburg" : "Five Guys Hamburg";
-}
-
-export function MapWithPlace() {
-  const [placeId, setPlaceId] = useState(getDemoPlace("Five Guys Hamburg"));
+export function MapWithPlace({
+  placeName,
+  city,
+}: {
+  placeName: string;
+  city: City;
+}) {
+  const placeSearch = `${placeName} ${city}`;
 
   return (
     <div>
       <iframe
         className="size-full overflow-hidden rounded-3xl"
-        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeId}`}
+        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY}&q=${placeSearch}`}
       />
-      <Button
-        onMouseDown={() => {
-          setPlaceId(getDemoPlace(placeId));
-        }}
-      >
-        Switch
-      </Button>
     </div>
   );
 }

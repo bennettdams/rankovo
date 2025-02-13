@@ -1,5 +1,6 @@
 import { CategoriesSelectionFormField } from "@/components/categories-selection";
-import { FieldError, Fieldset } from "@/components/form";
+import { FieldError, Fieldset, formInputWidth } from "@/components/form";
+import { MapWithPlace } from "@/components/map-with-place";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,18 +100,23 @@ export function CreateProductForm({
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
 
-      <Fieldset>
-        <Label htmlFor={formKeys.placeId}>Place</Label>
-        <Input
-          name={formKeys.placeId}
-          placeholder=""
-          defaultValue={state?.values?.placeId ?? undefined}
-        />
-        <FieldError errorMsg={state?.errors?.placeId} />
+      <Fieldset className="flex size-full flex-row items-start">
+        <div className={formInputWidth}>
+          <Label htmlFor={formKeys.placeId}>Place</Label>
+          <Input
+            name={formKeys.placeId}
+            placeholder=""
+            defaultValue={state?.values?.placeId ?? undefined}
+          />
+          <FieldError errorMsg={state?.errors?.placeId} />
+        </div>
+        <div className="ml-10 mt-6 grid h-80 grow">
+          <MapWithPlace placeName="Buns" city="Hamburg" />
+        </div>
       </Fieldset>
 
       <Button className="w-min" type="submit" disabled={isPendingAction}>
-        <Save /> {isPendingAction ? "Saving..." : "Save"}
+        <Save /> {isPendingAction ? "Saving product..." : "Save product"}
       </Button>
 
       {state?.success && (

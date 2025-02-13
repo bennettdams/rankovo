@@ -186,7 +186,7 @@ export function CreateReviewForm({
           </Fieldset>
 
           <Button className="w-min" type="submit" disabled={isPendingAction}>
-            <Save /> {isPendingAction ? "Saving..." : "Save"}
+            <Save /> {isPendingAction ? "Saving review..." : "Save review"}
           </Button>
 
           {state?.success && (

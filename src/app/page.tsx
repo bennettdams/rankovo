@@ -67,7 +67,7 @@ export default async function Home({
       </div>
 
       <div className="mt-10 grid h-[30rem]">
-        <MapWithPlace />
+        <MapWithPlace placeName="Five Guys" city="Hamburg" />
       </div>
     </div>
   );
