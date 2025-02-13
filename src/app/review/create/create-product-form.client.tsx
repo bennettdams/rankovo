@@ -1,39 +1,40 @@
-import { CategoriesSelection } from "@/components/categories-selection";
+import { CategoriesSelectionFormField } from "@/components/categories-selection";
 import { FieldError, Fieldset } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { actionCreateProduct, ProductCreate } from "@/data/actions";
-import { Category } from "@/data/static";
+import {
+  actionCreateProduct,
+  type ProductCreate,
+  type ProductCreatedAction,
+} from "@/data/actions";
 import { schemaCreateProduct } from "@/db/db-schema";
-import { transformFromStringToNumber } from "@/lib/form-utils";
+import {
+  type FormConfig,
+  type FormState,
+  prepareFormState,
+} from "@/lib/form-utils";
 import { Save } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect } from "react";
 
 const formKeys = {
   name: "name",
   note: "note",
   category: "category",
   placeId: "placeId",
-};
+} satisfies Record<keyof ProductCreate, string>;
 
-export type FormStateCreateProduct = ReturnType<
-  typeof prepareFormDataProductCreate
->;
+const formConfig = {
+  name: "string",
+  note: "string",
+  category: "string",
+  placeId: "number",
+} satisfies FormConfig<ProductCreate>;
 
-export function prepareFormDataProductCreate(formData: FormData) {
-  return {
-    name: (formData.get(formKeys.name) as string | null) || null,
-    note: (formData.get(formKeys.note) as string | null) || null,
-    category: (formData.get(formKeys.category) as string | null) || null,
-    placeId: transformFromStringToNumber(
-      formData.get(formKeys.placeId) as string | null,
-    ),
-  } satisfies Record<keyof ProductCreate, unknown>;
-}
+export type FormStateCreateProduct = FormState<typeof formConfig>;
 
 function createProduct(_: unknown, formData: FormData) {
-  const formState = prepareFormDataProductCreate(formData);
+  const formState = prepareFormState(formConfig, formData);
 
   const {
     success,
@@ -51,14 +52,22 @@ function createProduct(_: unknown, formData: FormData) {
   return actionCreateProduct(productParsed, formState);
 }
 
-export function CreateProductForm() {
+export function CreateProductForm({
+  onCreatedProduct,
+}: {
+  onCreatedProduct: (productCreated: ProductCreatedAction) => void;
+}) {
   const [state, formAction, isPendingAction] = useActionState(
     createProduct,
     null,
   );
-  const [categorySelected, setCategorySelected] = useState<Category | null>(
-    null,
-  );
+
+  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
+  useEffect(() => {
+    if (state?.success && state.productCreated) {
+      onCreatedProduct(state.productCreated);
+    }
+  }, [state?.success, state?.productCreated, onCreatedProduct]);
 
   return (
     <form action={formAction} className="flex flex-col gap-y-6" noValidate>
@@ -73,15 +82,9 @@ export function CreateProductForm() {
 
       <Fieldset>
         <Label htmlFor={formKeys.category}>Category</Label>
-        <CategoriesSelection
-          categoriesActive={!categorySelected ? null : [categorySelected]}
-          onClick={(categorySelected) => setCategorySelected(categorySelected)}
-        />
-        <Input
-          type="hidden"
-          // can't use undefined here because it will make it an uncontrolled input
-          value={categorySelected ?? state?.values?.category ?? ""}
+        <CategoriesSelectionFormField
           name={formKeys.category}
+          defaultValue={state?.values?.category ?? undefined}
         />
         <FieldError errorMsg={state?.errors?.category} />
       </Fieldset>

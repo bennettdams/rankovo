@@ -42,5 +42,6 @@ export const cities = [
   "München",
   "Stuttgart",
 ] as const;
+export type City = (typeof cities)[number];
 
 export const minCharsSearch = 3;

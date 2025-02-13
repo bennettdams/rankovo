@@ -6,8 +6,9 @@ import { NumberFormatted } from "@/components/number-formatted";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { type ProductCreatedAction } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
-import { minCharsSearch } from "@/data/static";
+import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
   prepareFiltersForUpdate,
   stringifySearchParams,
@@ -23,10 +24,12 @@ const searchParamKeys = {
 
 export function ProductSearch({
   productsForSearch,
+  productCreated,
   selectedProductId,
   onProductSelect,
 }: {
   productsForSearch: ProductSearchQuery[];
+  productCreated: ProductCreatedAction | null;
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
@@ -64,6 +67,12 @@ export function ProductSearch({
     if (filtersNew) {
       updateSearchParams(filtersNew);
     }
+  }
+
+  function handleProductCardClick(productIdClicked: number) {
+    onProductSelect(
+      productIdClicked === selectedProductId ? null : productIdClicked,
+    );
   }
 
   const hasNoSearch = !filters.productName && !filters.placeName;
@@ -117,7 +126,20 @@ export function ProductSearch({
 
       {/* PRODUCTS LIST */}
       <div className="mt-8 flex items-center overflow-x-auto">
-        {hasNoSearch ? (
+        {!!productCreated ? (
+          <ProductCard
+            key={productCreated.id}
+            isSelectedProduct={productCreated.id === selectedProductId}
+            onClick={() => handleProductCardClick(productCreated.id)}
+            productId={productCreated.id}
+            name={productCreated.name}
+            category={productCreated.category}
+            note={productCreated.note}
+            placeName={productCreated.placeName}
+            city={productCreated.city}
+            averageRating={null}
+          />
+        ) : hasNoSearch ? (
           <p className="italic">No filters for search.</p>
         ) : (
           hasValidSearch &&
@@ -126,47 +148,87 @@ export function ProductSearch({
           ) : (
             <div className="flex h-full flex-row gap-x-4">
               {productsForSearch.map((product) => (
-                <div
+                <ProductCard
                   key={product.id}
-                  onClick={() =>
-                    onProductSelect(
-                      product.id === selectedProductId ? null : product.id,
-                    )
-                  }
-                  className={cn(
-                    "flex h-32 w-64 min-w-52 cursor-pointer flex-col justify-between rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
-                    product.id === selectedProductId
-                      ? "bg-primary text-primary-fg"
-                      : "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
-                  )}
-                >
-                  <p className="line-clamp-2 min-h-10">{product.name}</p>
-                  <div className="flow-row flex items-center justify-start gap-x-1.5">
-                    <CategoryBadge size="sm" category={product.category} />
-                    <p className="line-clamp-1 text-xs">
-                      {product.note ?? <>&nbsp;</>}
-                    </p>
-                  </div>
-                  <div className="flow-row flex items-center justify-start gap-x-1.5">
-                    <p className="text-xs">{product.placeName}</p>
-                    <p className="text-xs"> | </p>
-                    <p className="text-xs">{product.city}</p>
-                  </div>
-                  <div className="flex flex-row items-center">
-                    <NumberFormatted
-                      num={product.averageRating}
-                      min={2}
-                      max={2}
-                    />
-                    <StarsForRating
-                      size="small"
-                      rating={product.averageRating}
-                    />
-                  </div>
-                </div>
+                  isSelectedProduct={product.id === selectedProductId}
+                  onClick={() => handleProductCardClick(product.id)}
+                  productId={product.id}
+                  name={product.name}
+                  category={product.category}
+                  note={product.note}
+                  placeName={product.placeName}
+                  city={product.city}
+                  averageRating={product.averageRating}
+                />
               ))}
             </div>
           ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProductCard({
+  isSelectedProduct,
+  onClick,
+  productId,
+  name,
+  category,
+  note,
+  placeName,
+  city,
+  averageRating,
+}: {
+  isSelectedProduct: boolean;
+  onClick: () => void;
+  productId: number;
+  name: string;
+  category: Category;
+  note: string | null;
+  placeName: string | null;
+  city: City | null;
+  averageRating: number | null;
+}) {
+  return (
+    <div
+      key={productId}
+      onClick={onClick}
+      className={cn(
+        "flex h-32 w-64 min-w-52 cursor-pointer flex-col justify-between rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
+        isSelectedProduct
+          ? "bg-primary text-primary-fg"
+          : "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
+      )}
+    >
+      <p className="line-clamp-2 min-h-10">{name}</p>
+      <div className="flow-row flex items-center justify-start gap-x-1.5">
+        <CategoryBadge size="sm" category={category} />
+        <p className="line-clamp-1 text-xs">{note ?? <>&nbsp;</>}</p>
+      </div>
+      <div className="flow-row flex items-center justify-start gap-x-1.5">
+        {!placeName ? (
+          <p>&nbsp;</p>
+        ) : (
+          <>
+            <p className="text-xs">{placeName}</p>
+            {!!city && (
+              <>
+                <p className="text-xs"> | </p>
+                <p className="text-xs">{city}</p>
+              </>
+            )}
+          </>
+        )}
+      </div>
+      <div className="flex flex-row items-center">
+        {!averageRating ? (
+          <p>&nbsp;</p>
+        ) : (
+          <>
+            <NumberFormatted num={averageRating} min={2} max={2} />
+            <StarsForRating size="small" rating={averageRating} />
+          </>
         )}
       </div>
     </div>

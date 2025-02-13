@@ -3,6 +3,7 @@
 import { FormStateCreateProduct } from "@/app/review/create/create-product-form.client";
 import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import {
+  placesTable,
   ProductCreateDb,
   productsTable,
   type Review,
@@ -102,15 +103,40 @@ export async function actionCreateProduct(
     };
   }
 
-  await db.insert(productsTable).values({
-    ...productParsed,
-    createdAt: new Date(),
-    updatedAt: null,
-  });
+  const productInsertQuery = db.$with("productInsertQuery").as(
+    db
+      .insert(productsTable)
+      .values({
+        ...productParsed,
+        createdAt: new Date(),
+        updatedAt: null,
+      })
+      .returning(),
+  );
+  const productCreatedRows = await db
+    .with(productInsertQuery)
+    .select({
+      id: productInsertQuery.id,
+      name: productInsertQuery.name,
+      category: productInsertQuery.category,
+      note: productInsertQuery.note,
+      placeName: placesTable.name,
+      city: placesTable.city,
+    })
+    .from(productInsertQuery)
+    .leftJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));
+
+  const productCreated = productCreatedRows[0];
+  if (!productCreated) throw new Error("No created product");
 
   revalidateTag(dataKeys.products);
 
   return {
     success: true,
+    productCreated,
   };
 }
+
+export type ProductCreatedAction = NonNullable<
+  Awaited<ReturnType<typeof actionCreateProduct>>["productCreated"]
+>;

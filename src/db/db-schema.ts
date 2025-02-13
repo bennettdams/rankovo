@@ -52,22 +52,23 @@ export const schemaRating = z
   .min(ratingLowest, messageRating)
   .max(ratingHighest, messageRating);
 
-export const schemaCreateReview = createInsertSchema(reviewsTable)
+export const schemaCreateReview = createInsertSchema(reviewsTable, {
+  rating: schemaRating,
+})
   .required()
-  .extend({ rating: schemaRating })
   .omit({
     createdAt: true,
     updatedAt: true,
   });
 export type ReviewCreateDb = z.infer<typeof schemaCreateReview>;
 
-export const schemaUpdateReview = createUpdateSchema(reviewsTable)
-  .extend({ rating: schemaRating.optional() })
-  .omit({
-    reviewedAt: true,
-    createdAt: true,
-    updatedAt: true,
-  });
+export const schemaUpdateReview = createUpdateSchema(reviewsTable, {
+  rating: schemaRating,
+}).omit({
+  reviewedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
 export type ReviewUpdate = z.infer<typeof schemaUpdateReview>;
 
 export const placesTable = pgTable("places", {
@@ -91,9 +92,11 @@ export const productsTable = pgTable("products", {
 export const schemaCategory = z.enum(categories, {
   message: "Please pick a category",
 });
+const schemaProductName = z.string({ message: "Required" }).min(2).max(255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,
+  name: schemaProductName,
 })
   .required()
   .omit({

@@ -6,13 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { actionCreateReview, type ReviewCreate } from "@/data/actions";
+import {
+  actionCreateReview,
+  type ProductCreatedAction,
+  type ReviewCreate,
+} from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
-import { transformFromStringToNumber } from "@/lib/form-utils";
+import {
+  type FormConfig,
+  type FormState,
+  prepareFormState,
+} from "@/lib/form-utils";
 import { FilePlus, Save, Search } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import { ProductSearch } from "./product-search.client";
 
@@ -20,27 +28,25 @@ const formKeys = {
   productId: "productId",
   note: "note",
   rating: "rating",
+  reviewedAt: "reviewedAt",
+} satisfies Record<keyof typeof formConfig, string>;
+
+const formConfig = {
+  productId: "number",
+  note: "string",
+  rating: "number",
+  reviewedAt: "date",
+} satisfies FormConfig<ReviewCreate>;
+
+export type FormStateCreateReview = FormState<typeof formConfig>;
+
+const tabs = {
+  search: "search",
+  create: "create",
 };
 
-export type FormStateCreateReview = ReturnType<
-  typeof prepareFormDataReviewCreate
->;
-
-export function prepareFormDataReviewCreate(formData: FormData) {
-  return {
-    note: (formData.get(formKeys.note) as string | null) || null,
-    productId: transformFromStringToNumber(
-      formData.get(formKeys.productId) as string | null,
-    ),
-    rating: transformFromStringToNumber(
-      formData.get(formKeys.rating) as string | null,
-    ),
-    reviewedAt: new Date(),
-  } satisfies Record<keyof ReviewCreate, unknown>;
-}
-
 function createReview(_: unknown, formData: FormData) {
-  const formState = prepareFormDataReviewCreate(formData);
+  const formState = prepareFormState(formConfig, formData);
 
   const {
     success,
@@ -70,6 +76,18 @@ export function CreateReviewForm({
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null,
   );
+  const [tabActive, setTabActive] = useState<string>(tabs.search);
+  const [productCreated, setProductCreated] =
+    useState<ProductCreatedAction | null>(null);
+
+  const handleProductCreate = useCallback(
+    (productCreated: ProductCreatedAction) => {
+      setSelectedProductId(productCreated.id);
+      setProductCreated(productCreated);
+      setTabActive(tabs.search);
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col gap-y-16">
@@ -81,7 +99,10 @@ export function CreateReviewForm({
           <span className="ml-4">Select a product</span>
         </h2>
 
-        <Tabs defaultValue="search">
+        <Tabs
+          value={tabActive}
+          onValueChange={(tabSelected) => setTabActive(tabSelected)}
+        >
           <TabsList className="mb-10 grid w-96 grid-cols-2">
             <TabsTrigger value="search">
               <Search className="size-5" />
@@ -94,13 +115,16 @@ export function CreateReviewForm({
           </TabsList>
           <TabsContent value="search">
             <ProductSearch
+              productCreated={productCreated}
               productsForSearch={productsForSearch}
-              selectedProductId={selectedProductId}
+              selectedProductId={
+                selectedProductId ?? state?.values?.productId ?? null
+              }
               onProductSelect={setSelectedProductId}
             />
           </TabsContent>
           <TabsContent value="create">
-            <CreateProductForm />
+            <CreateProductForm onCreatedProduct={handleProductCreate} />
           </TabsContent>
         </Tabs>
 

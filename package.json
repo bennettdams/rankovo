@@ -28,9 +28,9 @@
     "@radix-ui/react-tabs": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.38.4",
-    "drizzle-zod": "^0.6.1",
-    "lucide-react": "^0.473.0",
+    "drizzle-orm": "^0.39.3",
+    "drizzle-zod": "^0.7.0",
+    "lucide-react": "^0.475.0",
     "next": "^15.2.0-canary.56",
     "postgres": "^3.4.5",
     "react": "19.0.0",
@@ -41,9 +41,9 @@
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "19.0.7",
+    "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
-    "drizzle-kit": "^0.30.2",
+    "drizzle-kit": "^0.30.4",
     "eslint": "^8",
     "eslint-config-next": "^15.2.0-canary.56",
     "eslint-config-prettier": "^9.1.0",
@@ -57,7 +57,7 @@
   "overrides": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "@types/react": "19.0.7",
+    "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3"
   }
 }
