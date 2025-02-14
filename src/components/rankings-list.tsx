@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
+import { InfoMessage } from "./info-message";
 import { NumberFormatted } from "./number-formatted";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -29,7 +30,7 @@ export async function RankingsList({
   return (
     <div className="grid gap-x-3 gap-y-2 overflow-x-scroll">
       {rankings.length === 0 ? (
-        <p>No rankings for your filters.</p>
+        <InfoMessage>No rankings for your filters.</InfoMessage>
       ) : (
         rankings.map((ranking, index) => (
           <RankingsTableRow

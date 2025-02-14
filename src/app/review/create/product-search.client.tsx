@@ -2,7 +2,9 @@
 
 import { CategoryBadge } from "@/components/category-badge";
 import { FieldError, Fieldset } from "@/components/form";
+import { InfoMessage } from "@/components/info-message";
 import { NumberFormatted } from "@/components/number-formatted";
+import { SelectionCard } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +15,6 @@ import {
   prepareFiltersForUpdate,
   stringifySearchParams,
 } from "@/lib/url-state";
-import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useOptimistic } from "react";
 import { SearchParamsCreateReview } from "./page";
@@ -135,7 +136,6 @@ export function ProductSearch({
             key={productCreated.id}
             isSelectedProduct={productCreated.id === selectedProductId}
             onClick={() => handleProductCardClick(productCreated.id)}
-            productId={productCreated.id}
             name={productCreated.name}
             category={productCreated.category}
             note={productCreated.note}
@@ -144,11 +144,11 @@ export function ProductSearch({
             averageRating={null}
           />
         ) : hasNoSearch ? (
-          <p className="italic">No filters for search.</p>
+          <InfoMessage>No filters for search.</InfoMessage>
         ) : (
           hasValidSearch &&
           (productsForSearch.length === 0 ? (
-            <p>No products found</p>
+            <InfoMessage>No products found</InfoMessage>
           ) : (
             <div className="flex h-full flex-row gap-x-4">
               {productsForSearch.map((product) => (
@@ -156,7 +156,6 @@ export function ProductSearch({
                   key={product.id}
                   isSelectedProduct={product.id === selectedProductId}
                   onClick={() => handleProductCardClick(product.id)}
-                  productId={product.id}
                   name={product.name}
                   category={product.category}
                   note={product.note}
@@ -176,7 +175,6 @@ export function ProductSearch({
 function ProductCard({
   isSelectedProduct,
   onClick,
-  productId,
   name,
   category,
   note,
@@ -186,7 +184,6 @@ function ProductCard({
 }: {
   isSelectedProduct: boolean;
   onClick: () => void;
-  productId: number;
   name: string;
   category: Category;
   note: string | null;
@@ -195,16 +192,7 @@ function ProductCard({
   averageRating: number | null;
 }) {
   return (
-    <div
-      key={productId}
-      onClick={onClick}
-      className={cn(
-        "flex h-32 w-64 min-w-52 cursor-pointer flex-col justify-between rounded-md p-2 transition-colors active:bg-primary active:text-primary-fg",
-        isSelectedProduct
-          ? "bg-primary text-primary-fg"
-          : "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
-      )}
-    >
+    <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
       <p className="line-clamp-2 min-h-10">{name}</p>
       <div className="flow-row flex items-center justify-start gap-x-1.5">
         <CategoryBadge size="sm" category={category} />
@@ -235,6 +223,6 @@ function ProductCard({
           </>
         )}
       </div>
-    </div>
+    </SelectionCard>
   );
 }
