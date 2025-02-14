@@ -7,6 +7,7 @@ import { CreateReviewForm } from "./create-review-form.client";
 const schemaSearchParams = z.object({
   productName: schemaSearchParamSingle(z.string().min(1), "string"),
   placeName: schemaSearchParamSingle(z.string().min(1), "string"),
+  placeNameSearch: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 export type SearchParamsCreateReview = z.output<typeof schemaSearchParams>;
 
@@ -19,7 +20,13 @@ export default async function PageReviewCreate({
   const productsForSearch =
     !paramsParsed.productName && !paramsParsed.placeName
       ? []
-      : await queries.searchProduct(paramsParsed);
+      : await queries.searchProduct({
+          productName: paramsParsed.productName,
+          placeName: paramsParsed.placeName,
+        });
+  const placesForSearch = !paramsParsed.placeNameSearch
+    ? []
+    : await queries.searchPlaces(paramsParsed.placeNameSearch);
 
   return (
     <div>
@@ -27,7 +34,10 @@ export default async function PageReviewCreate({
         <NotepadText className="size-14 text-secondary" />
         <span className="mt-6">Create a review</span>
       </h1>
-      <CreateReviewForm productsForSearch={productsForSearch} />
+      <CreateReviewForm
+        productsForSearch={productsForSearch}
+        placesForSearch={placesForSearch}
+      />
     </div>
   );
 }

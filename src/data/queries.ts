@@ -20,7 +20,7 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { dataKeys, minCharsSearch, type Category } from "./static";
+import { dataKeys, minCharsSearch, type Category, type City } from "./static";
 
 export type Ranking = {
   id: number;
@@ -30,7 +30,7 @@ export type Ranking = {
   productNote: string | null;
   productCategory: Category;
   placeName: string | null;
-  city: string | null;
+  city: City | null;
   numOfReviews: number;
   lastReviewedAt: Date;
   reviews: {
@@ -325,9 +325,27 @@ export type ProductSearchQuery = Awaited<
   ReturnType<typeof searchProduct>
 >[number];
 
+async function searchPlaces(placeName: string) {
+  // "use cache";
+  // cacheTag(....);
+  console.debug("🟦 QUERY searchPlace", " place: ", placeName);
+
+  const filtersSQL: SQL[] = [];
+  if (!!placeName && placeName.length >= minCharsSearch)
+    filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
+
+  return await db
+    .select()
+    .from(placesTable)
+    .where(and(...filtersSQL));
+}
+
+export type PlaceSearchQuery = Awaited<ReturnType<typeof searchPlaces>>[number];
+
 export const queries = {
   rankings,
   reviews,
   critics,
   searchProduct,
+  searchPlaces,
 };

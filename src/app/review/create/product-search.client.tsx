@@ -17,12 +17,13 @@ import {
 } from "@/lib/url-state";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useOptimistic } from "react";
+import { searchParamKeysCreateReview } from "./create-review-form.client";
 import { SearchParamsCreateReview } from "./page";
 
-const searchParamKeys = {
-  productName: "productName",
-  placeName: "placeName",
-} satisfies SearchParamsCreateReview;
+type SearchParamsProductSearch = Pick<
+  SearchParamsCreateReview,
+  "productName" | "placeName"
+>;
 
 export function ProductSearch({
   productsForSearch,
@@ -40,11 +41,12 @@ export function ProductSearch({
   const searchParams = useSearchParams();
 
   const [filters, setOptimisticFilters] = useOptimistic({
-    productName: searchParams.get(searchParamKeys.productName) ?? null,
-    placeName: searchParams.get(searchParamKeys.placeName) ?? null,
-  } satisfies SearchParamsCreateReview);
+    productName:
+      searchParams.get(searchParamKeysCreateReview.productName) ?? null,
+    placeName: searchParams.get(searchParamKeysCreateReview.placeName) ?? null,
+  } satisfies SearchParamsProductSearch);
 
-  function updateSearchParams(newFilters: SearchParamsCreateReview) {
+  function updateSearchParams(newFilters: SearchParamsProductSearch) {
     const queryString = stringifySearchParams(newFilters);
 
     const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
@@ -63,7 +65,7 @@ export function ProductSearch({
   }
 
   function changeFilters(
-    filtersUpdatedPartial: Partial<SearchParamsCreateReview>,
+    filtersUpdatedPartial: Partial<SearchParamsProductSearch>,
   ) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
     if (filtersNew) {

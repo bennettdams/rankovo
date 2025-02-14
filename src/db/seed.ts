@@ -249,6 +249,7 @@ async function createPlaces() {
       { name: "Bibis Baguette", city: "Frankfurt" },
       { name: "Happy Pizza" },
       { name: "Domino's" },
+      { name: "Five Guys" },
     ]);
 }
 

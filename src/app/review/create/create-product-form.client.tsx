@@ -1,6 +1,8 @@
 import { CategoriesSelectionFormField } from "@/components/categories-selection";
 import { FieldError, Fieldset, formInputWidth } from "@/components/form";
+import { InfoMessage } from "@/components/info-message";
 import { MapWithPlace } from "@/components/map-with-place";
+import { SelectionCard } from "@/components/selection-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,14 +11,33 @@ import {
   type ProductCreate,
   type ProductCreatedAction,
 } from "@/data/actions";
+import { PlaceSearchQuery } from "@/data/queries";
+import { minCharsSearch } from "@/data/static";
 import { schemaCreateProduct } from "@/db/db-schema";
 import {
   type FormConfig,
   type FormState,
   prepareFormState,
 } from "@/lib/form-utils";
+import {
+  prepareFiltersForUpdate,
+  stringifySearchParams,
+} from "@/lib/url-state";
 import { Save } from "lucide-react";
-import { useActionState, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useOptimistic,
+} from "react";
+import { searchParamKeysCreateReview } from "./create-review-form.client";
+import { SearchParamsCreateReview } from "./page";
+
+type SearchParamsCreateProduct = Pick<
+  SearchParamsCreateReview,
+  "placeNameSearch"
+>;
 
 const formKeys = {
   name: "name",
@@ -54,14 +75,23 @@ function createProduct(_: unknown, formData: FormData) {
 }
 
 export function CreateProductForm({
+  placesForSearch,
   onCreatedProduct,
 }: {
+  placesForSearch: PlaceSearchQuery[];
   onCreatedProduct: (productCreated: ProductCreatedAction) => void;
 }) {
   const [state, formAction, isPendingAction] = useActionState(
     createProduct,
     null,
   );
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [filters, setOptimisticFilters] = useOptimistic({
+    placeNameSearch:
+      searchParams.get(searchParamKeysCreateReview.placeNameSearch) ?? null,
+  } satisfies SearchParamsCreateProduct);
 
   // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
   useEffect(() => {
@@ -69,6 +99,37 @@ export function CreateProductForm({
       onCreatedProduct(state.productCreated);
     }
   }, [state?.success, state?.productCreated, onCreatedProduct]);
+
+  function updateSearchParams(newFilters: SearchParamsCreateProduct) {
+    const queryString = stringifySearchParams(newFilters);
+
+    const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
+
+    if (
+      !!newFilters.placeNameSearch &&
+      newFilters.placeNameSearch.length >= minCharsSearch
+    ) {
+      router.replace(pathWithQuery, {
+        scroll: false,
+      });
+    } else {
+      window.history.replaceState(null, "", pathWithQuery);
+    }
+  }
+
+  function changeFilters(
+    filtersUpdatedPartial: Partial<SearchParamsCreateProduct>,
+  ) {
+    const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
+    if (filtersNew) {
+      startTransition(() => {
+        setOptimisticFilters(filtersNew);
+        updateSearchParams(filtersNew);
+      });
+    }
+  }
+
+  const placeFirst = placesForSearch[0] ?? null;
 
   return (
     <form action={formAction} className="flex flex-col gap-y-6" noValidate>
@@ -100,20 +161,60 @@ export function CreateProductForm({
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
 
-      <Fieldset className="flex size-full flex-row items-start">
-        <div className={formInputWidth}>
-          <Label htmlFor={formKeys.placeId}>Place</Label>
-          <Input
-            name={formKeys.placeId}
-            placeholder=""
-            defaultValue={state?.values?.placeId ?? undefined}
-          />
-          <FieldError errorMsg={state?.errors?.placeId} />
+      <div className="flex size-full flex-row items-start">
+        <div className="w-1/2">
+          <Fieldset>
+            <Label htmlFor="search-place-name">Place name</Label>
+            <Input
+              className={formInputWidth}
+              name="search-place-name"
+              type="text"
+              placeholder="e.g. Five Guys"
+              value={filters.placeNameSearch ?? ""}
+              onChange={(e) =>
+                changeFilters({ placeNameSearch: e.target.value })
+              }
+            />
+
+            <FieldError errorMsg={state?.errors?.placeId} />
+          </Fieldset>
+
+          <div className="mt-10">
+            <p>Similar places for your filter:</p>
+
+            <div className="mt-4 flex h-full flex-row gap-x-4 overflow-x-scroll">
+              {!filters.placeNameSearch ? (
+                <InfoMessage>-</InfoMessage>
+              ) : placesForSearch.length === 0 ? (
+                <InfoMessage>No places found</InfoMessage>
+              ) : (
+                placesForSearch.map((place) => (
+                  <SelectionCard
+                    key={place.id}
+                    isSelected={true}
+                    onClick={() => {
+                      alert("Not implemented");
+                    }}
+                  >
+                    <p className="line-clamp-2 min-h-10 font-bold">
+                      {place.name}
+                    </p>
+                    <p className="line-clamp-2 min-h-2">{place.city}</p>
+                  </SelectionCard>
+                ))
+              )}
+            </div>
+          </div>
         </div>
-        <div className="ml-10 mt-6 grid h-80 grow">
-          <MapWithPlace placeName="Buns" city="Hamburg" />
+
+        <div className="ml-10 mt-6 grid h-80 w-1/2 grow">
+          {!!placeFirst && placeFirst.city ? (
+            <MapWithPlace placeName={placeFirst.name} city={placeFirst.city} />
+          ) : (
+            <MapWithPlace placeName="Bun's" city="Hamburg" />
+          )}
         </div>
-      </Fieldset>
+      </div>
 
       <Button className="w-min" type="submit" disabled={isPendingAction}>
         <Save /> {isPendingAction ? "Saving product..." : "Save product"}

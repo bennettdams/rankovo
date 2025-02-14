@@ -240,10 +240,9 @@ function RankingDialog({
           </div>
 
           <div className="mt-6 grid h-64">
-            <MapWithPlace
-              placeName={placeName ?? "Bun's"}
-              city={city ?? "Hamburg"}
-            />
+            {!!placeName && !!city && (
+              <MapWithPlace placeName={placeName} city={city} />
+            )}
           </div>
         </div>
 

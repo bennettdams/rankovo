@@ -11,7 +11,7 @@ import {
   type ProductCreatedAction,
   type ReviewCreate,
 } from "@/data/actions";
-import { ProductSearchQuery } from "@/data/queries";
+import type { PlaceSearchQuery, ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
 import {
@@ -22,7 +22,14 @@ import {
 import { FilePlus, Save, Search } from "lucide-react";
 import { useActionState, useCallback, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
+import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
+
+export const searchParamKeysCreateReview = {
+  productName: "productName",
+  placeName: "placeName",
+  placeNameSearch: "placeNameSearch",
+} satisfies SearchParamsCreateReview;
 
 const formKeys = {
   productId: "productId",
@@ -66,8 +73,10 @@ function createReview(_: unknown, formData: FormData) {
 
 export function CreateReviewForm({
   productsForSearch,
+  placesForSearch,
 }: {
   productsForSearch: ProductSearchQuery[];
+  placesForSearch: PlaceSearchQuery[];
 }) {
   const [state, formAction, isPendingAction] = useActionState(
     createReview,
@@ -124,7 +133,10 @@ export function CreateReviewForm({
             />
           </TabsContent>
           <TabsContent value="create">
-            <CreateProductForm onCreatedProduct={handleProductCreate} />
+            <CreateProductForm
+              placesForSearch={placesForSearch}
+              onCreatedProduct={handleProductCreate}
+            />
           </TabsContent>
         </Tabs>
 
