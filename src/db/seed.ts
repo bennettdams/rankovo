@@ -1,4 +1,4 @@
-import { cities, ratingHighest, ratingLowest } from "@/data/static";
+import { ratingHighest, ratingLowest } from "@/data/static";
 import { createRandomNumberBetween, pickRandomFromArray } from "@/lib/utils";
 import { asc, sql } from "drizzle-orm";
 import {
@@ -119,115 +119,115 @@ async function createProducts() {
       name: "Cheeseburger Deluxe",
       category: "burger",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Super Smash Burger",
       category: "burger",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Fried Fries",
       category: "snack",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Gemüsedöner",
       category: "kebab",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Fish & Chips",
       category: "seafood",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Ceasar Salad",
       category: "salad",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Avocado Toast",
       category: "sandwich",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Pasta Carbonara",
       category: "pasta",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Sushi Set",
       category: "sushi",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Pizza Margherita",
       category: "pizza",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Falafel Wrap",
       category: "sandwich",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Chicken Wings",
       category: "chicken",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Ice Cream",
       category: "dessert",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Margarita",
       category: "drinks",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Steak Frites",
       category: "grill & barbecue",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Chocolate Cake",
       category: "dessert",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Vegan Burger",
       category: "burger",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Pancakes",
       category: "breakfast",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
     {
       name: "Cappuccino",
       category: "drinks",
       note: Math.random() > 0.5 ? null : "Some product note",
-      placeId: Math.random() > 0.5 ? null : pickRandomFromArray(places).id,
+      placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },
   ]);
 }
@@ -235,23 +235,21 @@ async function createProducts() {
 async function createPlaces() {
   console.info("Create places");
 
-  await db.insert(placesTable).values(
-    [
-      "Thyme & Again",
-      "Fork & Dagger",
-      "The Daily Grind",
-      "Searious Eats",
-      "Pour Decisions",
-      "Basil & Barrel",
-      "Chop House Rules",
-      "The Roasted Palette",
-      "Cask & Cleaver",
-      "Ember & Oak",
-    ].map((name) => ({
-      name,
-      city: Math.random() < 0.2 ? null : pickRandomFromArray(cities),
-    })),
-  );
+  await db
+    .insert(placesTable)
+    .values([
+      { name: "Bun's", city: "Hamburg" },
+      { name: "Batu Noodle Society", city: "Hamburg" },
+      { name: "Goldies" },
+      { name: "Guten Dag", city: "Berlin" },
+      { name: "Breggs", city: "Berlin" },
+      { name: "Horváth", city: "Berlin" },
+      { name: "TROYKA", city: "Düsseldorf" },
+      { name: "Karl Hermann's", city: "Düsseldorf" },
+      { name: "Bibis Baguette", city: "Frankfurt" },
+      { name: "Happy Pizza" },
+      { name: "Domino's" },
+    ]);
 }
 
 async function createCritics() {

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
+import { MapWithPlace } from "./map-with-place";
 import { NumberFormatted } from "./number-formatted";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -236,6 +237,13 @@ function RankingDialog({
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mt-6 grid h-64">
+            <MapWithPlace
+              placeName={placeName ?? "Bun's"}
+              city={city ?? "Hamburg"}
+            />
           </div>
         </div>
 

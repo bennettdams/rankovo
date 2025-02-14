@@ -9,7 +9,7 @@ export function MapWithPlace({
   placeName: string;
   city: City;
 }) {
-  const placeSearch = `${placeName} ${city}`;
+  const placeSearch = `${encodeURIComponent(placeName)} ${encodeURIComponent(city)}`;
 
   return (
     <div>
