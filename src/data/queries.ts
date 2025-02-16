@@ -20,7 +20,7 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
-import { dataKeys, minCharsSearch, type Category, type City } from "./static";
+import { cacheKeys, minCharsSearch, type Category, type City } from "./static";
 
 export type Ranking = {
   id: number;
@@ -81,10 +81,8 @@ export async function test() {
 
 async function rankings(filters: FiltersRankings) {
   "use cache";
-  cacheTag(dataKeys.rankings);
+  cacheTag(cacheKeys.rankings);
   console.debug("🟦 QUERY rankings");
-
-  await new Promise((r) => setTimeout(r, 1000));
 
   const filtersSQL: SQL[] = [];
   if (filters.categories)
@@ -184,7 +182,7 @@ const pageSizeReviews = 20;
 
 async function reviews(page = 1) {
   "use cache";
-  cacheTag(dataKeys.reviews);
+  cacheTag(cacheKeys.reviews);
   console.debug("🟦 QUERY reviews");
 
   return await db
@@ -217,7 +215,7 @@ export type ReviewQuery = Awaited<ReturnType<typeof reviews>>[number];
 
 async function critics() {
   "use cache";
-  cacheTag(dataKeys.critics);
+  cacheTag(cacheKeys.critics);
   console.debug("🟦 QUERY critics");
 
   return await db
@@ -234,6 +232,8 @@ async function searchProduct({
   productName: string | null;
   placeName: string | null;
 }) {
+  "use cache";
+  cacheTag(cacheKeys.products, productName ?? "", placeName ?? "");
   console.debug(
     "🟦 QUERY searchProduct",
     " product: ",
@@ -326,8 +326,8 @@ export type ProductSearchQuery = Awaited<
 >[number];
 
 async function searchPlaces(placeName: string) {
-  // "use cache";
-  // cacheTag(....);
+  "use cache";
+  cacheTag(cacheKeys.places, placeName);
   console.debug("🟦 QUERY searchPlace", " place: ", placeName);
 
   const filtersSQL: SQL[] = [];

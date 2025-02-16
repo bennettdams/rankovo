@@ -17,7 +17,7 @@ import {
 import { db } from "@/db/drizzle-setup";
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
-import { dataKeys } from "./static";
+import { cacheKeys } from "./static";
 
 const userIdFake = 1;
 
@@ -27,8 +27,6 @@ export async function actionCreateReview(
   formState: FormStateCreateReview,
 ) {
   console.debug("🟦 ACTION create review");
-
-  await new Promise((r) => setTimeout(r, 1000));
 
   const reviewToCreateFixed: ReviewCreateDb = {
     ...reviewToCreate,
@@ -55,7 +53,8 @@ export async function actionCreateReview(
     updatedAt: null,
   });
 
-  revalidateTag(dataKeys.reviews);
+  revalidateTag(cacheKeys.reviews);
+  revalidateTag(cacheKeys.rankings);
 
   return {
     success: true,
@@ -68,8 +67,6 @@ export async function actionUpdateReview(
 ) {
   console.debug("🟦 ACTION update review");
 
-  await new Promise((r) => setTimeout(r, 1000));
-
   const reviewParsed = schemaUpdateReview.parse(reviewToUpdate);
 
   await db
@@ -77,7 +74,8 @@ export async function actionUpdateReview(
     .set({ ...reviewParsed, updatedAt: new Date() })
     .where(eq(reviewsTable.id, id));
 
-  revalidateTag(dataKeys.reviews);
+  revalidateTag(cacheKeys.reviews);
+  revalidateTag(cacheKeys.rankings);
   return true;
 }
 
@@ -87,8 +85,6 @@ export async function actionCreateProduct(
   formState: FormStateCreateProduct,
 ) {
   console.debug("🟦 ACTION create product");
-
-  await new Promise((r) => setTimeout(r, 1000));
 
   const {
     success,
@@ -129,7 +125,7 @@ export async function actionCreateProduct(
   const productCreated = productCreatedRows[0];
   if (!productCreated) throw new Error("No created product");
 
-  revalidateTag(dataKeys.products);
+  revalidateTag(cacheKeys.products);
 
   return {
     success: true,

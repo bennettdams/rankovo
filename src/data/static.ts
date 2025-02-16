@@ -23,11 +23,12 @@ export type Category = (typeof categories)[number];
 export const ratingLowest = 0;
 export const ratingHighest = 5;
 
-export const dataKeys = {
+export const cacheKeys = {
   rankings: "rankings",
   reviews: "reviews",
   critics: "critics",
   products: "products",
+  places: "places",
 };
 
 export const cities = [
