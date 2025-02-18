@@ -21,10 +21,9 @@ import {
 } from "@/lib/form-utils";
 import {
   prepareFiltersForUpdate,
-  stringifySearchParams,
+  useSearchParamsHelper,
 } from "@/lib/url-state";
 import { Save } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   startTransition,
   useActionState,
@@ -85,9 +84,7 @@ export function CreateProductForm({
     createProduct,
     null,
   );
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const { searchParams, updateSearchParams } = useSearchParamsHelper();
   const [filters, setOptimisticFilters] = useOptimistic({
     placeNameSearch:
       searchParams.get(searchParamKeysCreateReview.placeNameSearch) ?? null,
@@ -100,23 +97,6 @@ export function CreateProductForm({
     }
   }, [state?.success, state?.productCreated, onCreatedProduct]);
 
-  function updateSearchParams(newFilters: SearchParamsCreateProduct) {
-    const queryString = stringifySearchParams(newFilters);
-
-    const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
-
-    if (
-      !!newFilters.placeNameSearch &&
-      newFilters.placeNameSearch.length >= minCharsSearch
-    ) {
-      router.replace(pathWithQuery, {
-        scroll: false,
-      });
-    } else {
-      window.history.replaceState(null, "", pathWithQuery);
-    }
-  }
-
   function changeFilters(
     filtersUpdatedPartial: Partial<SearchParamsCreateProduct>,
   ) {
@@ -124,7 +104,11 @@ export function CreateProductForm({
     if (filtersNew) {
       startTransition(() => {
         setOptimisticFilters(filtersNew);
-        updateSearchParams(filtersNew);
+        updateSearchParams(
+          filtersNew,
+          !!filtersNew.placeNameSearch &&
+            filtersNew.placeNameSearch.length >= minCharsSearch,
+        );
       });
     }
   }

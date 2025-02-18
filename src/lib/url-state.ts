@@ -1,7 +1,32 @@
-import type { ReadonlyURLSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { isKeyOfObj } from "./utils";
 
-export function stringifySearchParams(obj: Record<string, unknown>): string {
+export function useSearchParamsHelper() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  function updateSearchParams(
+    paramsNew: Record<string, unknown>,
+    shouldServerUpdate: boolean,
+  ) {
+    const queryString = stringifySearchParams(paramsNew);
+
+    const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
+
+    if (shouldServerUpdate) {
+      router.replace(pathWithQuery, {
+        scroll: false,
+      });
+    } else {
+      window.history.replaceState(null, "", pathWithQuery);
+    }
+  }
+
+  return { searchParams, updateSearchParams };
+}
+
+function stringifySearchParams(obj: Record<string, unknown>): string {
   const urlParams = new URLSearchParams();
 
   Object.entries(obj).forEach(([key, value]) => {
@@ -18,17 +43,6 @@ export function stringifySearchParams(obj: Record<string, unknown>): string {
   });
 
   return urlParams.toString();
-}
-
-export function createQueryString(
-  name: string,
-  value: string,
-  searchParams: ReadonlyURLSearchParams,
-) {
-  const params = new URLSearchParams(searchParams.toString());
-  params.set(name, value);
-
-  return params.toString();
 }
 
 export function prepareFiltersForUpdate<

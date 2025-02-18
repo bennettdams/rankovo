@@ -13,7 +13,7 @@ import {
 import { Suspense } from "react";
 import { z } from "zod";
 
-const schemaFiltersRankings = z.object({
+const schemaParamsRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
   cities: schemaSearchParamMultiple(z.enum(cities)),
   critics: schemaSearchParamMultiple(schemaUsername),
@@ -22,7 +22,7 @@ const schemaFiltersRankings = z.object({
   productName: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 
-export type FiltersRankings = z.output<typeof schemaFiltersRankings>;
+export type FiltersRankings = z.output<typeof schemaParamsRankings>;
 
 export default async function Home({
   searchParams,
@@ -30,7 +30,7 @@ export default async function Home({
   searchParams: Promise<unknown>;
 }) {
   const filters = searchParams.then((params) =>
-    schemaFiltersRankings.parse(params),
+    schemaParamsRankings.parse(params),
   );
   const criticsPromise = queries.critics();
 

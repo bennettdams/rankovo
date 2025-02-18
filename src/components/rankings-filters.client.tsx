@@ -10,7 +10,7 @@ import {
 } from "@/data/static";
 import {
   prepareFiltersForUpdate,
-  stringifySearchParams,
+  useSearchParamsHelper,
 } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { FilterX } from "lucide-react";
@@ -57,23 +57,14 @@ export function RankingsFiltersClient({
   );
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
-
-  function updateSearchParams(newFilters: FiltersRankings) {
-    const queryString = stringifySearchParams(newFilters);
-
-    // We might use native history here for "product name < min search", but trying it out showed that updated search params produce weird in-between states
-    //  window.history.replaceState(null, "", pathWithQuery);
-    router.replace(queryString ? `/?${queryString}` : "/", {
-      scroll: false,
-    });
-  }
+  const { updateSearchParams } = useSearchParamsHelper();
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
     if (filtersNew) {
       startTransition(() => {
         setOptimisticFilters(filtersNew);
-        updateSearchParams(filtersNew);
+        updateSearchParams(filtersNew, true);
       });
     }
   }

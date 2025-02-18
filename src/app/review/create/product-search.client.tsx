@@ -13,9 +13,8 @@ import { ProductSearchQuery } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
   prepareFiltersForUpdate,
-  stringifySearchParams,
+  useSearchParamsHelper,
 } from "@/lib/url-state";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useOptimistic } from "react";
 import { searchParamKeysCreateReview } from "./create-review-form.client";
 import { SearchParamsCreateReview } from "./page";
@@ -36,33 +35,13 @@ export function ProductSearch({
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { searchParams, updateSearchParams } = useSearchParamsHelper();
 
   const [filters, setOptimisticFilters] = useOptimistic({
     productName:
       searchParams.get(searchParamKeysCreateReview.productName) ?? null,
     placeName: searchParams.get(searchParamKeysCreateReview.placeName) ?? null,
   } satisfies SearchParamsProductSearch);
-
-  function updateSearchParams(newFilters: SearchParamsProductSearch) {
-    const queryString = stringifySearchParams(newFilters);
-
-    const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
-
-    if (
-      (!!newFilters.productName &&
-        newFilters.productName.length >= minCharsSearch) ||
-      (!!newFilters.placeName && newFilters.placeName.length >= minCharsSearch)
-    ) {
-      router.replace(pathWithQuery, {
-        scroll: false,
-      });
-    } else {
-      window.history.replaceState(null, "", pathWithQuery);
-    }
-  }
 
   function changeFilters(
     filtersUpdatedPartial: Partial<SearchParamsProductSearch>,
@@ -71,7 +50,13 @@ export function ProductSearch({
     if (filtersNew) {
       startTransition(() => {
         setOptimisticFilters(filtersNew);
-        updateSearchParams(filtersNew);
+        updateSearchParams(
+          filtersNew,
+          (!!filtersNew.productName &&
+            filtersNew.productName.length >= minCharsSearch) ||
+            (!!filtersNew.placeName &&
+              filtersNew.placeName.length >= minCharsSearch),
+        );
       });
     }
   }
