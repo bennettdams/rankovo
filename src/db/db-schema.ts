@@ -40,6 +40,7 @@ export const reviewsTable = pgTable("reviews", {
     precision: 6,
     withTimezone: true,
   }).notNull(),
+  urlSource: varchar({ length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
@@ -52,8 +53,12 @@ export const schemaRating = z
   .min(ratingLowest, messageRating)
   .max(ratingHighest, messageRating);
 
+const schemaUrl = z
+  .string()
+  .url({ message: "Please enter a valid URL (starts with https)" });
 export const schemaCreateReview = createInsertSchema(reviewsTable, {
   rating: schemaRating,
+  urlSource: schemaUrl.nullable(),
 })
   .required()
   .omit({

@@ -8,6 +8,7 @@ import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { MapWithPlace } from "./map-with-place";
 import { NumberFormatted } from "./number-formatted";
+import { ReviewSourceIcon } from "./review-source-icon";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 import {
@@ -164,7 +165,7 @@ function RankingDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-full md:max-w-3xl">
+      <DialogContent className="w-full md:max-w-5xl">
         <DialogHeader>
           <DialogTitle className="font-normal">
             <div className="flex">
@@ -234,6 +235,10 @@ function RankingDialog({
                   <p className="truncate pl-6" title={review.note ?? undefined}>
                     {review.note}
                   </p>
+
+                  {review.urlSource && (
+                    <ReviewSourceIcon href={review.urlSource} />
+                  )}
                 </div>
               ))}
             </div>

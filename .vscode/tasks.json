@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // letting this task run allows VS Code to show all TypeScript errors in the "Problems" view (instead of only the ones from the open file)
+    {
+      "label": "Monitor TS Errors",
+      "command": "./node_modules/.bin/tsc",
+      "type": "shell",
+      "args": ["--watch"],
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared"
+      },
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch",
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}

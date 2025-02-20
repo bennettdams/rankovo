@@ -41,6 +41,21 @@ export function pickRandomFromArray<T>(array: T[] | Readonly<T[]>): T {
   return entry;
 }
 
+function pickRandomKeyFromObject<T extends Record<string, unknown>>(
+  obj: T,
+): keyof T {
+  const keys = Object.keys(obj);
+  const key = pickRandomFromArray(keys);
+  return key;
+}
+
+export function pickRandomValueFromObject<T extends Record<string, unknown>>(
+  obj: T,
+): T[keyof T] {
+  const key = pickRandomKeyFromObject(obj);
+  return obj[key];
+}
+
 export function createRandomNumberBetween({
   min,
   max,

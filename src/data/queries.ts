@@ -39,6 +39,7 @@ export type Ranking = {
     note: string | null;
     username: string | null;
     reviewedAt: Date;
+    urlSource: string | null;
   }[];
 };
 
@@ -108,6 +109,7 @@ async function rankings(filters: FiltersRankings) {
       placeName: placesTable.name,
       city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,
+      urlSource: reviewsTable.urlSource,
     })
     .from(reviewsTable)
     .where(and(...filtersSQL))

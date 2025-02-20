@@ -36,12 +36,14 @@ const formKeys = {
   note: "note",
   rating: "rating",
   reviewedAt: "reviewedAt",
+  urlSource: "urlSource",
 } satisfies Record<keyof typeof formConfig, string>;
 
 const formConfig = {
   productId: "number",
   note: "string",
   rating: "number",
+  urlSource: "string",
   reviewedAt: "date",
 } satisfies FormConfig<ReviewCreate>;
 
@@ -185,6 +187,16 @@ export function CreateReviewForm({
               defaultValue={state?.values?.rating ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.rating} />
+          </Fieldset>
+
+          <Fieldset>
+            <Label htmlFor={formKeys.urlSource}>URL source</Label>
+            <Input
+              name={formKeys.urlSource}
+              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              defaultValue={state?.values?.urlSource ?? undefined}
+            />
+            <FieldError errorMsg={state?.errors?.urlSource} />
           </Fieldset>
 
           <Fieldset>

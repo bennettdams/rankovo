@@ -46,3 +46,9 @@ export const cities = [
 export type City = (typeof cities)[number];
 
 export const minCharsSearch = 3;
+
+export const reviewSources = {
+  YouTube: "youtube.com",
+  Instagram: "instagram.com",
+} as const;
+export type ReviewSource = keyof typeof reviewSources;

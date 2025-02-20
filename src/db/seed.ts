@@ -1,5 +1,9 @@
-import { ratingHighest, ratingLowest } from "@/data/static";
-import { createRandomNumberBetween, pickRandomFromArray } from "@/lib/utils";
+import { ratingHighest, ratingLowest, reviewSources } from "@/data/static";
+import {
+  createRandomNumberBetween,
+  pickRandomFromArray,
+  pickRandomValueFromObject,
+} from "@/lib/utils";
 import { asc, sql } from "drizzle-orm";
 import {
   criticsTable,
@@ -92,6 +96,7 @@ async function createReviewsBulk() {
 
     const product = pickRandomFromArray(products);
     const user = pickRandomFromArray(users);
+    const reviewSourceUrl = pickRandomValueFromObject(reviewSources);
 
     const review: ReviewCreateDb = {
       rating: createRandomNumberBetween({
@@ -103,6 +108,10 @@ async function createReviewsBulk() {
       productId: product.id,
       authorId: user.id,
       reviewedAt: new Date(),
+      urlSource:
+        Math.random() > 0.5
+          ? `https://${Math.random() > 0.5 ? "www." : ""}${reviewSourceUrl}/test123`
+          : null,
     };
 
     await db.insert(reviewsTable).values(review);
