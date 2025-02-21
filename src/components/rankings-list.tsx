@@ -12,14 +12,15 @@ import { ReviewSourceIcon } from "./review-source-icon";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
 
 export async function RankingsList({
   filters: filtersExternal,
@@ -78,7 +79,7 @@ function RankingsTableRow({
   position: number;
 }) {
   return (
-    <RankingDialog
+    <RankingDrawer
       placeName={placeName}
       rating={rating}
       productName={productName}
@@ -135,11 +136,11 @@ function RankingsTableRow({
           <DateTime format="YYYY-MM-DD" date={lastReviewedAt} />
         </div>
       </div>
-    </RankingDialog>
+    </RankingDrawer>
   );
 }
 
-function RankingDialog({
+function RankingDrawer({
   rating,
   productName,
   productCategory,
@@ -163,11 +164,11 @@ function RankingDialog({
   children: React.ReactNode;
 }) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-full md:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle className="font-normal">
+    <Drawer>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerContent className="mx-auto w-full md:max-w-5xl">
+        <DrawerHeader>
+          <DrawerTitle className="font-normal">
             <div className="flex">
               <div className="grow">
                 <p className="line-clamp-1 text-3xl">{productName}</p>
@@ -207,8 +208,9 @@ function RankingDialog({
                 </div>
               </div>
             </div>
-          </DialogTitle>
-        </DialogHeader>
+          </DrawerTitle>
+          <DrawerDescription>This action cannot be undone.</DrawerDescription>
+        </DrawerHeader>
 
         <div>
           <div className="mt-6 w-full">
@@ -251,17 +253,12 @@ function RankingDialog({
           </div>
         </div>
 
-        <DialogFooter className="sm:justify-end">
-          <Button type="button" variant="default">
-            Edit
-          </Button>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <DrawerFooter className="flex items-end">
+          <DrawerClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

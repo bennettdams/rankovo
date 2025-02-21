@@ -31,21 +31,22 @@
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.0",
     "lucide-react": "^0.475.0",
-    "next": "^15.2.0-canary.64",
+    "next": "^15.2.0-canary.67",
     "postgres": "^3.4.5",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "19.0.8",
-    "@types/react-dom": "19.0.3",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
     "drizzle-kit": "^0.30.4",
     "eslint": "^9",
-    "eslint-config-next": "^15.2.0-canary.64",
+    "eslint-config-next": "^15.2.0-canary.67",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
     "postcss": "^8",
@@ -57,7 +58,7 @@
   "overrides": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "@types/react": "19.0.8",
-    "@types/react-dom": "19.0.3"
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4"
   }
 }

@@ -92,7 +92,7 @@ async function createReviewsBulk() {
   const users = await db.select().from(usersTable);
 
   for (let index = 0; index < numOfReviews; index++) {
-    if (index % 1000 === 0) console.info("index: ", index);
+    if (index % (numOfReviews / 10) === 0) console.info("index: ", index);
 
     const product = pickRandomFromArray(products);
     const user = pickRandomFromArray(users);

@@ -1,5 +1,6 @@
 import { DateTime } from "@/components/date-time";
 import { NumberFormatted } from "@/components/number-formatted";
+import { ReviewSourceIcon } from "@/components/review-source-icon";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
 import { Suspense } from "react";
@@ -29,6 +30,9 @@ async function ReviewsList() {
           <div>{review.note}</div>
           <div>{review.placeName}</div>
           <div>{review.city}</div>
+          <div>
+            {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
+          </div>
           <div>
             Reviewed at{" "}
             <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
