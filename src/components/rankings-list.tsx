@@ -171,7 +171,9 @@ function RankingDrawer({
           <DrawerTitle className="font-normal">
             <div className="flex">
               <div className="grow">
-                <p className="line-clamp-1 text-3xl">{productName}</p>
+                <p className="line-clamp-1 text-2xl md:text-3xl">
+                  {productName}
+                </p>
 
                 <div className="mt-4">
                   <span className="text-xl text-secondary">{placeName}</span>
@@ -197,10 +199,15 @@ function RankingDrawer({
 
               <div
                 title={`Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`}
-                className="flex flex-col items-center gap-y-2 pr-10 text-center"
+                className="flex flex-col items-center gap-y-2 text-center md:pr-10"
               >
-                <p className="text-center text-5xl">{rating}</p>
-                <StarsForRating size="large" rating={rating} />
+                <p className="text-center text-3xl md:text-5xl">{rating}</p>
+                <div className="block md:hidden">
+                  <StarsForRating size="medium" rating={rating} />
+                </div>
+                <div className="hidden md:block">
+                  <StarsForRating size="large" rating={rating} />
+                </div>
 
                 <div>
                   <span className="font-bold">{numOfReviews}</span>
@@ -213,7 +220,7 @@ function RankingDrawer({
 
         <Tabs
           defaultValue="tab-reviews"
-          className="mt-6 inline-flex min-h-0 flex-1 shrink flex-col"
+          className="mt-6 flex min-h-0 flex-1 flex-col md:hidden"
         >
           <TabsList className="w-min">
             <TabsTrigger value="tab-reviews">Reviews</TabsTrigger>
@@ -221,46 +228,22 @@ function RankingDrawer({
           </TabsList>
 
           <TabsContent value="tab-reviews" className="flex-1 overflow-y-auto">
-            <p className="font-bold">Last 20 reviews</p>
-
-            <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll">
-              {reviews.map((review) => (
-                <div
-                  className="col-span-12 grid h-6 grid-cols-subgrid items-center"
-                  key={review.id}
-                >
-                  <NumberFormatted num={review.rating} min={2} max={2} />
-
-                  <div className="flex items-center justify-start">
-                    <StarsForRating size="small" rating={review.rating} />
-                  </div>
-
-                  <p>{review.username}</p>
-
-                  <p className="pl-6 text-left">
-                    <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
-                  </p>
-
-                  <p className="truncate pl-6" title={review.note ?? undefined}>
-                    {review.note}
-                  </p>
-
-                  {review.urlSource && (
-                    <ReviewSourceIcon href={review.urlSource} />
-                  )}
-                </div>
-              ))}
-            </div>
+            <ReviewsList reviews={reviews} />
           </TabsContent>
 
           <TabsContent value="tab-map" className="flex-1">
-            <div className="grid h-full">
-              {!!placeName && !!city && (
-                <MapWithPlace placeName={placeName} city={city} />
-              )}
-            </div>
+            <ProductMap placeName={placeName} city={city} />
           </TabsContent>
         </Tabs>
+
+        <div className="mt-6 hidden min-h-0 flex-1 flex-col md:flex">
+          <div className="mb-3 min-h-0 flex-1 pb-3">
+            <ReviewsList reviews={reviews} />
+          </div>
+          <div className="mt-3 flex-1 pt-3">
+            <ProductMap placeName={placeName} city={city} />
+          </div>
+        </div>
 
         <DrawerFooter className="flex items-end">
           <DrawerClose asChild>
@@ -269,5 +252,56 @@ function RankingDrawer({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+function ReviewsList({ reviews }: { reviews: Ranking["reviews"] }) {
+  return (
+    <>
+      <p className="font-bold">Last 20 reviews</p>
+
+      <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll">
+        {reviews.map((review) => (
+          <div
+            className="col-span-12 grid h-6 grid-cols-subgrid items-center"
+            key={review.id}
+          >
+            <NumberFormatted num={review.rating} min={2} max={2} />
+
+            <div className="flex items-center justify-start">
+              <StarsForRating size="small" rating={review.rating} />
+            </div>
+
+            <p>{review.username}</p>
+
+            <p className="pl-6 text-left">
+              <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+            </p>
+
+            <p className="truncate pl-6" title={review.note ?? undefined}>
+              {review.note}
+            </p>
+
+            {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function ProductMap({
+  placeName,
+  city,
+}: {
+  placeName: Ranking["placeName"];
+  city: Ranking["city"];
+}) {
+  return (
+    <div className="grid h-full">
+      {!!placeName && !!city && (
+        <MapWithPlace placeName={placeName} city={city} />
+      )}
+    </div>
   );
 }
