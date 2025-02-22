@@ -15,12 +15,12 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export async function RankingsList({
   filters: filtersExternal,
@@ -166,7 +166,7 @@ function RankingDrawer({
   return (
     <Drawer>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="mx-auto w-full md:max-w-5xl">
+      <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader>
           <DrawerTitle className="font-normal">
             <div className="flex">
@@ -209,14 +209,21 @@ function RankingDrawer({
               </div>
             </div>
           </DrawerTitle>
-          <DrawerDescription>This action cannot be undone.</DrawerDescription>
         </DrawerHeader>
 
-        <div>
-          <div className="mt-6 w-full">
+        <Tabs
+          defaultValue="tab-reviews"
+          className="mt-6 inline-flex min-h-0 flex-1 shrink flex-col"
+        >
+          <TabsList className="w-min">
+            <TabsTrigger value="tab-reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="tab-map">Map</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tab-reviews" className="flex-1 overflow-y-auto">
             <p className="font-bold">Last 20 reviews</p>
 
-            <div className="grid h-60 auto-rows-min gap-x-4 overflow-y-scroll">
+            <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll">
               {reviews.map((review) => (
                 <div
                   className="col-span-12 grid h-6 grid-cols-subgrid items-center"
@@ -244,14 +251,16 @@ function RankingDrawer({
                 </div>
               ))}
             </div>
-          </div>
+          </TabsContent>
 
-          <div className="mt-6 grid h-64">
-            {!!placeName && !!city && (
-              <MapWithPlace placeName={placeName} city={city} />
-            )}
-          </div>
-        </div>
+          <TabsContent value="tab-map" className="flex-1">
+            <div className="grid h-full">
+              {!!placeName && !!city && (
+                <MapWithPlace placeName={placeName} city={city} />
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <DrawerFooter className="flex items-end">
           <DrawerClose asChild>
