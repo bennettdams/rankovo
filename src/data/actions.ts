@@ -1,15 +1,20 @@
 "use server";
 
-import { FormStateCreateProduct } from "@/app/review/create/create-product-form.client";
+import {
+  type FormStateCreatePlace,
+  type FormStateCreateProduct,
+} from "@/app/review/create/create-product-form.client";
 import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import {
+  type PlaceCreateDb,
   placesTable,
-  ProductCreateDb,
+  type ProductCreateDb,
   productsTable,
   type Review,
   type ReviewCreateDb,
   reviewsTable,
   type ReviewUpdate,
+  schemaCreatePlace,
   schemaCreateProduct,
   schemaCreateReview,
   schemaUpdateReview,
@@ -20,6 +25,47 @@ import { revalidateTag } from "next/cache";
 import { cacheKeys } from "./static";
 
 const userIdFake = 1;
+
+export type PlaceCreate = PlaceCreateDb;
+
+export async function actionCreatePlace(
+  placeToCreate: PlaceCreate,
+  formState: FormStateCreatePlace,
+) {
+  console.debug("🟦 ACTION create place");
+
+  const {
+    success,
+    error,
+    data: placeParsed,
+  } = schemaCreatePlace.safeParse(placeToCreate);
+
+  if (!success) {
+    return {
+      errors: error.flatten().fieldErrors,
+      values: formState,
+    };
+  }
+
+  const placeCreatedRows = await db
+    .insert(placesTable)
+    .values({
+      ...placeParsed,
+      createdAt: new Date(),
+      updatedAt: null,
+    })
+    .returning({ id: placesTable.id });
+
+  const placeCreated = placeCreatedRows[0];
+  if (!placeCreated) throw new Error("No created place");
+
+  revalidateTag(cacheKeys.places);
+
+  return {
+    success: true,
+    placeIdCreated: placeCreated.id,
+  };
+}
 
 export type ReviewCreate = Omit<ReviewCreateDb, "authorId">;
 export async function actionCreateReview(
@@ -80,6 +126,10 @@ export async function actionUpdateReview(
 }
 
 export type ProductCreate = ProductCreateDb;
+export type ProductCreatedAction = NonNullable<
+  Awaited<ReturnType<typeof actionCreateProduct>>["productCreated"]
+>;
+
 export async function actionCreateProduct(
   productToCreate: ProductCreate,
   formState: FormStateCreateProduct,
@@ -132,7 +182,3 @@ export async function actionCreateProduct(
     productCreated,
   };
 }
-
-export type ProductCreatedAction = NonNullable<
-  Awaited<ReturnType<typeof actionCreateProduct>>["productCreated"]
->;

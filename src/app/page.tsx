@@ -35,7 +35,7 @@ export default async function Home({
   const criticsPromise = queries.critics();
 
   return (
-    <div className="pt-8 md:pt-12">
+    <div className="md:pt-12">
       <HeroSection />
 
       <div className="flex flex-row gap-x-4">

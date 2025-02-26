@@ -170,7 +170,7 @@ function RankingDrawer({
         <DrawerHeader>
           <DrawerTitle className="font-normal">
             <div className="flex">
-              <div className="grow">
+              <div className="grow text-left">
                 <p className="line-clamp-1 text-2xl md:text-3xl">
                   {productName}
                 </p>
@@ -186,7 +186,7 @@ function RankingDrawer({
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-row items-center gap-2">
+                <div className="mt-4 flex flex-col items-start gap-2 md:flex-row md:items-center">
                   <CategoryBadge category={productCategory} />
                   <div
                     className="line-clamp-1 flex-1"
@@ -260,7 +260,7 @@ function ReviewsList({ reviews }: { reviews: Ranking["reviews"] }) {
     <>
       <p className="font-bold">Last 20 reviews</p>
 
-      <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll">
+      <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll text-left">
         {reviews.map((review) => (
           <div
             className="col-span-12 grid h-6 grid-cols-subgrid items-center"
@@ -272,7 +272,7 @@ function ReviewsList({ reviews }: { reviews: Ranking["reviews"] }) {
               <StarsForRating size="small" rating={review.rating} />
             </div>
 
-            <p>{review.username}</p>
+            <p className="whitespace-nowrap">{review.username}</p>
 
             <p className="pl-6 text-left">
               <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />

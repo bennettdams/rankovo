@@ -2,12 +2,7 @@
 
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
-import {
-  cities,
-  minCharsSearch,
-  ratingHighest,
-  ratingLowest,
-} from "@/data/static";
+import { minCharsSearch, ratingHighest, ratingLowest } from "@/data/static";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
@@ -18,7 +13,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
 import { CategoriesSelection } from "./categories-selection";
-import { FilterButton } from "./filter-button";
+import { CitiesSelection } from "./cities-selection";
 import { FieldError } from "./form";
 import { SliderDual } from "./slider-dual";
 import { StarsForRating } from "./stars-for-rating";
@@ -108,7 +103,7 @@ export function RankingsFiltersClient({
       </div>
 
       <FilterRow label="Categories">
-        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
+        <div className="col-start-2 row-start-2">
           <CategoriesSelection
             onClick={(category) =>
               changeFilters({
@@ -175,22 +170,15 @@ export function RankingsFiltersClient({
       </FilterRow>
 
       <FilterRow label="Critics">
-        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
-          {cities.map((city) => (
-            <FilterButton
-              key={city}
-              isActive={
-                filters.cities === null ? true : filters.cities.includes(city)
-              }
-              onMouseDown={() =>
-                changeFilters({
-                  cities: updateArray(filters.cities, city),
-                })
-              }
-            >
-              <span className="capitalize">{city}</span>
-            </FilterButton>
-          ))}
+        <div className="col-start-2 row-start-2">
+          <CitiesSelection
+            citiesActive={filters.cities}
+            onClick={(city) =>
+              changeFilters({
+                cities: updateArray(filters.cities, city),
+              })
+            }
+          />
         </div>
       </FilterRow>
 

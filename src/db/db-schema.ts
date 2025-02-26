@@ -83,6 +83,13 @@ export const placesTable = pgTable("places", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
+export const schemaCreatePlace = createInsertSchema(placesTable)
+  .required()
+  .omit({
+    createdAt: true,
+    updatedAt: true,
+  });
+export type PlaceCreateDb = z.infer<typeof schemaCreatePlace>;
 
 export const productsTable = pgTable("products", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

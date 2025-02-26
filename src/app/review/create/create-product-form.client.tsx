@@ -1,19 +1,35 @@
-import { CategoriesSelectionFormField } from "@/components/categories-selection";
-import { FieldError, Fieldset, formInputWidth } from "@/components/form";
+import { CitiesSelection } from "@/components/cities-selection";
+import {
+  FieldError,
+  Fieldset,
+  formInputWidth,
+  SelectionFormField,
+} from "@/components/form";
 import { InfoMessage } from "@/components/info-message";
 import { MapWithPlace } from "@/components/map-with-place";
 import { SelectionCard } from "@/components/selection-card";
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  actionCreatePlace,
   actionCreateProduct,
+  type PlaceCreate,
   type ProductCreate,
   type ProductCreatedAction,
 } from "@/data/actions";
 import { PlaceSearchQuery } from "@/data/queries";
-import { minCharsSearch } from "@/data/static";
-import { schemaCreateProduct } from "@/db/db-schema";
+import { categories, type City, minCharsSearch } from "@/data/static";
+import { schemaCreatePlace, schemaCreateProduct } from "@/db/db-schema";
 import {
   type FormConfig,
   type FormState,
@@ -25,10 +41,14 @@ import {
 } from "@/lib/url-state";
 import { Save } from "lucide-react";
 import {
+  type Dispatch,
+  type SetStateAction,
   startTransition,
   useActionState,
+  useCallback,
   useEffect,
   useOptimistic,
+  useState,
 } from "react";
 import { searchParamKeysCreateReview } from "./create-review-form.client";
 import { SearchParamsCreateReview } from "./page";
@@ -89,10 +109,12 @@ export function CreateProductForm({
     placeNameSearch:
       searchParams.get(searchParamKeysCreateReview.placeNameSearch) ?? null,
   } satisfies SearchParamsCreateProduct);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
+  const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
 
   // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
   useEffect(() => {
-    if (state?.success && state.productCreated) {
+    if (state?.success) {
       onCreatedProduct(state.productCreated);
     }
   }, [state?.success, state?.productCreated, onCreatedProduct]);
@@ -113,7 +135,19 @@ export function CreateProductForm({
     }
   }
 
-  const placeFirst = placesForSearch[0] ?? null;
+  const handlePlaceCreation = useCallback((placeIdCreated: number) => {
+    setSelectedPlaceId(placeIdCreated);
+    setIsPlaceDrawerOpen(false);
+  }, []);
+
+  const placeForMap = selectedPlaceId
+    ? placesForSearch.find((p) => p.id === selectedPlaceId)
+    : // fallback first place from search if nothing selected
+      (placesForSearch[0] ?? null);
+
+  /** We remind the user to select a place so it is not assumed that entering a place name automatically makes a selection. */
+  const isPlaceSelectionNeeded =
+    selectedPlaceId === null && filters.placeNameSearch !== null;
 
   return (
     <form action={formAction} className="flex flex-col gap-y-6" noValidate>
@@ -128,9 +162,10 @@ export function CreateProductForm({
 
       <Fieldset>
         <Label htmlFor={formKeys.category}>Category</Label>
-        <CategoriesSelectionFormField
+        <SelectionFormField
           name={formKeys.category}
           defaultValue={state?.values?.category ?? undefined}
+          options={categories}
         />
         <FieldError errorMsg={state?.errors?.category} />
       </Fieldset>
@@ -145,64 +180,112 @@ export function CreateProductForm({
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
 
-      <div className="flex size-full flex-row items-start">
-        <div className="w-1/2">
-          <Fieldset>
-            <Label htmlFor="search-place-name">Place name</Label>
-            <Input
-              className={formInputWidth}
-              name="search-place-name"
-              type="text"
-              placeholder="e.g. Five Guys"
-              value={filters.placeNameSearch ?? ""}
-              onChange={(e) =>
-                changeFilters({ placeNameSearch: e.target.value })
-              }
-            />
+      {/* PLACE */}
+      <div className="mt-4">
+        <h2 className="flex items-center text-xl text-secondary">
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary text-2xl leading-none text-primary-fg">
+            1.1
+          </span>
+          <span className="ml-4">Select a place (optional)</span>
+        </h2>
 
-            <FieldError errorMsg={state?.errors?.placeId} />
-          </Fieldset>
+        <div className="mt-4 flex size-full flex-row items-start">
+          <div className="w-1/2">
+            <Fieldset>
+              <Label htmlFor="search-place-name">Place name</Label>
+              <Input
+                className={formInputWidth}
+                name="search-place-name"
+                type="text"
+                placeholder="e.g. Five Guys"
+                value={filters.placeNameSearch ?? ""}
+                onChange={(e) => {
+                  setSelectedPlaceId(null);
+                  changeFilters({ placeNameSearch: e.target.value });
+                }}
+              />
+              <Fieldset>
+                <Label htmlFor={formKeys.placeId}>Place ID</Label>
+                <Input
+                  name={formKeys.placeId}
+                  type="hidden"
+                  defaultValue={selectedPlaceId ?? undefined}
+                />
+                <FieldError errorMsg={state?.errors?.placeId} />
+              </Fieldset>
 
-          <div className="mt-10">
-            <p>Similar places for your filter:</p>
+              <FieldError errorMsg={state?.errors?.placeId} />
+            </Fieldset>
 
-            <div className="mt-4 flex h-full flex-row gap-x-4 overflow-x-scroll">
-              {!filters.placeNameSearch ? (
-                <InfoMessage>-</InfoMessage>
-              ) : placesForSearch.length === 0 ? (
-                <InfoMessage>No places found</InfoMessage>
-              ) : (
-                placesForSearch.map((place) => (
-                  <SelectionCard
-                    key={place.id}
-                    isSelected={true}
-                    onClick={() => {
-                      alert("Not implemented");
-                    }}
-                  >
-                    <p className="line-clamp-2 min-h-10 font-bold">
-                      {place.name}
-                    </p>
-                    <p className="line-clamp-2 min-h-2">{place.city}</p>
-                  </SelectionCard>
-                ))
-              )}
+            <div className="mt-10">
+              <p>Similar places for your filter:</p>
+
+              <div className="mt-4 flex h-full flex-row gap-x-4 overflow-x-scroll">
+                {!filters.placeNameSearch ? (
+                  <InfoMessage>-</InfoMessage>
+                ) : placesForSearch.length === 0 ? (
+                  <InfoMessage>No places found</InfoMessage>
+                ) : (
+                  placesForSearch.map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      isSelected={place.id === selectedPlaceId}
+                      onSelect={() =>
+                        setSelectedPlaceId((prev) =>
+                          prev === place.id ? null : place.id,
+                        )
+                      }
+                      name={place.name}
+                      city={place.city}
+                    />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="ml-10 mt-6 grid h-80 w-1/2 grow">
-          {!!placeFirst && placeFirst.city ? (
-            <MapWithPlace placeName={placeFirst.name} city={placeFirst.city} />
-          ) : (
-            <MapWithPlace placeName="Bun's" city="Hamburg" />
-          )}
+            <DrawerCreatePlace
+              placeNameSearch={filters.placeNameSearch}
+              onChangePlaceName={(placeName) =>
+                changeFilters({ placeNameSearch: placeName })
+              }
+              onCreatedPlace={handlePlaceCreation}
+              isOpen={isPlaceDrawerOpen}
+              setIsOpen={setIsPlaceDrawerOpen}
+            >
+              <div onClick={() => setIsPlaceDrawerOpen(true)}>
+                <InfoMessage className="mt-4 inline-block cursor-pointer">
+                  Place not found?
+                  <span className="ml-2 font-bold not-italic text-primary">
+                    Create one instead
+                  </span>
+                </InfoMessage>
+              </div>
+            </DrawerCreatePlace>
+          </div>
+
+          <div className="ml-10 mt-6 grid h-80 w-1/2 grow">
+            {!!placeForMap && placeForMap.city ? (
+              <MapWithPlace
+                placeName={placeForMap.name}
+                city={placeForMap.city}
+              />
+            ) : (
+              <MapWithPlace placeName="Bun's" city="Hamburg" />
+            )}
+          </div>
         </div>
       </div>
 
-      <Button className="w-min" type="submit" disabled={isPendingAction}>
+      <Button
+        className="w-min"
+        type="submit"
+        disabled={isPendingAction || isPlaceSelectionNeeded}
+      >
         <Save /> {isPendingAction ? "Saving product..." : "Save product"}
       </Button>
+      {isPlaceSelectionNeeded && (
+        <FieldError errorMsg="Either select/create a place or remove your place name search." />
+      )}
 
       {state?.success && (
         <p aria-live="polite" className="text-xl text-green-700">
@@ -210,5 +293,148 @@ export function CreateProductForm({
         </p>
       )}
     </form>
+  );
+}
+
+function PlaceCard({
+  isSelected,
+  onSelect,
+  name,
+  city,
+}: {
+  isSelected: boolean;
+  onSelect: () => void;
+  name: string;
+  city: City | null;
+}) {
+  return (
+    <SelectionCard isSelected={isSelected} onClick={onSelect}>
+      <p className="line-clamp-2 min-h-10 font-bold">{name}</p>
+      <p className="line-clamp-2 min-h-2">{city}</p>
+    </SelectionCard>
+  );
+}
+
+const formKeysCreatePlace = {
+  name: "name",
+  city: "city",
+} satisfies Record<keyof PlaceCreate, string>;
+
+const formConfigCreatePlace = {
+  name: "string",
+  city: "string",
+} satisfies FormConfig<PlaceCreate>;
+
+export type FormStateCreatePlace = FormState<typeof formConfigCreatePlace>;
+
+function createPlace(_: unknown, formData: FormData) {
+  const formState = prepareFormState(formConfigCreatePlace, formData);
+
+  const {
+    success,
+    error,
+    data: placeParsed,
+  } = schemaCreatePlace.safeParse(formState);
+
+  if (!success) {
+    return {
+      errors: error.flatten().fieldErrors,
+      values: formState,
+    };
+  }
+
+  return actionCreatePlace(placeParsed, formState);
+}
+
+function DrawerCreatePlace({
+  isOpen,
+  setIsOpen,
+  placeNameSearch,
+  onChangePlaceName,
+  onCreatedPlace,
+  children,
+}: {
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  placeNameSearch: string | null;
+  onChangePlaceName: (placeName: string) => void;
+  onCreatedPlace: (placeId: number) => void;
+  children: React.ReactNode;
+}) {
+  const [state, formAction, isPendingAction] = useActionState(
+    createPlace,
+    null,
+  );
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+
+  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
+  useEffect(() => {
+    if (state?.success) {
+      onCreatedPlace(state.placeIdCreated);
+    }
+  }, [state?.success, state?.placeIdCreated]);
+
+  return (
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
+        <DrawerHeader>
+          <DrawerTitle className="font-normal">Create a new place</DrawerTitle>
+        </DrawerHeader>
+
+        <div className="mt-6 flex min-h-0 flex-row gap-x-6">
+          <form
+            action={formAction}
+            className="flex min-h-0 w-1/2 flex-1 flex-col gap-y-6"
+            noValidate
+          >
+            <Fieldset>
+              <Label htmlFor={formKeysCreatePlace.name}>Place name</Label>
+              <Input
+                className={formInputWidth}
+                name={formKeysCreatePlace.name}
+                type="text"
+                placeholder="e.g. Five Guys"
+                value={placeNameSearch ?? ""}
+                onChange={(e) => onChangePlaceName(e.target.value)}
+              />
+              <FieldError errorMsg={state?.errors?.name} />
+            </Fieldset>
+
+            <Fieldset>
+              <Label htmlFor={formKeysCreatePlace.city}>City</Label>
+              <Input
+                name={formKeysCreatePlace.city}
+                type="hidden"
+                defaultValue={selectedCity ?? undefined}
+              />
+              <CitiesSelection
+                citiesActive={!selectedCity ? [] : [selectedCity]}
+                onClick={setSelectedCity}
+              />
+              <FieldError errorMsg={state?.errors?.city} />
+            </Fieldset>
+
+            <Button className="w-min" type="submit" disabled={isPendingAction}>
+              <Save /> {isPendingAction ? "Saving place..." : "Save place"}
+            </Button>
+          </form>
+
+          <div className="gdrow grid h-80 w-1/2">
+            {!!placeNameSearch && !!selectedCity ? (
+              <MapWithPlace placeName={placeNameSearch} city={selectedCity} />
+            ) : (
+              <MapWithPlace placeName="Bun's" city="Hamburg" />
+            )}
+          </div>
+        </div>
+
+        <DrawerFooter className="flex items-end">
+          <DrawerClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

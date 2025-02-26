@@ -91,7 +91,7 @@ export function CreateReviewForm({
   const [productCreated, setProductCreated] =
     useState<ProductCreatedAction | null>(null);
 
-  const handleProductCreate = useCallback(
+  const handleProductCreation = useCallback(
     (productCreated: ProductCreatedAction) => {
       setSelectedProductId(productCreated.id);
       setProductCreated(productCreated);
@@ -137,7 +137,7 @@ export function CreateReviewForm({
           <TabsContent value="create">
             <CreateProductForm
               placesForSearch={placesForSearch}
-              onCreatedProduct={handleProductCreate}
+              onCreatedProduct={handleProductCreation}
             />
           </TabsContent>
         </Tabs>
@@ -170,7 +170,6 @@ export function CreateReviewForm({
             <Input
               name={formKeys.productId}
               type="hidden"
-              placeholder="Product"
               defaultValue={selectedProductId ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.productId} />
