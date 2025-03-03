@@ -372,7 +372,7 @@ function DrawerCreatePlace({
     if (state?.success) {
       onCreatedPlace(state.placeIdCreated);
     }
-  }, [state?.success, state?.placeIdCreated]);
+  }, [state?.success, state?.placeIdCreated, onCreatedPlace]);
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>

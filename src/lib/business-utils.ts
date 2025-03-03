@@ -11,6 +11,7 @@ export function extractReviewSourceFromUrl(url: string) {
     .replace(/^www\./, "");
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     objectEntries(reviewSources).find(([_, sourceUrl]) =>
       urlWithoutPrefix.startsWith(sourceUrl),
     )?.[0] ?? null

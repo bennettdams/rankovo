@@ -43,6 +43,7 @@ export default function RootLayout({
             <a
               href="https://x.com/bennettdams"
               target="_blank"
+              rel="noreferrer"
               className="text-primary underline"
             >
               Bennett Dams
