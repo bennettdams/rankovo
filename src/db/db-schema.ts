@@ -36,10 +36,11 @@ export const reviewsTable = pgTable("reviews", {
   authorId: integer("author_id")
     .references(() => usersTable.id)
     .notNull(),
+  // TODO make non-nullable when all reviews have a date
   reviewedAt: timestamp("reviewed_at", {
     precision: 6,
     withTimezone: true,
-  }).notNull(),
+  }),
   urlSource: varchar({ length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),

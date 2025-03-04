@@ -32,13 +32,15 @@ export type Ranking = {
   placeName: string | null;
   city: City | null;
   numOfReviews: number;
-  lastReviewedAt: Date;
+  // TODO remove null check when all reviews have a date
+  lastReviewedAt: Date | null;
   reviews: {
     id: number;
     rating: number;
     note: string | null;
     username: string | null;
-    reviewedAt: Date;
+    // TODO remove null check when all reviews have a date
+    reviewedAt: Date | null;
     urlSource: string | null;
   }[];
 };
@@ -177,7 +179,22 @@ async function rankings(filters: FiltersRankings) {
     return true;
   });
 
-  return rankingsFiltered.sort((a, b) => b.rating - a.rating).slice(0, 10);
+  return (
+    rankingsFiltered
+      // sort by rating
+      .sort((a, b) => b.rating - a.rating)
+      // cut off at 10
+      .slice(0, 10)
+      // sort reviews of each ranking
+      .map((ranking) => ({
+        ...ranking,
+        reviews: ranking.reviews.sort((a, b) =>
+          !a.reviewedAt || !b.reviewedAt
+            ? -1
+            : b.reviewedAt.getTime() - a.reviewedAt.getTime(),
+        ),
+      }))
+  );
 }
 
 const pageSizeReviews = 20;

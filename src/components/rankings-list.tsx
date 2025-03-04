@@ -133,7 +133,12 @@ function RankingsTableRow({
         </div>
         {/* Last cell should have some padding to give breathing room when scrolling horizontally */}
         <div className="pr-10">
-          <DateTime format="YYYY-MM-DD" date={lastReviewedAt} />
+          {/* TODO remove null check when all reviews have a date */}
+          {!lastReviewedAt ? (
+            "-"
+          ) : (
+            <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
+          )}
         </div>
       </div>
     </RankingDrawer>
@@ -198,7 +203,12 @@ function RankingDrawer({
               </div>
 
               <div
-                title={`Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`}
+                // TODO remove null check when all reviews have a date
+                title={
+                  !lastReviewedAt
+                    ? undefined
+                    : `Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`
+                }
                 className="flex flex-col items-center gap-y-2 text-center md:pr-10"
               >
                 <p className="text-center text-3xl md:text-5xl">{rating}</p>
@@ -275,7 +285,12 @@ function ReviewsList({ reviews }: { reviews: Ranking["reviews"] }) {
             <p className="whitespace-nowrap">{review.username}</p>
 
             <p className="pl-6 text-left">
-              <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+              {/* TODO remove null check when all reviews have a date */}
+              {!review.reviewedAt ? (
+                "-"
+              ) : (
+                <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+              )}
             </p>
 
             <p className="truncate pl-6" title={review.note ?? undefined}>

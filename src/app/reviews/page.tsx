@@ -35,7 +35,12 @@ async function ReviewsList() {
           </div>
           <div>
             Reviewed at{" "}
-            <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+            {/* TODO remove null check when all reviews have a date */}
+            {!review.reviewedAt ? (
+              "-"
+            ) : (
+              <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+            )}
           </div>
           <div>
             Updated{" "}

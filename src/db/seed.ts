@@ -107,7 +107,7 @@ async function createReviewsBulk() {
       note: Math.random() > 0.5 ? "Some review note" : null,
       productId: product.id,
       authorId: user.id,
-      reviewedAt: new Date(),
+      reviewedAt: Math.random() > 0.1 ? new Date() : null,
       urlSource:
         Math.random() > 0.5
           ? `https://${Math.random() > 0.5 ? "www." : ""}${reviewSourceUrl}/test123`
@@ -115,6 +115,7 @@ async function createReviewsBulk() {
     };
 
     await db.insert(reviewsTable).values(review);
+    await new Promise((resolve) => setTimeout(resolve, 3));
   }
 }
 
