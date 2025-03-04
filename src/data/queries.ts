@@ -236,7 +236,7 @@ async function searchProduct({
   placeName: string | null;
 }) {
   "use cache";
-  cacheTag(cacheKeys.products, productName ?? "", placeName ?? "");
+  cacheTag(cacheKeys.products);
   console.debug(
     "🟦 QUERY searchProduct",
     " product: ",
@@ -330,7 +330,7 @@ export type ProductSearchQuery = Awaited<
 
 async function searchPlaces(placeName: string) {
   "use cache";
-  cacheTag(cacheKeys.places, placeName);
+  cacheTag(cacheKeys.places);
   console.debug("🟦 QUERY searchPlace", " place: ", placeName);
 
   const filtersSQL: SQL[] = [];
