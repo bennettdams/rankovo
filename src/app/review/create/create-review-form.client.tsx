@@ -20,7 +20,7 @@ import {
   prepareFormState,
 } from "@/lib/form-utils";
 import { FilePlus, Save, Search } from "lucide-react";
-import { useActionState, useCallback, useState } from "react";
+import { useActionState, useCallback, useEffect, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
@@ -100,6 +100,13 @@ export function CreateReviewForm({
     [],
   );
 
+  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
+  useEffect(() => {
+    if (state?.success) {
+      setSelectedProductId(null);
+    }
+  }, [state?.success]);
+
   return (
     <div className="flex flex-col gap-y-16">
       <div>
@@ -157,14 +164,7 @@ export function CreateReviewForm({
           <span className="ml-4">Add your verdict</span>
         </h2>
 
-        <form
-          action={(formData) => {
-            setSelectedProductId(null);
-            formAction(formData);
-          }}
-          className="flex flex-col gap-y-6"
-          noValidate
-        >
+        <form action={formAction} className="flex flex-col gap-y-6" noValidate>
           <Fieldset className="hidden">
             <Label htmlFor={formKeys.productId}>Product ID</Label>
             <Input
