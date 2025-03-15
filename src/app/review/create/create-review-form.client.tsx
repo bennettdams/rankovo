@@ -8,19 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   actionCreateReview,
-  type ProductCreatedAction,
+  type ProductCreatedByAction,
   type ReviewCreate,
 } from "@/data/actions";
 import type { PlaceSearchQuery, ProductSearchQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
+import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
   type FormConfig,
   type FormState,
   prepareFormState,
 } from "@/lib/form-utils";
 import { FilePlus, Save, Search } from "lucide-react";
-import { useActionState, useCallback, useEffect, useState } from "react";
+import { useActionState, useCallback, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
@@ -54,7 +55,7 @@ const tabs = {
   create: "create",
 };
 
-function createReview(_: unknown, formData: FormData) {
+async function createReview(_: unknown, formData: FormData) {
   const formState = prepareFormState(formConfig, formData);
 
   const {
@@ -65,12 +66,14 @@ function createReview(_: unknown, formData: FormData) {
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
-  return actionCreateReview(reviewParsed, formState);
+  return actionCreateReview(formState, reviewParsed);
 }
 
 export function CreateReviewForm({
@@ -81,7 +84,9 @@ export function CreateReviewForm({
   placesForSearch: PlaceSearchQuery[];
 }) {
   const [state, formAction, isPendingAction] = useActionState(
-    createReview,
+    withCallbacks(createReview, {
+      onSuccess: () => setSelectedProductId(null),
+    }),
     null,
   );
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -89,23 +94,16 @@ export function CreateReviewForm({
   );
   const [tabActive, setTabActive] = useState<string>(tabs.search);
   const [productCreated, setProductCreated] =
-    useState<ProductCreatedAction | null>(null);
+    useState<ProductCreatedByAction | null>(null);
 
   const handleProductCreation = useCallback(
-    (productCreated: ProductCreatedAction) => {
+    (productCreated: ProductCreatedByAction) => {
       setSelectedProductId(productCreated.id);
       setProductCreated(productCreated);
       setTabActive(tabs.search);
     },
     [],
   );
-
-  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
-  useEffect(() => {
-    if (state?.success) {
-      setSelectedProductId(null);
-    }
-  }, [state?.success]);
 
   return (
     <div className="flex flex-col gap-y-16">
@@ -135,10 +133,12 @@ export function CreateReviewForm({
             <ProductSearch
               productCreated={productCreated}
               productsForSearch={productsForSearch}
-              selectedProductId={
-                selectedProductId ?? state?.values?.productId ?? null
+              selectedProductId={selectedProductId ?? null}
+              onProductSelect={(productIdSelected) =>
+                setSelectedProductId((prev) =>
+                  prev === productIdSelected ? null : productIdSelected,
+                )
               }
-              onProductSelect={setSelectedProductId}
             />
           </TabsContent>
           <TabsContent value="create">
@@ -183,7 +183,7 @@ export function CreateReviewForm({
               className="w-32"
               lang="en"
               placeholder={`${ratingLowest} to ${ratingHighest}`}
-              defaultValue={state?.values?.rating ?? undefined}
+              defaultValue={state?.formState?.rating ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.rating} />
           </Fieldset>
@@ -193,7 +193,7 @@ export function CreateReviewForm({
             <Input
               name={formKeys.urlSource}
               placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              defaultValue={state?.values?.urlSource ?? undefined}
+              defaultValue={state?.formState?.urlSource ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.urlSource} />
           </Fieldset>
@@ -203,7 +203,7 @@ export function CreateReviewForm({
             <Textarea
               name={formKeys.note}
               placeholder="Want to note something?"
-              defaultValue={state?.values?.note ?? undefined}
+              defaultValue={state?.formState?.note ?? undefined}
             />
             <FieldError errorMsg={state?.errors?.note} />
           </Fieldset>
@@ -212,7 +212,7 @@ export function CreateReviewForm({
             <Save /> {isPendingAction ? "Saving review..." : "Save review"}
           </Button>
 
-          {state?.success && (
+          {state?.status === "SUCCESS" && (
             <p aria-live="polite" className="text-xl text-green-700">
               Review saved successfully!
             </p>

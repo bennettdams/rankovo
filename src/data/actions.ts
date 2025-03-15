@@ -1,8 +1,8 @@
 "use server";
 
-import {
-  type FormStateCreatePlace,
-  type FormStateCreateProduct,
+import type {
+  FormStateCreatePlace,
+  FormStateCreateProduct,
 } from "@/app/review/create/create-product-form.client";
 import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import {
@@ -20,6 +20,11 @@ import {
   schemaUpdateReview,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
+import type {
+  ActionDataExtract,
+  ActionStateError,
+  ActionStateSuccess,
+} from "@/lib/action-utils";
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { cacheKeys } from "./static";
@@ -29,8 +34,8 @@ const userIdFake = 1;
 export type PlaceCreate = PlaceCreateDb;
 
 export async function actionCreatePlace(
-  placeToCreate: PlaceCreate,
   formState: FormStateCreatePlace,
+  placeToCreate: PlaceCreate,
 ) {
   console.debug("🟦 ACTION create place");
 
@@ -42,9 +47,11 @@ export async function actionCreatePlace(
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
   const placeCreatedRows = await db
@@ -62,15 +69,19 @@ export async function actionCreatePlace(
   revalidateTag(cacheKeys.places);
 
   return {
-    success: true,
-    placeIdCreated: placeCreated.id,
-  };
+    status: "SUCCESS",
+    formState,
+    errors: null,
+    data: {
+      placeIdCreated: placeCreated.id,
+    },
+  } satisfies ActionStateSuccess;
 }
 
 export type ReviewCreate = Omit<ReviewCreateDb, "authorId">;
 export async function actionCreateReview(
-  reviewToCreate: ReviewCreate,
   formState: FormStateCreateReview,
+  reviewToCreate: ReviewCreate,
 ) {
   console.debug("🟦 ACTION create review");
 
@@ -86,9 +97,11 @@ export async function actionCreateReview(
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
   await db.insert(reviewsTable).values({
@@ -103,8 +116,11 @@ export async function actionCreateReview(
   revalidateTag(cacheKeys.rankings);
 
   return {
-    success: true,
-  };
+    status: "SUCCESS",
+    formState,
+    errors: null,
+    data: null,
+  } satisfies ActionStateSuccess;
 }
 
 export async function actionUpdateReview(
@@ -126,13 +142,14 @@ export async function actionUpdateReview(
 }
 
 export type ProductCreate = ProductCreateDb;
-export type ProductCreatedAction = NonNullable<
-  Awaited<ReturnType<typeof actionCreateProduct>>["productCreated"]
->;
+
+export type ProductCreatedByAction = ActionDataExtract<
+  typeof actionCreateProduct
+>["productCreated"];
 
 export async function actionCreateProduct(
-  productToCreate: ProductCreate,
   formState: FormStateCreateProduct,
+  productToCreate: ProductCreate,
 ) {
   console.debug("🟦 ACTION create product");
 
@@ -144,9 +161,11 @@ export async function actionCreateProduct(
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
   const productInsertQuery = db.$with("productInsertQuery").as(
@@ -178,7 +197,11 @@ export async function actionCreateProduct(
   revalidateTag(cacheKeys.products);
 
   return {
-    success: true,
-    productCreated,
-  };
+    status: "SUCCESS",
+    formState,
+    errors: null,
+    data: {
+      productCreated,
+    },
+  } satisfies ActionStateSuccess;
 }

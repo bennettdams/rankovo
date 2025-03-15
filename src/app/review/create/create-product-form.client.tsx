@@ -25,11 +25,12 @@ import {
   actionCreateProduct,
   type PlaceCreate,
   type ProductCreate,
-  type ProductCreatedAction,
+  type ProductCreatedByAction,
 } from "@/data/actions";
 import { PlaceSearchQuery } from "@/data/queries";
 import { categories, type City, minCharsSearch } from "@/data/static";
 import { schemaCreatePlace, schemaCreateProduct } from "@/db/db-schema";
+import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
   type FormConfig,
   type FormState,
@@ -46,7 +47,6 @@ import {
   startTransition,
   useActionState,
   useCallback,
-  useEffect,
   useOptimistic,
   useState,
 } from "react";
@@ -74,7 +74,7 @@ const formConfig = {
 
 export type FormStateCreateProduct = FormState<typeof formConfig>;
 
-function createProduct(_: unknown, formData: FormData) {
+async function createProduct(_: unknown, formData: FormData) {
   const formState = prepareFormState(formConfig, formData);
 
   const {
@@ -85,12 +85,14 @@ function createProduct(_: unknown, formData: FormData) {
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
-  return actionCreateProduct(productParsed, formState);
+  return actionCreateProduct(formState, productParsed);
 }
 
 export function CreateProductForm({
@@ -98,10 +100,12 @@ export function CreateProductForm({
   onCreatedProduct,
 }: {
   placesForSearch: PlaceSearchQuery[];
-  onCreatedProduct: (productCreated: ProductCreatedAction) => void;
+  onCreatedProduct: (productCreated: ProductCreatedByAction) => void;
 }) {
   const [state, formAction, isPendingAction] = useActionState(
-    createProduct,
+    withCallbacks(createProduct, {
+      onSuccess: (data) => onCreatedProduct(data.productCreated),
+    }),
     null,
   );
   const { searchParams, updateSearchParams } = useSearchParamsHelper();
@@ -111,13 +115,6 @@ export function CreateProductForm({
   } satisfies SearchParamsCreateProduct);
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
   const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
-
-  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
-  useEffect(() => {
-    if (state?.success) {
-      onCreatedProduct(state.productCreated);
-    }
-  }, [state?.success, state?.productCreated, onCreatedProduct]);
 
   function changeFilters(
     filtersUpdatedPartial: Partial<SearchParamsCreateProduct>,
@@ -155,7 +152,7 @@ export function CreateProductForm({
         <Label htmlFor={formKeys.name}>Product name</Label>
         <Input
           name={formKeys.name}
-          defaultValue={state?.values?.name ?? undefined}
+          defaultValue={state?.formState?.name ?? undefined}
         />
         <FieldError errorMsg={state?.errors?.name} />
       </Fieldset>
@@ -164,7 +161,7 @@ export function CreateProductForm({
         <Label htmlFor={formKeys.category}>Category</Label>
         <SelectionFormField
           name={formKeys.category}
-          defaultValue={state?.values?.category ?? undefined}
+          defaultValue={state?.formState.category ?? undefined}
           options={categories}
         />
         <FieldError errorMsg={state?.errors?.category} />
@@ -175,7 +172,7 @@ export function CreateProductForm({
         <Input
           name={formKeys.note}
           placeholder="Want to note something?"
-          defaultValue={state?.values?.note ?? undefined}
+          defaultValue={state?.formState.note ?? undefined}
         />
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
@@ -287,7 +284,7 @@ export function CreateProductForm({
         <FieldError errorMsg="Either select/create a place or remove your place name search." />
       )}
 
-      {state?.success && (
+      {state?.status === "SUCCESS" && (
         <p aria-live="polite" className="text-xl text-green-700">
           Product created successfully!
         </p>
@@ -327,7 +324,7 @@ const formConfigCreatePlace = {
 
 export type FormStateCreatePlace = FormState<typeof formConfigCreatePlace>;
 
-function createPlace(_: unknown, formData: FormData) {
+async function createPlace(_: unknown, formData: FormData) {
   const formState = prepareFormState(formConfigCreatePlace, formData);
 
   const {
@@ -338,12 +335,14 @@ function createPlace(_: unknown, formData: FormData) {
 
   if (!success) {
     return {
+      status: "ERROR",
+      formState,
       errors: error.flatten().fieldErrors,
-      values: formState,
-    };
+      data: null,
+    } satisfies ActionStateError;
   }
 
-  return actionCreatePlace(placeParsed, formState);
+  return actionCreatePlace(formState, placeParsed);
 }
 
 function DrawerCreatePlace({
@@ -362,17 +361,12 @@ function DrawerCreatePlace({
   children: React.ReactNode;
 }) {
   const [state, formAction, isPendingAction] = useActionState(
-    createPlace,
+    withCallbacks(createPlace, {
+      onSuccess: (data) => onCreatedPlace(data.placeIdCreated),
+    }),
     null,
   );
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
-
-  // Unfortunately I don't think there is a better way to call a callback after a succesful server action submission.
-  useEffect(() => {
-    if (state?.success) {
-      onCreatedPlace(state.placeIdCreated);
-    }
-  }, [state?.success, state?.placeIdCreated, onCreatedPlace]);
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>

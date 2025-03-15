@@ -8,7 +8,7 @@ import { SelectionCard } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type ProductCreatedAction } from "@/data/actions";
+import { type ProductCreatedByAction } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
@@ -31,7 +31,7 @@ export function ProductSearch({
   onProductSelect,
 }: {
   productsForSearch: ProductSearchQuery[];
-  productCreated: ProductCreatedAction | null;
+  productCreated: ProductCreatedByAction | null;
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
