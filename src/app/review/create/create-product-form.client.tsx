@@ -55,7 +55,7 @@ import { SearchParamsCreateReview } from "./page";
 
 type SearchParamsCreateProduct = Pick<
   SearchParamsCreateReview,
-  "placeNameSearch"
+  "placeNameSearch" | "productName"
 >;
 
 const formKeys = {
@@ -110,6 +110,8 @@ export function CreateProductForm({
   );
   const { searchParams, updateSearchParams } = useSearchParamsHelper();
   const [filters, setOptimisticFilters] = useOptimistic({
+    productName:
+      searchParams.get(searchParamKeysCreateReview.productName) ?? null,
     placeNameSearch:
       searchParams.get(searchParamKeysCreateReview.placeNameSearch) ?? null,
   } satisfies SearchParamsCreateProduct);
@@ -125,8 +127,10 @@ export function CreateProductForm({
         setOptimisticFilters(filtersNew);
         updateSearchParams(
           filtersNew,
-          !!filtersNew.placeNameSearch &&
-            filtersNew.placeNameSearch.length >= minCharsSearch,
+          (!!filtersNew.productName &&
+            filtersNew.productName.length >= minCharsSearch) ||
+            (!!filtersNew.placeNameSearch &&
+              filtersNew.placeNameSearch.length >= minCharsSearch),
         );
       });
     }
@@ -152,7 +156,10 @@ export function CreateProductForm({
         <Label htmlFor={formKeys.name}>Product name</Label>
         <Input
           name={formKeys.name}
-          defaultValue={state?.formState?.name ?? undefined}
+          value={filters.productName ?? ""}
+          onChange={(e) => {
+            changeFilters({ productName: e.target.value });
+          }}
         />
         <FieldError errorMsg={state?.errors?.name} />
       </Fieldset>

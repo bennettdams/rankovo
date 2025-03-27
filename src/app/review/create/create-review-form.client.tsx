@@ -21,6 +21,7 @@ import {
   prepareFormState,
 } from "@/lib/form-utils";
 import { FilePlus, Save, Search } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useActionState, useCallback, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import type { SearchParamsCreateReview } from "./page";
@@ -83,9 +84,16 @@ export function CreateReviewForm({
   productsForSearch: ProductSearchQuery[];
   placesForSearch: PlaceSearchQuery[];
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(createReview, {
-      onSuccess: () => setSelectedProductId(null),
+      onSuccess: () => {
+        setSelectedProductId(null);
+        // reset search params
+        router.push(pathname, { scroll: false });
+      },
     }),
     null,
   );
@@ -93,13 +101,10 @@ export function CreateReviewForm({
     null,
   );
   const [tabActive, setTabActive] = useState<string>(tabs.search);
-  const [productCreated, setProductCreated] =
-    useState<ProductCreatedByAction | null>(null);
 
   const handleProductCreation = useCallback(
     (productCreated: ProductCreatedByAction) => {
       setSelectedProductId(productCreated.id);
-      setProductCreated(productCreated);
       setTabActive(tabs.search);
     },
     [],
@@ -131,9 +136,8 @@ export function CreateReviewForm({
           </TabsList>
           <TabsContent value="search">
             <ProductSearch
-              productCreated={productCreated}
               productsForSearch={productsForSearch}
-              selectedProductId={selectedProductId ?? null}
+              selectedProductId={selectedProductId}
               onProductSelect={(productIdSelected) =>
                 setSelectedProductId((prev) =>
                   prev === productIdSelected ? null : productIdSelected,

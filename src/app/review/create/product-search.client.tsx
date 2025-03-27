@@ -8,7 +8,6 @@ import { SelectionCard } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type ProductCreatedByAction } from "@/data/actions";
 import { ProductSearchQuery } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
@@ -26,12 +25,10 @@ type SearchParamsProductSearch = Pick<
 
 export function ProductSearch({
   productsForSearch,
-  productCreated,
   selectedProductId,
   onProductSelect,
 }: {
   productsForSearch: ProductSearchQuery[];
-  productCreated: ProductCreatedByAction | null;
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
@@ -118,19 +115,7 @@ export function ProductSearch({
 
       {/* PRODUCTS LIST */}
       <div className="mt-8 flex items-center overflow-x-auto">
-        {!!productCreated ? (
-          <ProductCard
-            key={productCreated.id}
-            isSelectedProduct={productCreated.id === selectedProductId}
-            onClick={() => handleProductCardClick(productCreated.id)}
-            name={productCreated.name}
-            category={productCreated.category}
-            note={productCreated.note}
-            placeName={productCreated.placeName}
-            city={productCreated.city}
-            averageRating={null}
-          />
-        ) : hasNoSearch ? (
+        {hasNoSearch ? (
           <InfoMessage>No filters for search.</InfoMessage>
         ) : (
           hasValidSearch &&
@@ -202,7 +187,7 @@ function ProductCard({
       </div>
       <div className="flex flex-row items-center">
         {!averageRating ? (
-          <p>&nbsp;</p>
+          <p>No rating yet</p>
         ) : (
           <>
             <NumberFormatted num={averageRating} min={2} max={2} />

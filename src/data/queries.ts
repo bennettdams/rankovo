@@ -277,23 +277,22 @@ async function searchProduct({
     })
     .from(productsTable)
     .where(and(...filtersSQL))
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .as("queryProductsFiltered");
 
   /** 10 last reviews for each product */
   const queryReviewsRanked = db
     .select({
-      productId: reviewsTable.productId,
+      productId: queryProductsFiltered.id,
       rating: reviewsTable.rating,
       rowNumber: sql<number>`row_number() over (
         partition by ${reviewsTable.productId}
         order by ${reviewsTable.reviewedAt} desc
       )`.as("rowNumber"),
     })
-    .from(reviewsTable)
-    .innerJoin(
-      queryProductsFiltered,
-      eq(reviewsTable.productId, queryProductsFiltered.id),
+    .from(queryProductsFiltered)
+    .leftJoin(
+      reviewsTable,
+      eq(queryProductsFiltered.id, reviewsTable.productId),
     )
     .as("queryReviewsRanked");
 
