@@ -169,7 +169,7 @@ export function RankingsFiltersClient({
         </div>
       </FilterRow>
 
-      <FilterRow label="Critics">
+      <FilterRow label="Cities">
         <div className="col-start-2 row-start-2">
           <CitiesSelection
             citiesActive={filters.cities}
