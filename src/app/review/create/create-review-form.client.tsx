@@ -30,7 +30,6 @@ import { ProductSearch } from "./product-search.client";
 export const searchParamKeysCreateReview = {
   productName: "productName",
   placeName: "placeName",
-  placeNameSearch: "placeNameSearch",
 } satisfies SearchParamsCreateReview;
 
 const formKeys = {

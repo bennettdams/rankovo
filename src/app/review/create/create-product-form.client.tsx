@@ -55,7 +55,7 @@ import { SearchParamsCreateReview } from "./page";
 
 type SearchParamsCreateProduct = Pick<
   SearchParamsCreateReview,
-  "placeNameSearch" | "productName"
+  "placeName" | "productName"
 >;
 
 const formKeys = {
@@ -112,8 +112,7 @@ export function CreateProductForm({
   const [filters, setOptimisticFilters] = useOptimistic({
     productName:
       searchParams.get(searchParamKeysCreateReview.productName) ?? null,
-    placeNameSearch:
-      searchParams.get(searchParamKeysCreateReview.placeNameSearch) ?? null,
+    placeName: searchParams.get(searchParamKeysCreateReview.placeName) ?? null,
   } satisfies SearchParamsCreateProduct);
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
   const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
@@ -129,8 +128,8 @@ export function CreateProductForm({
           filtersNew,
           (!!filtersNew.productName &&
             filtersNew.productName.length >= minCharsSearch) ||
-            (!!filtersNew.placeNameSearch &&
-              filtersNew.placeNameSearch.length >= minCharsSearch),
+            (!!filtersNew.placeName &&
+              filtersNew.placeName.length >= minCharsSearch),
         );
       });
     }
@@ -148,7 +147,7 @@ export function CreateProductForm({
 
   /** We remind the user to select a place so it is not assumed that entering a place name automatically makes a selection. */
   const isPlaceSelectionNeeded =
-    selectedPlaceId === null && filters.placeNameSearch !== null;
+    selectedPlaceId === null && filters.placeName !== null;
 
   return (
     <form action={formAction} className="flex flex-col gap-y-6" noValidate>
@@ -202,10 +201,10 @@ export function CreateProductForm({
                 name="search-place-name"
                 type="text"
                 placeholder="e.g. Five Guys"
-                value={filters.placeNameSearch ?? ""}
+                value={filters.placeName ?? ""}
                 onChange={(e) => {
                   setSelectedPlaceId(null);
-                  changeFilters({ placeNameSearch: e.target.value });
+                  changeFilters({ placeName: e.target.value });
                 }}
               />
               <Fieldset>
@@ -225,7 +224,7 @@ export function CreateProductForm({
               <p>Similar places for your filter:</p>
 
               <div className="mt-4 flex h-full flex-row gap-x-4 overflow-x-scroll">
-                {!filters.placeNameSearch ? (
+                {!filters.placeName ? (
                   <InfoMessage>-</InfoMessage>
                 ) : placesForSearch.length === 0 ? (
                   <InfoMessage>No places found</InfoMessage>
@@ -248,10 +247,8 @@ export function CreateProductForm({
             </div>
 
             <DrawerCreatePlace
-              placeNameSearch={filters.placeNameSearch}
-              onChangePlaceName={(placeName) =>
-                changeFilters({ placeNameSearch: placeName })
-              }
+              placeName={filters.placeName}
+              onChangePlaceName={(placeName) => changeFilters({ placeName })}
               onCreatedPlace={handlePlaceCreation}
               isOpen={isPlaceDrawerOpen}
               setIsOpen={setIsPlaceDrawerOpen}
@@ -355,14 +352,14 @@ async function createPlace(_: unknown, formData: FormData) {
 function DrawerCreatePlace({
   isOpen,
   setIsOpen,
-  placeNameSearch,
+  placeName,
   onChangePlaceName,
   onCreatedPlace,
   children,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  placeNameSearch: string | null;
+  placeName: string | null;
   onChangePlaceName: (placeName: string) => void;
   onCreatedPlace: (placeId: number) => void;
   children: React.ReactNode;
@@ -396,7 +393,7 @@ function DrawerCreatePlace({
                 name={formKeysCreatePlace.name}
                 type="text"
                 placeholder="e.g. Five Guys"
-                value={placeNameSearch ?? ""}
+                value={placeName ?? ""}
                 onChange={(e) => onChangePlaceName(e.target.value)}
               />
               <FieldError errorMsg={state?.errors?.name} />
@@ -422,8 +419,8 @@ function DrawerCreatePlace({
           </form>
 
           <div className="gdrow grid h-80 w-1/2">
-            {!!placeNameSearch && !!selectedCity ? (
-              <MapWithPlace placeName={placeNameSearch} city={selectedCity} />
+            {!!placeName && !!selectedCity ? (
+              <MapWithPlace placeName={placeName} city={selectedCity} />
             ) : (
               <MapWithPlace placeName="Bun's" city="Hamburg" />
             )}

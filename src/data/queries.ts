@@ -277,6 +277,8 @@ async function searchProduct({
     })
     .from(productsTable)
     .where(and(...filtersSQL))
+    // join is needed for filtering by place name (via filtersSQL)
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .as("queryProductsFiltered");
 
   /** 10 last reviews for each product */
