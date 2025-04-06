@@ -34,12 +34,52 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
   }
 }
 
+export function RankingsFiltersSkeleton() {
+  return (
+    <RankingsFiltersClientInternal
+      filters={{
+        categories: null,
+        cities: null,
+        critics: null,
+        productName: null,
+        ratingMin: null,
+        ratingMax: null,
+      }}
+      critics={[]}
+      updateSearchParams={() => {}}
+    />
+  );
+}
+
 export function RankingsFiltersClient({
-  filters: filtersExternal,
+  filters,
   critics,
 }: {
   filters: FiltersRankings;
   critics: CriticQuery[];
+}) {
+  const { updateSearchParams } = useSearchParamsHelper();
+
+  return (
+    <RankingsFiltersClientInternal
+      filters={filters}
+      critics={critics}
+      updateSearchParams={updateSearchParams}
+    />
+  );
+}
+
+function RankingsFiltersClientInternal({
+  filters: filtersExternal,
+  critics,
+  updateSearchParams,
+}: {
+  filters: FiltersRankings;
+  critics: CriticQuery[];
+  updateSearchParams: (
+    paramsNew: Record<string, unknown>,
+    shouldServerUpdate: boolean,
+  ) => void;
 }) {
   const router = useRouter();
 
@@ -52,7 +92,6 @@ export function RankingsFiltersClient({
   );
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
-  const { updateSearchParams } = useSearchParamsHelper();
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);

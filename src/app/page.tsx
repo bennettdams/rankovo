@@ -1,7 +1,7 @@
 import { IconRankovo } from "@/components/icons";
 import { MapWithPlace } from "@/components/map-with-place";
 import { RankingFilters } from "@/components/rankings-filters";
-import { RankingsFiltersClient } from "@/components/rankings-filters.client";
+import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
@@ -41,21 +41,7 @@ export default async function Home({
 
       <div className="flex flex-row gap-x-4">
         <div className="basis-1/3">
-          <Suspense
-            fallback={
-              <RankingsFiltersClient
-                filters={{
-                  categories: null,
-                  cities: null,
-                  critics: null,
-                  productName: null,
-                  ratingMin: null,
-                  ratingMax: null,
-                }}
-                critics={[]}
-              />
-            }
-          >
+          <Suspense fallback={<RankingsFiltersSkeleton />}>
             <RankingFilters filters={filters} critics={criticsPromise} />
           </Suspense>
         </div>
