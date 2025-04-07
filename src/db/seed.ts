@@ -7,9 +7,11 @@ import {
 import { asc, sql } from "drizzle-orm";
 import {
   criticsTable,
+  type PlaceCreateDb,
   placesTable,
+  type ProductCreateDb,
   productsTable,
-  ReviewCreateDb,
+  type ReviewCreateDb,
   reviewsTable,
   usersTable,
 } from "./db-schema";
@@ -35,7 +37,8 @@ async function main() {
   await createUsers();
   await createCritics();
   // await createReviewsSpecific();
-  await createReviewsBulk();
+  // await createReviewsBulk();
+  await createReviewsReal();
 
   console.info("########## Seeding done");
 
@@ -44,6 +47,8 @@ async function main() {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsSpecific() {
+  console.log("Create reviews (specific)");
+
   const products = await db.select().from(productsTable).limit(1);
   const users = await db.select().from(usersTable).limit(2);
 
@@ -85,8 +90,9 @@ async function createReviewsSpecific() {
   ]);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsBulk() {
-  console.info("Create reviews");
+  console.info("Create reviews (bulk)");
 
   const products = await db.select().from(productsTable);
   const users = await db.select().from(usersTable);
@@ -117,6 +123,428 @@ async function createReviewsBulk() {
     await db.insert(reviewsTable).values(review);
     await new Promise((resolve) => setTimeout(resolve, 3));
   }
+}
+
+async function createReviewsReal() {
+  console.info("Create reviews (real)");
+
+  async function createPlace(place: PlaceCreateDb) {
+    const placeCreated = (
+      await db.insert(placesTable).values(place).returning()
+    ).at(0);
+
+    if (!placeCreated) throw new Error("Place not created");
+
+    return placeCreated;
+  }
+
+  async function createProduct(product: ProductCreateDb) {
+    const productCreated = (
+      await db.insert(productsTable).values(product).returning()
+    ).at(0);
+
+    if (!productCreated) throw new Error("Product not created");
+
+    return productCreated;
+  }
+
+  async function createReview(review: ReviewCreateDb) {
+    const reviewCreated = await db
+      .insert(reviewsTable)
+      .values(review)
+      .returning();
+
+    if (!reviewCreated) throw new Error("Review not created");
+
+    return reviewCreated;
+  }
+
+  const userIdHolle = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameHolle}`)
+  ).at(0)?.id;
+  if (!userIdHolle) throw new Error("No user found");
+
+  const userIdJFG = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameJFG}`)
+  ).at(0)?.id;
+  if (!userIdJFG) throw new Error("No user found");
+
+  let place;
+  let product;
+
+  place = await createPlace({
+    name: "Lister Döner",
+    city: "Hannover",
+  });
+
+  product = await createProduct({
+    name: "Döner Hähnchen",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-06"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=NzdoZXEyXMA",
+  });
+
+  product = await createProduct({
+    name: "Döner Steak",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-06"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=NzdoZXEyXMA",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "SISI Smashburger",
+    city: "Bremen",
+  });
+
+  product = await createProduct({
+    name: "SISI Original Double",
+    category: "burger",
+    placeId: place.id,
+    note: "Smashburger",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-30"),
+    rating: 9.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=kbANNGCDlrc",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "moodburger",
+    city: "Bremen",
+  });
+
+  product = await createProduct({
+    name: "Mood Double",
+    category: "burger",
+    placeId: place.id,
+    note: "Smashburger",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-30"),
+    rating: 9.1,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=kbANNGCDlrc",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Hendl & Glut",
+    city: "Hannover",
+  });
+
+  product = await createProduct({
+    name: "Backhendl",
+    category: "chicken",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-27"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=ALxNKz10FYE",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Wagner",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Bella Napoli Diavola",
+    category: "pizza",
+    placeId: place.id,
+    note: "Tiefkühlpizza",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-06"),
+    rating: 7.9,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=oMBDFoujUAI",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Roberto di Frosty",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Spicy Diavola",
+    category: "pizza",
+    placeId: place.id,
+    note: "Tiefkühlpizza",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-06"),
+    rating: 8.3,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=oMBDFoujUAI",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Guller BBQ",
+    city: "Stuttgart",
+  });
+
+  product = await createProduct({
+    name: "Pulled Pork",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-02-20"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=Gq1sJQ7GhYQ",
+  });
+
+  product = await createProduct({
+    name: "BBQ Tablett",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: "Platte mit verschiedenen BBQ-Gerichten",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-02-20"),
+    rating: 9.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=Gq1sJQ7GhYQ",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Saman",
+    city: "Köln",
+  });
+
+  product = await createProduct({
+    name: "Döner Kalb",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-02-02"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=6_v5KupeVkc",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Gyros Manufaktur Pepe",
+    city: "Düsseldorf",
+  });
+
+  product = await createProduct({
+    name: "Gyros Teller",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "Spät am Abend, daher trockener",
+    reviewedAt: new Date("2025-01-30"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=Pu53kG01t6w",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Magnum",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Utopia Double Hazelnut",
+    category: "dessert",
+    placeId: place.id,
+    note: "Becher",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-01"),
+    rating: 9.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=P0OTbI4G0Ng",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "McDonald's",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "McCrispy Curry",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-02-21"),
+    rating: 8.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=iWirHCdJ5xc",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Kinder",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Milchschnitte Blaubeere",
+    category: "snack",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-01-25"),
+    rating: 9.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=06n7aqdrvC8",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "ROB's",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Crunchy Puffs Churro",
+    category: "snack",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-12-13"),
+    rating: 9.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=4Qu1PK2TVM0",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "funny-frisch",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Chitos Parika",
+    category: "snack",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-12-02"),
+    rating: 9.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=FidH4rz1LnI",
+  });
+
+  product = await createProduct({
+    name: "Chitos Chili Cheese",
+    category: "snack",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-12-02"),
+    rating: 8.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=FidH4rz1LnI",
+  });
 }
 
 async function createProducts() {
@@ -296,17 +724,20 @@ async function createCritics() {
   ]);
 }
 
+const usernameHolle = "Holle21614";
+const usernameJFG = "JunkFoodGuru";
+
 async function createUsers() {
   console.info("Create users");
 
   await db
     .insert(usersTable)
     .values([
-      { name: "Holle21614" },
+      { name: usernameHolle },
       { name: "AbuGoku" },
       { name: "Evanijo" },
       { name: "Colin Gäbel" },
-      { name: "JunkFoodGuru" },
+      { name: usernameJFG },
       { name: "Bennett" },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },

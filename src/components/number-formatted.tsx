@@ -5,12 +5,14 @@ type NumProps = {
   min?: number;
   max?: number;
   locale?: string;
+  className?: string;
 };
 
 export function NumberFormatted({
   num,
   min = 0,
   max,
+  className,
   locale = defaultLocale,
 }: NumProps) {
   if (isNaN(num)) {
@@ -21,7 +23,11 @@ export function NumberFormatted({
   const numFormatted = formatNumber({ num, min, max, locale });
   const numFormattedWithoutMaxFraction = formatNumber({ num, min, locale });
 
-  return <span title={numFormattedWithoutMaxFraction}>{numFormatted}</span>;
+  return (
+    <span className={className} title={numFormattedWithoutMaxFraction}>
+      {numFormatted}
+    </span>
+  );
 }
 
 function formatNumber({ num, min = 0, max, locale = defaultLocale }: NumProps) {

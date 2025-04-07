@@ -110,11 +110,16 @@ function RankingsTableRow({
             width="48"
           />
         </div>
-        <div className="min-w-32" title={productName}>
+        <div className="min-w-44" title={productName}>
           <p className="line-clamp-2 font-medium">{productName}</p>
         </div>
         <div>
-          <span className="text-right">{rating}</span>
+          <NumberFormatted
+            className="text-right"
+            num={rating}
+            min={1}
+            max={2}
+          />
         </div>
         <div>
           <StarsForRating rating={rating} size="small" />

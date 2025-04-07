@@ -32,6 +32,7 @@ export const cacheKeys = {
 };
 
 export const cities = [
+  // top by population
   "Berlin",
   "Bremen",
   "Dortmund",
@@ -42,6 +43,8 @@ export const cities = [
   "Leipzig",
   "München",
   "Stuttgart",
+  // custom
+  "Hannover",
 ] as const;
 export type City = (typeof cities)[number];
 
