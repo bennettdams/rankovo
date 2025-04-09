@@ -110,7 +110,7 @@ function RankingsTableRow({
             width="48"
           />
         </div>
-        <div className="min-w-44" title={productName}>
+        <div className="min-w-48" title={productName}>
           <p className="line-clamp-2 font-medium">{productName}</p>
         </div>
         <div>

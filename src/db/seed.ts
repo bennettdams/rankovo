@@ -183,6 +183,14 @@ async function createReviewsReal() {
   ).at(0)?.id;
   if (!userIdFranklin) throw new Error("No user found");
 
+  const userIdReeze = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameReeze}`)
+  ).at(0)?.id;
+  if (!userIdReeze) throw new Error("No user found");
+
   let place;
   let product;
 
@@ -615,6 +623,116 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=rsDen44Awi8",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Honest Kebab",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Döner (Signature Brot)",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-09"),
+    rating: 9.5,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=r5PUjsrvSlk",
+  });
+
+  product = await createProduct({
+    name: "Döner (Sylter Fladenbrot)",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-09"),
+    rating: 9.75,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=r5PUjsrvSlk",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Dr. Smusy",
+    city: "Köln",
+  });
+
+  product = await createProduct({
+    name: "The Signature smoothie",
+    category: "drinks",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-07-01"),
+    rating: 7.0,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=hkc72K60o48",
+  });
+
+  product = await createProduct({
+    name: "Post Workout smoothie",
+    category: "drinks",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-07-01"),
+    rating: 9.0,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=hkc72K60o48",
+  });
+
+  product = await createProduct({
+    name: "Superbrain smoothie",
+    category: "drinks",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-07-01"),
+    rating: 6.5,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=hkc72K60o48",
+  });
+
+  product = await createProduct({
+    name: "Bring me down smoothie",
+    category: "drinks",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-07-01"),
+    rating: 6.5,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=hkc72K60o48",
+  });
 }
 
 async function createProducts() {
@@ -787,12 +905,17 @@ async function createCritics() {
       userId: userIdFirst + 4,
       url: "https://www.youtube.com/@the.franklin",
     },
+    {
+      userId: userIdFirst + 5,
+      url: "https://www.youtube.com/@Reeze",
+    },
   ]);
 }
 
 const usernameHolle = "Holle21614";
 const usernameJFG = "JunkFoodGuru";
 const usernameFranklin = "The Franklin";
+const usernameReeze = "Reeze";
 
 async function createUsers() {
   console.info("Create users");
@@ -805,10 +928,13 @@ async function createUsers() {
       { name: usernameJFG },
       { name: "Colin Gäbel" },
       { name: usernameFranklin },
+      { name: usernameReeze },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },
       { name: "David Fincher" },
     ]);
 }
+
+//reeeze, sturmwaffel
 
 main();
