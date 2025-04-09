@@ -175,6 +175,14 @@ async function createReviewsReal() {
   ).at(0)?.id;
   if (!userIdJFG) throw new Error("No user found");
 
+  const userIdFranklin = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameFranklin}`)
+  ).at(0)?.id;
+  if (!userIdFranklin) throw new Error("No user found");
+
   let place;
   let product;
 
@@ -545,6 +553,68 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=FidH4rz1LnI",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Melrose by Fairfax Express",
+    city: "München",
+  });
+
+  product = await createProduct({
+    name: "MVP Turkey Sandwich",
+    category: "sandwich",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-16"),
+    rating: 8.5,
+    authorId: userIdFranklin,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=CXIj_-CpO_0",
+  });
+
+  product = await createProduct({
+    name: "Shrimp Roll",
+    category: "sandwich",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-03-16"),
+    rating: 7.0,
+    authorId: userIdFranklin,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=CXIj_-CpO_0",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "BioDöner by MonsterFit",
+    city: "Frankfurt",
+  });
+
+  product = await createProduct({
+    name: "Bio Döner Steak",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-01-26"),
+    rating: 8.7,
+    authorId: userIdFranklin,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=rsDen44Awi8",
+  });
 }
 
 async function createProducts() {
@@ -705,27 +775,24 @@ async function createCritics() {
 
   await db.insert(criticsTable).values([
     {
-      userId: userIdFirst,
+      userId: userIdFirst + 1,
       url: "https://www.youtube.com/c/Holle21614",
     },
-    { userId: userIdFirst + 1, url: "https://www.instagram.com/critic2" },
-    {
-      userId: userIdFirst + 2,
-      url: "https://www.x.com/critic3",
-    },
+    { userId: userIdFirst + 2, url: "https://www.youtube.com/c/JunkFoodGuru" },
     {
       userId: userIdFirst + 3,
       url: "https://www.youtube.com/playlist?list=PLsksxTH4pR3JcsqeJahL_3JMwPgAf1DsX",
     },
     {
       userId: userIdFirst + 4,
-      url: "https://www.youtube.com/@JunkFoodGuru/videos",
+      url: "https://www.youtube.com/@the.franklin",
     },
   ]);
 }
 
 const usernameHolle = "Holle21614";
 const usernameJFG = "JunkFoodGuru";
+const usernameFranklin = "The Franklin";
 
 async function createUsers() {
   console.info("Create users");
@@ -733,12 +800,11 @@ async function createUsers() {
   await db
     .insert(usersTable)
     .values([
-      { name: usernameHolle },
-      { name: "AbuGoku" },
-      { name: "Evanijo" },
-      { name: "Colin Gäbel" },
-      { name: usernameJFG },
       { name: "Bennett" },
+      { name: usernameHolle },
+      { name: usernameJFG },
+      { name: "Colin Gäbel" },
+      { name: usernameFranklin },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },
       { name: "David Fincher" },
