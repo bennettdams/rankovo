@@ -3,6 +3,7 @@
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
 import { minCharsSearch, ratingHighest, ratingLowest } from "@/data/static";
+import { routes } from "@/lib/navigation";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
@@ -117,7 +118,7 @@ function RankingsFiltersClientInternal({
         productName: null,
       });
 
-      router.push("/", { scroll: false });
+      router.push(routes.rankings, { scroll: false });
     });
   }
 

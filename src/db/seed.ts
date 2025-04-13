@@ -733,6 +733,29 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=hkc72K60o48",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Chingu Westfield",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Korean Chicken Burger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-10"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=NKGoLFV63EQ",
+  });
 }
 
 async function createProducts() {

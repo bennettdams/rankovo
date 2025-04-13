@@ -179,13 +179,13 @@ function RankingDrawer({
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader>
           <DrawerTitle className="font-normal">
-            <div className="flex">
-              <div className="grow text-left">
-                <p className="line-clamp-1 text-2xl md:text-3xl">
-                  {productName}
-                </p>
+            <p className="line-clamp-2 text-left text-2xl md:text-3xl">
+              {productName}
+            </p>
 
-                <div className="mt-4">
+            <div className="mt-4 flex">
+              <div className="flex grow flex-col gap-y-3 text-left">
+                <div className="line-clamp-2">
                   <span className="text-xl text-secondary">{placeName}</span>
 
                   {city && (
@@ -196,10 +196,10 @@ function RankingDrawer({
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-col items-start gap-2 md:flex-row md:items-center">
+                <div className="flex flex-col items-start gap-3 md:flex-row md:items-center">
                   <CategoryBadge category={productCategory} />
                   <div
-                    className="line-clamp-1 flex-1"
+                    className="line-clamp-2 flex-1"
                     title={productNote ?? undefined}
                   >
                     {!productNote ? null : productNote}

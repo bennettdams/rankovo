@@ -39,14 +39,14 @@ export default async function Home({
     <div className="md:pt-12">
       <HeroSection />
 
-      <div className="flex flex-row gap-x-4">
-        <div className="basis-1/3">
+      <div className="flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:flex-row md:px-0">
+        <div className="basis-full md:basis-1/3">
           <Suspense fallback={<RankingsFiltersSkeleton />}>
             <RankingFilters filters={filters} critics={criticsPromise} />
           </Suspense>
         </div>
 
-        <div className="basis-2/3 overflow-y-hidden">
+        <div className="basis-full overflow-y-hidden md:basis-2/3">
           <Suspense
             fallback={
               <div className="flex flex-col gap-y-6">

@@ -1,3 +1,4 @@
+import { routes } from "@/lib/navigation";
 import { CircleUser, Menu, NotepadText } from "lucide-react";
 import Link from "next/link";
 import { IconRankovo } from "./icons";
@@ -24,24 +25,30 @@ export function Navbar() {
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 px-4 backdrop-blur-2xl md:px-6">
       <nav className="hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
-          href="/"
+          href={routes.home}
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <IconRankovo className="h-6 w-6" />
           <span className="sr-only">Acme Inc</span>
         </Link>
 
-        <Link href="/" className="transition-colors hover:text-primary">
+        <Link
+          href={routes.rankings}
+          className="transition-colors hover:text-primary"
+        >
           Rankings
         </Link>
 
-        <Link href="/reviews" className="transition-colors hover:text-primary">
+        <Link
+          href={routes.reviews}
+          className="transition-colors hover:text-primary"
+        >
           Reviews
         </Link>
 
         <div className="mr-10 flex grow items-end justify-end">
           <Link
-            href="/review/create"
+            href={routes.reviewCreate}
             className="transition-colors hover:text-primary"
           >
             <Button>
@@ -66,26 +73,20 @@ export function Navbar() {
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link
-              href="#"
+              href={routes.home}
               className="flex items-center gap-2 text-lg font-semibold"
             >
               <IconRankovo className="h-6 w-6" />
-              <span className="sr-only">Acme Inc</span>
+              <span className="sr-only">Rankovo</span>
             </Link>
-            <Link href="#" className="hover:text-primary">
-              Dashboard
+            <Link href={routes.rankings} className="hover:text-primary">
+              Rankings
             </Link>
-            <Link href="#" className="hover:text-primary">
-              Orders
+            <Link href={routes.reviews} className="hover:text-primary">
+              Reviews
             </Link>
-            <Link href="#" className="hover:text-primary">
-              Products
-            </Link>
-            <Link href="#" className="hover:text-primary">
-              Customers
-            </Link>
-            <Link href="#" className="hover:text-primary">
-              Settings
+            <Link href={routes.reviewCreate} className="hover:text-primary">
+              Create review
             </Link>
           </nav>
         </SheetContent>
