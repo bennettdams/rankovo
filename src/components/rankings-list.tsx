@@ -2,8 +2,8 @@ import type { FiltersRankings } from "@/app/page";
 import { queries, type Ranking } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { CategoryBadge } from "./category-badge";
+import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { MapWithPlace } from "./map-with-place";
@@ -31,7 +31,8 @@ export async function RankingsList({
   const rankings = await queries.rankings(filters);
 
   return (
-    <div className="grid gap-x-3 gap-y-2 overflow-x-scroll">
+    // we show 10 entries – the fixed height assures that the page is not jumping if set filters produce less than 10 entries
+    <div className="grid h-[46rem] gap-x-3 gap-y-2 overflow-x-scroll">
       {rankings.length === 0 ? (
         <InfoMessage>No rankings for your filters.</InfoMessage>
       ) : (
@@ -102,13 +103,7 @@ function RankingsTableRow({
           <p>{position}</p>
         </div>
         <div className="w-12 p-0">
-          <Image
-            alt="Product image"
-            className="aspect-square rounded-md object-cover"
-            height="48"
-            src="/image-placeholder.svg"
-            width="48"
-          />
+          <CategoryIcon category={productCategory} />
         </div>
         <div className="min-w-48" title={productName}>
           <p className="line-clamp-2 font-medium">{productName}</p>

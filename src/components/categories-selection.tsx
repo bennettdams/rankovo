@@ -1,4 +1,5 @@
 import { categories, type Category } from "@/data/static";
+import { CategoryIcon } from "./category-icon";
 import { FilterButton } from "./filter-button";
 
 export function CategoriesSelection({
@@ -20,7 +21,8 @@ export function CategoriesSelection({
           }
           onMouseDown={() => onClick(category)}
         >
-          <span className="capitalize">{category}</span>
+          <CategoryIcon category={category} size="sm" />
+          <span className="ml-1 capitalize">{category}</span>
         </FilterButton>
       ))}
     </div>

@@ -793,7 +793,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Genoveser Pesto",
-    category: "pasta",
+    category: "noodles",
     placeId: place.id,
     note: null,
   });
@@ -809,7 +809,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Trüffel-Crème",
-    category: "pasta",
+    category: "noodles",
     placeId: place.id,
     note: null,
   });
@@ -968,7 +968,7 @@ async function createProducts() {
     },
     {
       name: "Pasta Carbonara",
-      category: "pasta",
+      category: "noodles",
       note: Math.random() > 0.5 ? null : "Some product note",
       placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },

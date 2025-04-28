@@ -8,7 +8,6 @@ export const categories = [
   "grill & barbecue",
   "kebab",
   "noodles",
-  "pasta",
   "pizza",
   "salad",
   "sandwich",

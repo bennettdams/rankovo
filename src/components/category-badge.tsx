@@ -1,5 +1,6 @@
 import { Category } from "@/data/static";
 import { cn } from "@/lib/utils";
+import { CategoryIcon } from "./category-icon";
 
 const sizes = {
   sm: "px-2 py-0.5 text-xs",
@@ -14,13 +15,14 @@ export function CategoryBadge({
   size?: keyof typeof sizes;
 }) {
   return (
-    <span
+    <div
       className={cn(
-        "text-nowrap rounded-full bg-gray font-medium capitalize text-fg",
+        "inline-flex flex-row items-center text-nowrap rounded-full bg-gray font-medium capitalize text-fg",
         sizes[size],
       )}
     >
-      {category}
-    </span>
+      <CategoryIcon category={category} size="sm" />
+      <span className="pl-1">{category}</span>
+    </div>
   );
 }
