@@ -32,8 +32,8 @@ async function main() {
   await db.execute(sql`ALTER SEQUENCE products_id_seq RESTART WITH 1`);
   await db.execute(sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`);
 
-  await createPlaces();
-  await createProducts();
+  // await createPlaces();
+  // await createProducts();
   await createUsers();
   await createCritics();
   // await createReviewsSpecific();
@@ -190,6 +190,14 @@ async function createReviewsReal() {
       .where(sql`${usersTable.name} = ${usernameReeze}`)
   ).at(0)?.id;
   if (!userIdReeze) throw new Error("No user found");
+
+  const userIdSturmi = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameSturmwaffel}`)
+  ).at(0)?.id;
+  if (!userIdSturmi) throw new Error("No user found");
 
   let place;
   let product;
@@ -460,6 +468,7 @@ async function createReviewsReal() {
     name: "McDonald's",
     city: null,
   });
+  const placeMcDonId = place.id;
 
   product = await createProduct({
     name: "McCrispy Curry",
@@ -756,6 +765,157 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=NKGoLFV63EQ",
   });
+
+  // ###############
+
+  product = await createProduct({
+    name: "McWrap Chicken Mango-Curry",
+    category: "sandwich",
+    placeId: placeMcDonId,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-18"),
+    rating: 8.0,
+    authorId: userIdJFG,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=ZBAufZypGWI",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Pastalich",
+    city: "Hannover",
+  });
+
+  product = await createProduct({
+    name: "Genoveser Pesto",
+    category: "pasta",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-17"),
+    rating: 9.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=Tkg34gBb2DI",
+  });
+
+  product = await createProduct({
+    name: "Trüffel-Crème",
+    category: "pasta",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-17"),
+    rating: 9.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=Tkg34gBb2DI",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "JOKOLADE",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "JOKOLADE Peanuts süß",
+    category: "snack",
+    placeId: place.id,
+    note: "Beutel",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-27"),
+    rating: 8.0,
+    authorId: userIdSturmi,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=q0DCeo9agg8",
+  });
+
+  product = await createProduct({
+    name: "JOKOLADE Peanuts salzig",
+    category: "snack",
+    placeId: place.id,
+    note: "Beutel",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-04-27"),
+    rating: 9.0,
+    authorId: userIdSturmi,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=q0DCeo9agg8",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Burgermeister",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Cheeseburger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "Hannover",
+    reviewedAt: new Date("2025-04-24"),
+    rating: 7.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=1bgfegIOSXU",
+  });
+
+  product = await createProduct({
+    name: "Fleischermeister",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "Hannover",
+    reviewedAt: new Date("2025-04-24"),
+    rating: 8.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=1bgfegIOSXU",
+  });
+
+  product = await createProduct({
+    name: "Meister aller Klassen",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "Hannover",
+    reviewedAt: new Date("2025-04-24"),
+    rating: 8.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=1bgfegIOSXU",
+  });
 }
 
 async function createProducts() {
@@ -932,6 +1092,10 @@ async function createCritics() {
       userId: userIdFirst + 5,
       url: "https://www.youtube.com/@Reeze",
     },
+    {
+      userId: userIdFirst + 6,
+      url: "https://www.youtube.com/@SturmwaffelLP",
+    },
   ]);
 }
 
@@ -939,6 +1103,7 @@ const usernameHolle = "Holle21614";
 const usernameJFG = "JunkFoodGuru";
 const usernameFranklin = "The Franklin";
 const usernameReeze = "Reeze";
+const usernameSturmwaffel = "Sturmwaffel";
 
 async function createUsers() {
   console.info("Create users");
@@ -952,12 +1117,11 @@ async function createUsers() {
       { name: "Colin Gäbel" },
       { name: usernameFranklin },
       { name: usernameReeze },
+      { name: usernameSturmwaffel },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },
       { name: "David Fincher" },
     ]);
 }
-
-//reeeze, sturmwaffel
 
 main();
