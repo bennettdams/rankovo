@@ -72,7 +72,7 @@ export function ProductSearch({
   return (
     <div className="flex flex-col">
       {/* INPUTS */}
-      <div className="flex items-start gap-x-6">
+      <div className="flex flex-col items-start gap-x-6 md:flex-row">
         <Fieldset>
           <Label htmlFor="filter-product-name">Filter by product name</Label>
           <Input
@@ -92,7 +92,9 @@ export function ProductSearch({
           />
         </Fieldset>
 
-        <div className="hitespace-nowrap mt-6">&mdash; & &mdash;</div>
+        <div className="my-3 w-full whitespace-nowrap text-center text-lg md:mt-6 md:w-auto">
+          &mdash; & &mdash;
+        </div>
 
         <Fieldset>
           <Label htmlFor="filter-place-name">Filter by place name</Label>

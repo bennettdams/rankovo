@@ -50,7 +50,7 @@ export type Review = typeof reviewsTable.$inferSelect;
 
 const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
 export const schemaRating = z
-  .number()
+  .number({ message: messageRating })
   .min(ratingLowest, messageRating)
   .max(ratingHighest, messageRating);
 

@@ -110,7 +110,7 @@ export function CreateReviewForm({
   );
 
   return (
-    <div className="flex flex-col gap-y-16">
+    <div className="flex flex-col gap-y-16 px-10 md:px-0">
       <div>
         <h2 className="mb-4 flex items-center text-2xl text-secondary">
           <span className="flex size-12 items-center justify-center rounded-full bg-primary text-3xl leading-none text-primary-fg">
@@ -123,7 +123,7 @@ export function CreateReviewForm({
           value={tabActive}
           onValueChange={(tabSelected) => setTabActive(tabSelected)}
         >
-          <TabsList className="mb-10 grid w-96 grid-cols-2">
+          <TabsList className="mb-10 grid w-auto grid-cols-2 md:w-96">
             <TabsTrigger value="search">
               <Search className="size-5" />
               <span className="ml-2">Search existing</span>

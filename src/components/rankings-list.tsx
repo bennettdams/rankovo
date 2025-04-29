@@ -31,8 +31,7 @@ export async function RankingsList({
   const rankings = await queries.rankings(filters);
 
   return (
-    // we show 10 entries – the fixed height assures that the page is not jumping if set filters produce less than 10 entries
-    <div className="grid h-[46rem] gap-x-3 gap-y-2 overflow-x-scroll">
+    <div className="grid grid-rows-10 gap-x-3 gap-y-2 overflow-x-scroll">
       {rankings.length === 0 ? (
         <InfoMessage>No rankings for your filters.</InfoMessage>
       ) : (

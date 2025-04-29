@@ -192,8 +192,8 @@ export function CreateProductForm({
           <span className="ml-4">Select a place (optional)</span>
         </h2>
 
-        <div className="mt-4 flex size-full flex-row items-start">
-          <div className="w-1/2">
+        <div className="mt-4 flex size-full flex-col items-start gap-x-10 md:flex-row">
+          <div className="w-full md:w-1/2">
             <Fieldset>
               <Label htmlFor="search-place-name">Place name</Label>
               <Input
@@ -208,7 +208,6 @@ export function CreateProductForm({
                 }}
               />
               <Fieldset>
-                <Label htmlFor={formKeys.placeId}>Place ID</Label>
                 <Input
                   name={formKeys.placeId}
                   type="hidden"
@@ -264,7 +263,8 @@ export function CreateProductForm({
             </DrawerCreatePlace>
           </div>
 
-          <div className="ml-10 mt-6 grid h-80 w-1/2 grow">
+          {/* margin top to align the map with the input field ("Place name") */}
+          <div className="mt-6 grid h-80 w-full grow md:w-1/2">
             {!!placeForMap && placeForMap.city ? (
               <MapWithPlace
                 placeName={placeForMap.name}
@@ -380,7 +380,7 @@ function DrawerCreatePlace({
           <DrawerTitle className="font-normal">Create a new place</DrawerTitle>
         </DrawerHeader>
 
-        <div className="mt-6 flex min-h-0 flex-row gap-x-6">
+        <div className="mt-6 flex min-h-0 flex-col gap-x-6 gap-y-6 md:flex-row">
           <form
             action={formAction}
             className="flex min-h-0 w-1/2 flex-1 flex-col gap-y-6"
@@ -418,7 +418,7 @@ function DrawerCreatePlace({
             </Button>
           </form>
 
-          <div className="gdrow grid h-80 w-1/2">
+          <div className="grid h-40 w-full md:h-80 md:w-1/2">
             {!!placeName && !!selectedCity ? (
               <MapWithPlace placeName={placeName} city={selectedCity} />
             ) : (
