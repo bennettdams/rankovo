@@ -9,11 +9,11 @@ import {
   FishIcon,
   HamIcon,
   IceCreamConeIcon,
-  LeafyGreenIcon,
   MartiniIcon,
   PizzaIcon,
   SaladIcon,
   SandwichIcon,
+  ShellIcon,
   SoupIcon,
   TorusIcon,
   UtensilsIcon,
@@ -53,11 +53,11 @@ export function CategoryIcon({
     case "kebab":
       return <BeanIcon className={cn(iconStyles, sizes[size])} />;
     case "noodles":
-      return <SaladIcon className={cn(iconStyles, sizes[size])} />;
+      return <ShellIcon className={cn(iconStyles, sizes[size])} />;
     case "pizza":
       return <PizzaIcon className={cn(iconStyles, sizes[size])} />;
     case "salad":
-      return <LeafyGreenIcon className={cn(iconStyles, sizes[size])} />;
+      return <SaladIcon className={cn(iconStyles, sizes[size])} />;
     case "sandwich":
       return <SandwichIcon className={cn(iconStyles, sizes[size])} />;
     case "seafood":

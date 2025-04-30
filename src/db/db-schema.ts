@@ -57,6 +57,7 @@ export const schemaRating = z
 const schemaUrl = z
   .string()
   .url({ message: "Please enter a valid URL (starts with https)" });
+
 export const schemaCreateReview = createInsertSchema(reviewsTable, {
   rating: schemaRating,
   urlSource: schemaUrl.nullable(),
