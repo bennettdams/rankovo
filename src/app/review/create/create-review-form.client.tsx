@@ -62,7 +62,9 @@ async function createReview(_: unknown, formData: FormData) {
     success,
     error,
     data: reviewParsed,
-  } = schemaCreateReview.omit({ authorId: true }).safeParse(formState);
+  } = schemaCreateReview
+    .omit({ authorId: true, isCurrent: true })
+    .safeParse(formState);
 
   if (!success) {
     return {

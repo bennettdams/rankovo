@@ -8,11 +8,9 @@ import { useEffect, useState } from "react";
 export function DateTime({
   date,
   format,
-  title,
 }: {
   date: Date;
   format: DateTimeFormat;
-  title?: string;
 }) {
   // initialize with null to prevent server-render mismatches
   const [dateTransformed, setDateTransformed] = useState<{
@@ -28,10 +26,7 @@ export function DateTime({
   }, [date, format]);
 
   return (
-    <time
-      dateTime={dateTransformed?.dateTime}
-      title={`${title ? title + " " : ""}${dateTransformed?.dateFormatted}`}
-    >
+    <time dateTime={dateTransformed?.dateTime}>
       {dateTransformed?.dateFormatted}
     </time>
   );

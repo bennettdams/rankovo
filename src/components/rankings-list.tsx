@@ -28,35 +28,41 @@ export async function RankingsList({
   filters: Promise<FiltersRankings>;
 }) {
   const filters = await filtersExternal;
-  const rankings = await queries.rankings(filters);
+  const { rankings, queriedAt } = await queries.rankings(filters);
 
   return (
-    <div className="grid grid-rows-10 gap-x-3 gap-y-2 overflow-x-scroll">
-      {rankings.length === 0 ? (
-        <InfoMessage>No rankings for your filters.</InfoMessage>
-      ) : (
-        rankings.map((ranking, index) => (
-          <RankingsTableRow
-            key={ranking.id}
-            placeName={ranking.placeName}
-            rating={ranking.rating}
-            productName={ranking.productName}
-            productCategory={ranking.productCategory}
-            productNote={ranking.productNote}
-            city={ranking.city}
-            lastReviewedAt={ranking.lastReviewedAt}
-            numOfReviews={ranking.numOfReviews}
-            reviews={ranking.reviews}
-            position={index + 1}
-          />
-        ))
-      )}
+    <div>
+      <div className="grid grid-rows-10 gap-x-3 gap-y-2 overflow-x-scroll">
+        {rankings.length === 0 ? (
+          <InfoMessage>No rankings for your filters.</InfoMessage>
+        ) : (
+          rankings.map((ranking, index) => (
+            <RankingsTableRow
+              key={ranking.productId}
+              placeName={ranking.placeName}
+              ratingAvg={ranking.ratingAvg}
+              productName={ranking.productName}
+              productCategory={ranking.productCategory}
+              productNote={ranking.productNote}
+              city={ranking.city}
+              lastReviewedAt={ranking.lastReviewedAt}
+              numOfReviews={ranking.numOfReviews}
+              reviews={ranking.reviews}
+              position={index + 1}
+            />
+          ))
+        )}
+      </div>
+
+      <p className="mt-1 text-right text-sm">
+        Last update: <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
+      </p>
     </div>
   );
 }
 
 function RankingsTableRow({
-  rating,
+  ratingAvg,
   productName,
   productCategory,
   productNote,
@@ -67,7 +73,7 @@ function RankingsTableRow({
   reviews,
   position,
 }: {
-  rating: Ranking["rating"];
+  ratingAvg: Ranking["ratingAvg"];
   productName: Ranking["productName"];
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
@@ -81,7 +87,7 @@ function RankingsTableRow({
   return (
     <RankingDrawer
       placeName={placeName}
-      rating={rating}
+      ratingAvg={ratingAvg}
       productName={productName}
       productCategory={productCategory}
       productNote={productNote}
@@ -110,13 +116,13 @@ function RankingsTableRow({
         <div>
           <NumberFormatted
             className="text-right"
-            num={rating}
+            num={ratingAvg}
             min={1}
             max={2}
           />
         </div>
         <div>
-          <StarsForRating rating={rating} size="small" />
+          <StarsForRating rating={ratingAvg} size="small" />
         </div>
         <div>
           <span className="w-full text-nowrap text-secondary">{placeName}</span>
@@ -145,7 +151,7 @@ function RankingsTableRow({
 }
 
 function RankingDrawer({
-  rating,
+  ratingAvg,
   productName,
   productCategory,
   productNote,
@@ -156,7 +162,7 @@ function RankingDrawer({
   reviews,
   children,
 }: {
-  rating: Ranking["rating"];
+  ratingAvg: Ranking["ratingAvg"];
   productName: Ranking["productName"];
   productCategory: Ranking["productCategory"];
   productNote: Ranking["productNote"];
@@ -210,12 +216,14 @@ function RankingDrawer({
                 }
                 className="flex flex-col items-center gap-y-2 text-center md:pr-10"
               >
-                <p className="text-center text-3xl md:text-5xl">{rating}</p>
+                <p className="text-center text-3xl md:text-5xl">
+                  <NumberFormatted num={ratingAvg} min={1} max={2} />
+                </p>
                 <div className="block md:hidden">
-                  <StarsForRating size="medium" rating={rating} />
+                  <StarsForRating size="medium" rating={ratingAvg} />
                 </div>
                 <div className="hidden md:block">
-                  <StarsForRating size="large" rating={rating} />
+                  <StarsForRating size="large" rating={ratingAvg} />
                 </div>
 
                 <div>

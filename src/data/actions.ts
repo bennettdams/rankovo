@@ -25,7 +25,7 @@ import type {
   ActionStateError,
   ActionStateSuccess,
 } from "@/lib/action-utils";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { cacheKeys } from "./static";
 
@@ -78,16 +78,19 @@ export async function actionCreatePlace(
   } satisfies ActionStateSuccess;
 }
 
-export type ReviewCreate = Omit<ReviewCreateDb, "authorId">;
+export type ReviewCreate = Omit<ReviewCreateDb, "authorId" | "isCurrent">;
 export async function actionCreateReview(
   formState: FormStateCreateReview,
   reviewToCreate: ReviewCreate,
 ) {
   console.debug("🟦 ACTION create review");
 
+  const userId = userIdFake;
+
   const reviewToCreateFixed: ReviewCreateDb = {
     ...reviewToCreate,
-    authorId: userIdFake,
+    authorId: userId,
+    isCurrent: true,
   };
   const {
     success,
@@ -104,12 +107,28 @@ export async function actionCreateReview(
     } satisfies ActionStateError;
   }
 
-  await db.insert(reviewsTable).values({
-    ...reviewParsed,
-    authorId: userIdFake,
-    reviewedAt: new Date(),
-    createdAt: new Date(),
-    updatedAt: null,
+  await db.transaction(async (tx) => {
+    // Mark any existing review as not current
+    await tx
+      .update(reviewsTable)
+      .set({ isCurrent: false })
+      .where(
+        and(
+          eq(reviewsTable.productId, reviewParsed.productId),
+          eq(reviewsTable.authorId, userId),
+          eq(reviewsTable.isCurrent, true),
+        ),
+      );
+
+    // Insert new review as current
+    await tx.insert(reviewsTable).values({
+      ...reviewParsed,
+      authorId: userId,
+      isCurrent: true,
+      reviewedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: null,
+    });
   });
 
   revalidateTag(cacheKeys.reviews);

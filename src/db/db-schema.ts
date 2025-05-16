@@ -1,5 +1,6 @@
 import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
 import {
+  boolean,
   integer,
   pgTable,
   real,
@@ -41,6 +42,7 @@ export const reviewsTable = pgTable("reviews", {
     precision: 6,
     withTimezone: true,
   }),
+  isCurrent: boolean("is_current").default(false).notNull(),
   urlSource: varchar({ length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),

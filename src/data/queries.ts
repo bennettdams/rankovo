@@ -5,14 +5,15 @@ import {
   productsTable,
   reviewsTable,
   usersTable,
-  type Review,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import {
   and,
   asc,
+  avg,
   desc,
   eq,
+  gte,
   ilike,
   inArray,
   lte,
@@ -24,7 +25,7 @@ import { cacheKeys, minCharsSearch, type Category, type City } from "./static";
 
 export type Ranking = {
   id: number;
-  rating: number;
+  ratingAvg: number;
   productId: number;
   productName: string;
   productNote: string | null;
@@ -45,156 +46,164 @@ export type Ranking = {
   }[];
 };
 
-// WIP query for rankings
-export async function test() {
-  const latestReviews = db
-    .select({
-      productId: reviewsTable.productId,
-      authorId: reviewsTable.authorId,
-      latestReviewedAt: sql`MAX(${reviewsTable.reviewedAt})`.as(
-        "latestReviewedAt",
-      ),
-    })
-    .from(reviewsTable)
-    .groupBy(reviewsTable.productId, reviewsTable.authorId)
-    .as("latestReviews");
-
-  // Join products with the filtered reviews and calculate the average rating
-  const averageRatings = db
-    .select({
-      productId: productsTable.id,
-      productName: productsTable.name,
-      averageRating: sql`AVG(${reviewsTable.rating})`,
-    })
-    .from(productsTable)
-    .leftJoin(latestReviews, eq(productsTable.id, latestReviews.productId))
-    .leftJoin(
-      reviewsTable,
-      and(
-        eq(productsTable.id, reviewsTable.productId),
-        eq(reviewsTable.reviewedAt, latestReviews.latestReviewedAt),
-        eq(reviewsTable.authorId, latestReviews.authorId),
-      ),
-    )
-    .groupBy(productsTable.id, productsTable.name)
-    .orderBy(productsTable.id);
-
-  return averageRatings;
-}
+const numOfReviewsForAverage = 20;
 
 async function rankings(filters: FiltersRankings) {
   "use cache";
   cacheTag(cacheKeys.rankings);
   console.debug("🟦 QUERY rankings");
 
-  const filtersSQL: SQL[] = [];
+  // FILTERS for products
+  const filtersForProductsSQL: SQL[] = [];
   if (filters.categories)
-    filtersSQL.push(inArray(productsTable.category, filters.categories));
+    filtersForProductsSQL.push(
+      inArray(productsTable.category, filters.categories),
+    );
   if (filters.cities)
-    filtersSQL.push(inArray(placesTable.city, filters.cities));
-  if (filters.critics)
-    filtersSQL.push(inArray(usersTable.name, filters.critics));
+    filtersForProductsSQL.push(inArray(placesTable.city, filters.cities));
   if (!!filters.productName && filters.productName.length >= minCharsSearch)
-    filtersSQL.push(ilike(productsTable.name, `%${filters.productName}%`));
+    filtersForProductsSQL.push(
+      ilike(productsTable.name, `%${filters.productName}%`),
+    );
 
-  // TODO: Make sure to only take the latest review of each user
-  const reviewsWithProducts = await db
+  // FILTERS for reviews
+  const filtersForReviewsSQL: SQL[] = [];
+  if (filters.critics)
+    filtersForReviewsSQL.push(inArray(usersTable.name, filters.critics));
+  if (filters.ratingMin)
+    filtersForReviewsSQL.push(gte(reviewsTable.rating, filters.ratingMin));
+  if (filters.ratingMax)
+    filtersForReviewsSQL.push(lte(reviewsTable.rating, filters.ratingMax));
+
+  const qProductsFiltered = db
+    .select({
+      productId: productsTable.id,
+    })
+    .from(productsTable)
+    .where(and(...filtersForProductsSQL))
+    // join needed for filtering by place name (via filtersSQL)
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .as("queryProductsFiltered");
+
+  /** last X reviews for each product */
+  const qReviewsForProducts = db
     .select({
       id: reviewsTable.id,
       productId: reviewsTable.productId,
       rating: reviewsTable.rating,
+      reviewedAt: reviewsTable.reviewedAt,
+      urlSource: reviewsTable.urlSource,
       note: reviewsTable.note,
+      username: usersTable.name,
+      rowNumber: sql<number>`row_number() over (
+        partition by ${reviewsTable.productId}
+        order by ${reviewsTable.reviewedAt} desc
+      )`
+        .mapWith(Number)
+        .as("rowNumber"),
+    })
+    .from(reviewsTable)
+    .where(and(eq(reviewsTable.isCurrent, true), ...filtersForReviewsSQL))
+    .innerJoin(
+      qProductsFiltered,
+      eq(reviewsTable.productId, qProductsFiltered.productId),
+    )
+    // join needed for filtering by username (via filtersSQL)
+    .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
+    .orderBy(desc(reviewsTable.reviewedAt))
+    .as("queryReviewsForProducts");
+
+  const qProductsWithRatings = db
+    .select({
+      productId: qProductsFiltered.productId,
+      ratingAvg: avg(qReviewsForProducts.rating)
+        .mapWith(Number)
+        .as("ratingAvg"),
+      lastReviewedAt: sql<Date>`MAX(${qReviewsForProducts.reviewedAt})`
+        .mapWith(qReviewsForProducts.reviewedAt)
+        .as("lastReviewedAt"),
+    })
+    .from(qReviewsForProducts)
+    .where(lte(qReviewsForProducts.rowNumber, numOfReviewsForAverage))
+    .innerJoin(
+      qProductsFiltered,
+      eq(qReviewsForProducts.productId, qProductsFiltered.productId),
+    )
+    .groupBy(qProductsFiltered.productId)
+    .as("queryProductsWithRatings");
+
+  const qProductsLimited = db
+    .select({
+      productId: qProductsWithRatings.productId,
+      ratingAvg: qProductsWithRatings.ratingAvg,
+      lastReviewedAt: qProductsWithRatings.lastReviewedAt,
+    })
+    .from(qProductsWithRatings)
+    .orderBy(desc(qProductsWithRatings.ratingAvg))
+    // only 10 products needed for rankings
+    .limit(10)
+    .as("queryProductsLimited");
+
+  // 2025-05
+  // "placesTable.name" and "productsTable.name" would create a Drizzle error for ambiguous column names.
+  // Using "as" below to rename the column in the query.
+  // See: https://github.com/drizzle-team/drizzle-orm/issues/2772
+  const placeNameHack = "placeName";
+
+  const qRankings = db
+    .with(qProductsLimited)
+    .select({
       productName: productsTable.name,
       productCategory: productsTable.category,
       productNote: productsTable.note,
-      username: usersTable.name,
-      placeName: placesTable.name,
+      placeId: productsTable.placeId,
+      productId: qProductsLimited.productId,
+      ratingAvg: qProductsLimited.ratingAvg,
+      lastReviewedAt: qProductsLimited.lastReviewedAt,
       city: placesTable.city,
+      [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
+    })
+    .from(qProductsLimited)
+    .innerJoin(productsTable, eq(qProductsLimited.productId, productsTable.id))
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .orderBy(desc(qProductsLimited.ratingAvg))
+    .as("queryRankings");
+
+  const rankingsData = await db.select().from(qRankings);
+
+  // TODO Is there a way to do this in one query instead of getting the reviews separately?
+  const reviews = await db
+    .select({
+      id: reviewsTable.id,
+      note: reviewsTable.note,
       reviewedAt: reviewsTable.reviewedAt,
       urlSource: reviewsTable.urlSource,
+      rating: reviewsTable.rating,
+      productId: qProductsLimited.productId,
+      username: usersTable.name,
     })
     .from(reviewsTable)
-    .where(and(...filtersSQL))
-    // Ordering is not done here for performance reasons. We later cut off the reviews and then it is sorted.
-    // .orderBy(desc(reviewsTable.reviewedAt))
-    // -----------
-    // Joins ordered from largest to smallest tables for better performance
-    .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
+    .where(eq(reviewsTable.isCurrent, true))
+    .innerJoin(
+      qProductsLimited,
+      eq(reviewsTable.productId, qProductsLimited.productId),
+    )
     .innerJoin(usersTable, eq(usersTable.id, reviewsTable.authorId))
-    // LEFT JOIN at the end as it's less restrictive
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id));
+    .orderBy(desc(reviewsTable.reviewedAt))
+    .limit(numOfReviewsForAverage);
 
-  const rankingsMap = new Map<Review["productId"], Ranking>();
-
-  reviewsWithProducts.forEach((review) => {
-    const key = review.productId;
-    const ranking = rankingsMap.get(key);
-
-    if (ranking) {
-      // We recalculate the rating for every iteration. It should be checked whether just summing up and calculating the
-      // average later is more efficient (as it would probably need more object creation).
-      ranking.rating =
-        Math.round(
-          ((ranking.rating * ranking.numOfReviews + review.rating) /
-            (ranking.numOfReviews + 1)) *
-            100,
-        ) / 100;
-      ranking.numOfReviews++;
-
-      // We don't want to show all reviews for each ranking, so we only keep the last 20 reviews. This could be done without
-      // limit via pagination instead in the future, but it would need to have a way to apply it to a specific ranking – maybe with an
-      // intercepting route.
-      if (ranking.reviews.length <= 20) ranking.reviews.push(review);
-    } else {
-      rankingsMap.set(review.productId, {
-        id: key,
-        placeName: review.placeName,
-        rating: review.rating,
-        productId: review.productId,
-        productName: review.productName,
-        productNote: review.productNote,
-        productCategory: review.productCategory,
-        city: review.city,
-        numOfReviews: 1,
-        lastReviewedAt: review.reviewedAt,
-        reviews: [review],
-      });
-    }
+  const rankingsCombined = rankingsData.map((ranking) => {
+    const reviewsForProduct = reviews.filter(
+      (review) => review.productId === ranking.productId,
+    );
+    return {
+      ...ranking,
+      reviews: reviewsForProduct,
+      numOfReviews: reviewsForProduct.length,
+    };
   });
 
-  const rankings = Array.from(rankingsMap.values());
-
-  /*
-   * These filters are not applied in the SQL query because users are just supposed to filter for visbility,
-   * but the actual reviews are still needed to calculate the average rating.
-   */
-  const rankingsFiltered = rankings.filter((ranking) => {
-    if (!!filters.ratingMin && ranking.rating < filters.ratingMin) {
-      return false;
-    }
-    if (!!filters.ratingMax && ranking.rating > filters.ratingMax) {
-      return false;
-    }
-
-    return true;
-  });
-
-  return (
-    rankingsFiltered
-      // sort by rating
-      .sort((a, b) => b.rating - a.rating)
-      // cut off at 10
-      .slice(0, 10)
-      // sort reviews of each ranking
-      .map((ranking) => ({
-        ...ranking,
-        reviews: ranking.reviews.sort((a, b) =>
-          !a.reviewedAt || !b.reviewedAt
-            ? -1
-            : b.reviewedAt.getTime() - a.reviewedAt.getTime(),
-        ),
-      }))
-  );
+  return { rankings: rankingsCombined, queriedAt: new Date() };
 }
 
 const pageSizeReviews = 20;
@@ -217,6 +226,7 @@ async function reviews(page = 1) {
       username: usersTable.name,
       city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,
+      isCurrent: reviewsTable.isCurrent,
     })
     .from(reviewsTable)
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
@@ -268,8 +278,6 @@ async function searchProduct({
   if (!!placeName && placeName.length >= minCharsSearch)
     filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
 
-  const numOfReviews = 10;
-
   /** products & places for given filters */
   const queryProductsFiltered = db
     .select({
@@ -281,7 +289,7 @@ async function searchProduct({
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .as("queryProductsFiltered");
 
-  /** 10 last reviews for each product */
+  /** ranked reviews for each product */
   const queryReviewsRanked = db
     .select({
       productId: queryProductsFiltered.id,
@@ -310,16 +318,16 @@ async function searchProduct({
       category: productsTable.category,
       placeId: productsTable.placeId,
       note: productsTable.note,
-      averageRating: sql`avg(${queryReviewsRanked.rating})`
+      ratingAvg: sql`avg(${queryReviewsRanked.rating})`
         .mapWith(Number)
-        .as("averageRating"),
+        .as("ratingAvg"),
     })
     .from(productsTable)
     .innerJoin(
       queryReviewsRanked,
       and(
         eq(productsTable.id, queryReviewsRanked.productId),
-        lte(queryReviewsRanked.rowNumber, numOfReviews),
+        lte(queryReviewsRanked.rowNumber, numOfReviewsForAverage),
       ),
     )
     .groupBy(productsTable.id)
@@ -333,10 +341,10 @@ async function searchProduct({
       note: queryProductsAggregated.note,
       placeName: placesTable.name,
       city: placesTable.city,
-      averageRating: queryProductsAggregated.averageRating,
+      ratingAvg: queryProductsAggregated.ratingAvg,
     })
     .from(queryProductsAggregated)
-    .orderBy(desc(queryProductsAggregated.averageRating))
+    .orderBy(desc(queryProductsAggregated.ratingAvg))
     .leftJoin(placesTable, eq(queryProductsAggregated.placeId, placesTable.id));
 
   return await queryProductsFinal;

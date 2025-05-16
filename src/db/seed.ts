@@ -32,13 +32,20 @@ async function main() {
   await db.execute(sql`ALTER SEQUENCE products_id_seq RESTART WITH 1`);
   await db.execute(sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`);
 
-  // await createPlaces();
-  // await createProducts();
   await createUsers();
   await createCritics();
-  // await createReviewsSpecific();
-  // await createReviewsBulk();
-  await createReviewsReal();
+
+  const shouldCreateReal = true;
+
+  if (shouldCreateReal) {
+    await createReviewsReal();
+  } else {
+    await createPlaces();
+    await createProducts();
+
+    await createReviewsBulk();
+    await createReviewsSpecific();
+  }
 
   console.info("########## Seeding done");
 
@@ -47,24 +54,28 @@ async function main() {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsSpecific() {
-  console.log("Create reviews (specific)");
+  console.info("Create reviews (specific)");
 
-  const products = await db.select().from(productsTable).limit(1);
-  const users = await db.select().from(usersTable).limit(2);
+  const products = await db.select().from(productsTable).limit(2);
+  const users = await db.select().from(usersTable).limit(3);
 
   const productId = products.at(0)?.id;
+  const productId2 = products.at(1)?.id;
   const userId = users.at(0)?.id;
   const userId2 = users.at(1)?.id;
-  if (!productId || !userId || !userId2)
+  const userId3 = users.at(2)?.id;
+  if (!productId || !productId2 || !userId || !userId2 || !userId3)
     throw new Error("No product or user found");
 
+  // 3 reviews
   await db.insert(reviewsTable).values([
     {
-      rating: 5,
+      rating: 6,
       note: null,
       productId,
       authorId: userId,
       reviewedAt: new Date(),
+      isCurrent: true,
     },
     {
       rating: 2,
@@ -72,20 +83,49 @@ async function createReviewsSpecific() {
       productId,
       authorId: userId2,
       reviewedAt: new Date(),
+      isCurrent: true,
+    },
+    {
+      rating: 4,
+      note: null,
+      productId,
+      authorId: userId3,
+      reviewedAt: new Date(),
+      isCurrent: true,
+    },
+  ]);
+
+  // 2 reviews (via isCurrent)
+  await db.insert(reviewsTable).values([
+    {
+      rating: 6,
+      note: null,
+      productId: productId2,
+      authorId: userId,
+      reviewedAt: new Date(),
+      isCurrent: true,
     },
     {
       rating: 2,
       note: null,
-      productId,
+      productId: productId2,
       authorId: userId2,
       reviewedAt: new Date(),
     },
     {
       rating: 2,
       note: null,
-      productId,
+      productId: productId2,
       authorId: userId2,
       reviewedAt: new Date(),
+    },
+    {
+      rating: 3,
+      note: null,
+      productId: productId2,
+      authorId: userId2,
+      reviewedAt: new Date(),
+      isCurrent: true,
     },
   ]);
 }
@@ -113,7 +153,8 @@ async function createReviewsBulk() {
       note: Math.random() > 0.5 ? "Some review note" : null,
       productId: product.id,
       authorId: user.id,
-      reviewedAt: Math.random() > 0.1 ? new Date() : null,
+      reviewedAt: new Date(),
+      isCurrent: true,
       urlSource:
         Math.random() > 0.5
           ? `https://${Math.random() > 0.5 ? "www." : ""}${reviewSourceUrl}/test123`
@@ -148,10 +189,10 @@ async function createReviewsReal() {
     return productCreated;
   }
 
-  async function createReview(review: ReviewCreateDb) {
+  async function createReview(review: Omit<ReviewCreateDb, "isCurrent">) {
     const reviewCreated = await db
       .insert(reviewsTable)
-      .values(review)
+      .values({ ...review, isCurrent: true })
       .returning();
 
     if (!reviewCreated) throw new Error("Review not created");
@@ -198,6 +239,14 @@ async function createReviewsReal() {
       .where(sql`${usersTable.name} = ${usernameSturmwaffel}`)
   ).at(0)?.id;
   if (!userIdSturmi) throw new Error("No user found");
+
+  const userIdHenry = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(sql`${usersTable.name} = ${usernameHenryGibert}`)
+  ).at(0)?.id;
+  if (!userIdHenry) throw new Error("No user found");
 
   let place;
   let product;
@@ -916,6 +965,229 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=1bgfegIOSXU",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "BETR Burger",
+    city: "Hamburg",
+  });
+  const placeIdBETR = place.id;
+
+  product = await createProduct({
+    name: "BETR Chicken",
+    category: "burger",
+    placeId: place.id,
+    note: "vegan",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-04"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=pI3r4yChWZE",
+  });
+
+  product = await createProduct({
+    name: "BETR Wasabi",
+    category: "burger",
+    placeId: place.id,
+    note: "vegan",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-04"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=pI3r4yChWZE",
+  });
+
+  product = await createProduct({
+    name: "Nuggets",
+    category: "snack",
+    placeId: place.id,
+    note: "vegan",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-04"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=pI3r4yChWZE",
+  });
+
+  product = await createProduct({
+    name: "BETR Mac",
+    category: "burger",
+    placeId: place.id,
+    note: "vegan",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-04"),
+    rating: 7.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=pI3r4yChWZE",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "HOB's Hut of Burger",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Hot Chilli Burger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-06-11"),
+    rating: 9.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=PTVnMI3A2eE",
+  });
+
+  product = await createProduct({
+    name: "BBQ Burger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-06-11"),
+    rating: 9.1,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=PTVnMI3A2eE",
+  });
+
+  product = await createProduct({
+    name: "Smash Cheeseburger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-06-11"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=PTVnMI3A2eE",
+  });
+
+  product = await createProduct({
+    name: "Italian Club",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2023-07-09"),
+    rating: 9.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=zk1sv_OUpj0",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "köfte23",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Elazig Köfte",
+    category: "sandwich",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-15"),
+    rating: 8.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=SvM-qNh1EJI",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Soulkebab",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Döner Kalb",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-15"),
+    rating: 7.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=SvM-qNh1EJI",
+  });
+
+  product = await createProduct({
+    name: "Dönerteller Kalb",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-15"),
+    rating: 7.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=SvM-qNh1EJI",
+  });
+
+  // ###############
+
+  product = await createProduct({
+    name: "BETR Cheeze",
+    category: "burger",
+    placeId: placeIdBETR,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-12"),
+    rating: 7.7,
+    authorId: userIdHenry,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/shorts/X5A0b7fG2KE",
+  });
 }
 
 async function createProducts() {
@@ -1096,6 +1368,10 @@ async function createCritics() {
       userId: userIdFirst + 6,
       url: "https://www.youtube.com/@SturmwaffelLP",
     },
+    {
+      userId: userIdFirst + 7,
+      url: "https://www.youtube.com/@henry.gibert",
+    },
   ]);
 }
 
@@ -1104,6 +1380,7 @@ const usernameJFG = "JunkFoodGuru";
 const usernameFranklin = "The Franklin";
 const usernameReeze = "Reeze";
 const usernameSturmwaffel = "Sturmwaffel";
+const usernameHenryGibert = "Henry Gibert";
 
 async function createUsers() {
   console.info("Create users");
@@ -1118,6 +1395,7 @@ async function createUsers() {
       { name: usernameFranklin },
       { name: usernameReeze },
       { name: usernameSturmwaffel },
+      { name: usernameHenryGibert },
       { name: "Rust Cohle" },
       { name: "Denis Villeneuve" },
       { name: "David Fincher" },

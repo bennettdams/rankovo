@@ -26,6 +26,7 @@ async function ReviewsList() {
           <div>{review.productName}</div>
           <NumberFormatted num={review.rating} min={2} max={2} />
           <StarsForRating rating={review.rating} />
+          <div>Current: {review.isCurrent + ""}</div>
           <div>{review.username}</div>
           <div>{review.note}</div>
           <div>{review.placeName}</div>

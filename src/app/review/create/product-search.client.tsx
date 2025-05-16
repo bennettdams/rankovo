@@ -135,7 +135,7 @@ export function ProductSearch({
                   note={product.note}
                   placeName={product.placeName}
                   city={product.city}
-                  averageRating={product.averageRating}
+                  ratingAvg={product.ratingAvg}
                 />
               ))}
             </div>
@@ -154,7 +154,7 @@ function ProductCard({
   note,
   placeName,
   city,
-  averageRating,
+  ratingAvg,
 }: {
   isSelectedProduct: boolean;
   onClick: () => void;
@@ -163,7 +163,7 @@ function ProductCard({
   note: string | null;
   placeName: string | null;
   city: City | null;
-  averageRating: number | null;
+  ratingAvg: number | null;
 }) {
   return (
     <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
@@ -188,12 +188,12 @@ function ProductCard({
         )}
       </div>
       <div className="flex flex-row items-center">
-        {!averageRating ? (
+        {!ratingAvg ? (
           <p>No rating yet</p>
         ) : (
           <>
-            <NumberFormatted num={averageRating} min={2} max={2} />
-            <StarsForRating size="small" rating={averageRating} />
+            <NumberFormatted num={ratingAvg} min={2} max={2} />
+            <StarsForRating size="small" rating={ratingAvg} />
           </>
         )}
       </div>
