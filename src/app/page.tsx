@@ -21,6 +21,7 @@ const schemaParamsRankings = z.object({
   ratingMin: schemaSearchParamSingle(schemaRating, "number"),
   ratingMax: schemaSearchParamSingle(schemaRating, "number"),
   productName: schemaSearchParamSingle(z.string().min(1), "string"),
+  placeName: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 
 export type FiltersRankings = z.output<typeof schemaParamsRankings>;

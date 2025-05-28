@@ -43,6 +43,7 @@ export function RankingsFiltersSkeleton() {
         cities: null,
         critics: null,
         productName: null,
+        placeName: null,
         ratingMin: null,
         ratingMax: null,
       }}
@@ -116,6 +117,7 @@ function RankingsFiltersClientInternal({
         ratingMin: null,
         ratingMax: null,
         productName: null,
+        placeName: null,
       });
 
       router.push(routes.rankings, { scroll: false });
@@ -166,6 +168,23 @@ function RankingsFiltersClientInternal({
         <FieldError
           errorMsg={
             !!filters.productName && filters.productName.length < minCharsSearch
+              ? `At least ${minCharsSearch} characters`
+              : undefined
+          }
+        />
+      </FilterRow>
+
+      <FilterRow label="Place name">
+        <Input
+          name="filter-place-name"
+          type="text"
+          placeholder="e.g. Five Guys"
+          value={filters.placeName ?? ""}
+          onChange={(e) => changeFilters({ placeName: e.target.value })}
+        />
+        <FieldError
+          errorMsg={
+            !!filters.placeName && filters.placeName.length < minCharsSearch
               ? `At least ${minCharsSearch} characters`
               : undefined
           }

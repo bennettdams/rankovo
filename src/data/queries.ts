@@ -65,6 +65,10 @@ async function rankings(filters: FiltersRankings) {
     filtersForProductsSQL.push(
       ilike(productsTable.name, `%${filters.productName}%`),
     );
+  if (!!filters.placeName && filters.placeName.length >= minCharsSearch)
+    filtersForProductsSQL.push(
+      ilike(placesTable.name, `%${filters.placeName}%`),
+    );
 
   // FILTERS for reviews
   const filtersForReviewsSQL: SQL[] = [];

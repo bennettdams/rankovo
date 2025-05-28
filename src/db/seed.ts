@@ -1188,6 +1188,47 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/shorts/X5A0b7fG2KE",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Bobby's Burger",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Snashburger",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "gutes Preis-Leistungs-Verhältnis",
+    reviewedAt: new Date("2025-05-25"),
+    rating: 7.9,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=UMKdpNKevjs",
+  });
+
+  // ###############
+
+  product = await createProduct({
+    name: "Chicken BigMac",
+    category: "burger",
+    placeId: placeMcDonId,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-25"),
+    rating: 4.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=UMKdpNKevjs",
+  });
 }
 
 async function createProducts() {
