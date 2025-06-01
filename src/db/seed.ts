@@ -19,6 +19,11 @@ import { db } from "./drizzle-setup";
 
 const numOfReviews = 1_000;
 
+type Mode = "real" | "bulk" | "specific";
+// const mode: Mode = "real";
+const mode: Mode = "specific";
+// const mode: Mode = "bulk";
+
 async function main() {
   console.info("########## Seeding");
 
@@ -35,16 +40,14 @@ async function main() {
   await createUsers();
   await createCritics();
 
-  const shouldCreateReal = true;
-
-  if (shouldCreateReal) {
+  if (mode === "real") {
     await createReviewsReal();
   } else {
     await createPlaces();
     await createProducts();
 
-    await createReviewsBulk();
-    await createReviewsSpecific();
+    if (mode === "bulk") await createReviewsBulk();
+    if (mode === "specific") await createReviewsSpecific();
   }
 
   console.info("########## Seeding done");
@@ -52,7 +55,6 @@ async function main() {
   process.exit(0);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsSpecific() {
   console.info("Create reviews (specific)");
 

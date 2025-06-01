@@ -8,7 +8,7 @@ import { SelectionCard } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProductSearchQuery } from "@/data/queries";
+import type { Ranking } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
   prepareFiltersForUpdate,
@@ -28,7 +28,7 @@ export function ProductSearch({
   selectedProductId,
   onProductSelect,
 }: {
-  productsForSearch: ProductSearchQuery[];
+  productsForSearch: Ranking[];
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
@@ -127,15 +127,16 @@ export function ProductSearch({
             <div className="flex h-full flex-row gap-x-4">
               {productsForSearch.map((product) => (
                 <ProductCard
-                  key={product.id}
-                  isSelectedProduct={product.id === selectedProductId}
-                  onClick={() => handleProductCardClick(product.id)}
-                  name={product.name}
-                  category={product.category}
-                  note={product.note}
+                  key={product.productId}
+                  isSelectedProduct={product.productId === selectedProductId}
+                  onClick={() => handleProductCardClick(product.productId)}
+                  name={product.productName}
+                  category={product.productCategory}
+                  note={product.productNote}
                   placeName={product.placeName}
                   city={product.city}
                   ratingAvg={product.ratingAvg}
+                  numOfReviews={product.numOfReviews}
                 />
               ))}
             </div>
@@ -155,6 +156,7 @@ function ProductCard({
   placeName,
   city,
   ratingAvg,
+  numOfReviews,
 }: {
   isSelectedProduct: boolean;
   onClick: () => void;
@@ -164,6 +166,7 @@ function ProductCard({
   placeName: string | null;
   city: City | null;
   ratingAvg: number | null;
+  numOfReviews: number | null;
 }) {
   return (
     <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
@@ -194,6 +197,7 @@ function ProductCard({
           <>
             <NumberFormatted num={ratingAvg} min={2} max={2} />
             <StarsForRating size="small" rating={ratingAvg} />
+            <span className="ml-2 text-sm">({numOfReviews})</span>
           </>
         )}
       </div>

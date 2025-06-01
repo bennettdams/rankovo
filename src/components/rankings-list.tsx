@@ -1,5 +1,5 @@
 import type { FiltersRankings } from "@/app/page";
-import { queries, type Ranking } from "@/data/queries";
+import { queries, type RankingWithReviews } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { CategoryBadge } from "./category-badge";
@@ -28,7 +28,7 @@ export async function RankingsList({
   filters: Promise<FiltersRankings>;
 }) {
   const filters = await filtersExternal;
-  const { rankings, queriedAt } = await queries.rankings(filters);
+  const { rankings, queriedAt } = await queries.rankingsWithReviews(filters);
 
   return (
     <div>
@@ -73,15 +73,15 @@ function RankingsTableRow({
   reviews,
   position,
 }: {
-  ratingAvg: Ranking["ratingAvg"];
-  productName: Ranking["productName"];
-  productCategory: Ranking["productCategory"];
-  productNote: Ranking["productNote"];
-  lastReviewedAt: Ranking["lastReviewedAt"];
-  placeName: Ranking["placeName"];
-  city: Ranking["city"];
-  numOfReviews: Ranking["numOfReviews"];
-  reviews: Ranking["reviews"];
+  ratingAvg: RankingWithReviews["ratingAvg"];
+  productName: RankingWithReviews["productName"];
+  productCategory: RankingWithReviews["productCategory"];
+  productNote: RankingWithReviews["productNote"];
+  lastReviewedAt: RankingWithReviews["lastReviewedAt"];
+  placeName: RankingWithReviews["placeName"];
+  city: RankingWithReviews["city"];
+  numOfReviews: RankingWithReviews["numOfReviews"];
+  reviews: RankingWithReviews["reviews"];
   position: number;
 }) {
   return (
@@ -162,15 +162,15 @@ function RankingDrawer({
   reviews,
   children,
 }: {
-  ratingAvg: Ranking["ratingAvg"];
-  productName: Ranking["productName"];
-  productCategory: Ranking["productCategory"];
-  productNote: Ranking["productNote"];
-  lastReviewedAt: Ranking["lastReviewedAt"];
-  placeName: Ranking["placeName"];
-  city: Ranking["city"];
-  numOfReviews: Ranking["numOfReviews"];
-  reviews: Ranking["reviews"];
+  ratingAvg: RankingWithReviews["ratingAvg"];
+  productName: RankingWithReviews["productName"];
+  productCategory: RankingWithReviews["productCategory"];
+  productNote: RankingWithReviews["productNote"];
+  lastReviewedAt: RankingWithReviews["lastReviewedAt"];
+  placeName: RankingWithReviews["placeName"];
+  city: RankingWithReviews["city"];
+  numOfReviews: RankingWithReviews["numOfReviews"];
+  reviews: RankingWithReviews["reviews"];
   children: React.ReactNode;
 }) {
   return (
@@ -228,7 +228,9 @@ function RankingDrawer({
 
                 <div>
                   <span className="font-bold">{numOfReviews}</span>
-                  <span className="ml-1.5">reviews</span>
+                  <span className="ml-1.5">
+                    {numOfReviews === 1 ? "review" : "reviews"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -272,7 +274,7 @@ function RankingDrawer({
   );
 }
 
-function ReviewsList({ reviews }: { reviews: Ranking["reviews"] }) {
+function ReviewsList({ reviews }: { reviews: RankingWithReviews["reviews"] }) {
   return (
     <>
       <p className="font-bold">Last 20 reviews</p>
@@ -316,8 +318,8 @@ function ProductMap({
   placeName,
   city,
 }: {
-  placeName: Ranking["placeName"];
-  city: Ranking["city"];
+  placeName: RankingWithReviews["placeName"];
+  city: RankingWithReviews["city"];
 }) {
   return (
     <div className="grid h-full">

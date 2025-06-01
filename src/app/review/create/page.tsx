@@ -19,10 +19,16 @@ export default async function PageReviewCreate({
   const productsForSearch =
     !paramsParsed.productName && !paramsParsed.placeName
       ? []
-      : await queries.searchProduct({
+      : await queries.rankings({
           productName: paramsParsed.productName,
           placeName: paramsParsed.placeName,
+          categories: null,
+          cities: null,
+          critics: null,
+          ratingMin: null,
+          ratingMax: null,
         });
+
   const placesForSearch = !paramsParsed.placeName
     ? []
     : await queries.searchPlaces(paramsParsed.placeName);
