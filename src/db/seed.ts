@@ -132,7 +132,6 @@ async function createReviewsSpecific() {
   ]);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function createReviewsBulk() {
   console.info("Create reviews (bulk)");
 
@@ -1230,6 +1229,104 @@ async function createReviewsReal() {
     authorId: userIdHolle,
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=UMKdpNKevjs",
+  });
+
+  // ###############
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-18"),
+    rating: 9.0,
+    authorId: userIdReeze,
+    productId: productIdBETRChicken,
+    urlSource: "https://www.youtube.com/watch?v=z3lluNxj9iA",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-18"),
+    rating: 9.0,
+    authorId: userIdReeze,
+    productId: productIdBETRMac,
+    urlSource: "https://www.youtube.com/watch?v=z3lluNxj9iA",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-05-18"),
+    rating: 8.7,
+    authorId: userIdReeze,
+    productId: productIdBETRCheeze,
+    urlSource: "https://www.youtube.com/watch?v=z3lluNxj9iA",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Koz Tantuni Street Food",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Tantuni Dürüm",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-05"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=zjuDnBT4jbo",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Antep Kebab House",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Döner Kalb",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-05"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=zjuDnBT4jbo",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Crockpot's",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Boneless Wings",
+    category: "chicken",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-08"),
+    rating: 8.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=SzADTkasL10",
   });
 }
 
