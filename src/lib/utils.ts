@@ -73,3 +73,13 @@ export function createRandomNumberBetween({
     return Math.round(res * multiplier) / multiplier;
   }
 }
+
+export function takeUniqueOrThrow<TValue>(
+  values: TValue[],
+  msgMoreThanOne: string,
+  msgNonExisting: string,
+): TValue {
+  if (values.length > 1) throw new Error(msgMoreThanOne);
+  if (!values[0]) throw new Error(msgNonExisting);
+  return values[0];
+}

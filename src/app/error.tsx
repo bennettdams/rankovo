@@ -1,5 +1,7 @@
 "use client"; // Error boundaries must be Client Components
 
+import { ErrorCard } from "@/components/error-card";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
 export default function Error({
@@ -14,9 +16,10 @@ export default function Error({
   }, [error]);
 
   return (
-    <div>
-      <h2>Something went wrong!</h2>
-      <button onClick={() => reset()}>Try again</button>
-    </div>
+    <ErrorCard title="Something went wrong">
+      <div>
+        <Button onClick={() => reset()}>Try again</Button>
+      </div>
+    </ErrorCard>
   );
 }

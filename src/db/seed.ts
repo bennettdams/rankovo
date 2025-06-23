@@ -1,4 +1,14 @@
-import { ratingHighest, ratingLowest, reviewSources } from "@/data/static";
+import {
+  ratingHighest,
+  ratingLowest,
+  reviewSources,
+  usernameFranklin,
+  usernameHenryGibert,
+  usernameHolle,
+  usernameJFG,
+  usernameReeze,
+  usernameSturmwaffel,
+} from "@/data/static";
 import {
   createRandomNumberBetween,
   pickRandomFromArray,
@@ -13,6 +23,7 @@ import {
   productsTable,
   type ReviewCreateDb,
   reviewsTable,
+  type UserCreate,
   usersTable,
 } from "./db-schema";
 import { db } from "./drizzle-setup";
@@ -20,8 +31,8 @@ import { db } from "./drizzle-setup";
 const numOfReviews = 1_000;
 
 type Mode = "real" | "bulk" | "specific";
-// const mode: Mode = "real";
-const mode: Mode = "specific";
+const mode: Mode = "real";
+// const mode: Mode = "specific";
 // const mode: Mode = "bulk";
 
 async function main() {
@@ -35,7 +46,7 @@ async function main() {
   await db.delete(placesTable).execute();
   // await db.execute(sql`TRUNCATE TABLE ${usersTable} RESTART IDENTITY;`);
   await db.execute(sql`ALTER SEQUENCE products_id_seq RESTART WITH 1`);
-  await db.execute(sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`);
+  // await db.execute(sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`);
 
   await createUsers();
   await createCritics();
@@ -565,6 +576,7 @@ async function createReviewsReal() {
     name: "ROB's",
     city: null,
   });
+  const placeIdRobs = place.id;
 
   product = await createProduct({
     name: "Crunchy Puffs Churro",
@@ -981,6 +993,7 @@ async function createReviewsReal() {
     placeId: place.id,
     note: "vegan",
   });
+  const productIdBETRChicken = product.id;
 
   await createReview({
     note: null,
@@ -1029,6 +1042,7 @@ async function createReviewsReal() {
     placeId: place.id,
     note: "vegan",
   });
+  const productIdBETRMac = product.id;
 
   await createReview({
     note: null,
@@ -1180,6 +1194,7 @@ async function createReviewsReal() {
     placeId: placeIdBETR,
     note: null,
   });
+  const productIdBETRCheeze = product.id;
 
   await createReview({
     note: null,
@@ -1327,6 +1342,255 @@ async function createReviewsReal() {
     authorId: userIdHolle,
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=SzADTkasL10",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "La Noodle",
+    city: "Düsseldorf",
+  });
+
+  product = await createProduct({
+    name: "Biang Biang Beef",
+    category: "noodles",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-15"),
+    rating: 8.7,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=VE-Zcse_WIg",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "goldies",
+    city: null,
+  });
+  const placeIdGoldies = place.id;
+
+  product = await createProduct({
+    name: "Cheeseburger",
+    category: "burger",
+    placeId: place.id,
+    note: "Smashburger",
+  });
+  const productIdGoldiesCheeseburger = product.id;
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-15"),
+    rating: 9.0,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=VE-Zcse_WIg",
+  });
+
+  product = await createProduct({
+    name: "Super Smash TS",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: "mit Bacon Jam",
+    reviewedAt: new Date("2025-06-15"),
+    rating: 9.5,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=VE-Zcse_WIg",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "TAKE - THE GOOD FOOD",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Drip Burger",
+    category: "burger",
+    placeId: place.id,
+    note: "mit Knochen",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-15"),
+    rating: 8.3,
+    authorId: userIdReeze,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=VE-Zcse_WIg",
+  });
+
+  // ###############
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2023-11-02"),
+    rating: 9.4,
+    authorId: userIdHolle,
+    productId: productIdGoldiesCheeseburger,
+    urlSource: "https://www.youtube.com/watch?v=acgeXaqOpYo",
+  });
+
+  // ###############
+
+  product = await createProduct({
+    name: "Cheeeseburger (Double)",
+    category: "burger",
+    placeId: placeIdGoldies,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2023-11-02"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=acgeXaqOpYo",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Five Guys",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Bacon Cheeseburger",
+    category: "burger",
+    placeId: place.id,
+    note: "mit Jalapenos",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-12"),
+    rating: 7.9,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=sElLsSRzH3w",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Joe & The Juice",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "The Steak",
+    category: "sandwich",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-12"),
+    rating: 7.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=sElLsSRzH3w",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Frittenwerk",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Planted Steak Fries",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: "vegan",
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-12"),
+    rating: 8.3,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=sElLsSRzH3w",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Block House",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Steak Pfanne Kräuter",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-19"),
+    rating: 7.5,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=6-A9-t1za3Y",
+  });
+
+  // ###############
+
+  product = await createProduct({
+    name: "Crunchy Puffs Spicy Paprika",
+    category: "snack",
+    placeId: placeIdRobs,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-19"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=6-A9-t1za3Y",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Superbad",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Superbad Brother Double",
+    category: "burger",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-22"),
+    rating: 7.9,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=IoASNy82gm8",
   });
 }
 
@@ -1486,60 +1750,63 @@ async function createCritics() {
   ).at(0)?.id;
   if (!userIdFirst) throw new Error("No user found");
 
-  await db.insert(criticsTable).values([
-    {
-      userId: userIdFirst + 1,
-      url: "https://www.youtube.com/c/Holle21614",
-    },
-    { userId: userIdFirst + 2, url: "https://www.youtube.com/c/JunkFoodGuru" },
-    {
-      userId: userIdFirst + 3,
-      url: "https://www.youtube.com/playlist?list=PLsksxTH4pR3JcsqeJahL_3JMwPgAf1DsX",
-    },
-    {
-      userId: userIdFirst + 4,
-      url: "https://www.youtube.com/@the.franklin",
-    },
-    {
-      userId: userIdFirst + 5,
-      url: "https://www.youtube.com/@Reeze",
-    },
-    {
-      userId: userIdFirst + 6,
-      url: "https://www.youtube.com/@SturmwaffelLP",
-    },
-    {
-      userId: userIdFirst + 7,
-      url: "https://www.youtube.com/@henry.gibert",
-    },
-  ]);
+  await db.insert(criticsTable).values(
+    usersCriticsSeed.map((user) => ({
+      userId: user.id,
+      url: user.url,
+    })),
+  );
 }
 
-const usernameHolle = "Holle21614";
-const usernameJFG = "JunkFoodGuru";
-const usernameFranklin = "The Franklin";
-const usernameReeze = "Reeze";
-const usernameSturmwaffel = "Sturmwaffel";
-const usernameHenryGibert = "Henry Gibert";
+const usersCriticsSeed: (UserCreate & { url: string })[] = [
+  {
+    id: "1-temp",
+    name: usernameHolle,
+    email: `${usernameHolle}@example.com`,
+    url: "https://www.youtube.com/c/Holle21614",
+  },
+  {
+    id: "2-temp",
+    name: usernameJFG,
+    email: `${usernameJFG}@example.com`,
+    url: "https://www.youtube.com/c/JunkFoodGuru",
+  },
+  {
+    id: "3-temp",
+    name: usernameFranklin,
+    email: `${usernameFranklin}@example.com`,
+    url: "https://www.youtube.com/@the.franklin",
+  },
+  {
+    id: "4-temp",
+    name: usernameReeze,
+    email: `${usernameReeze}@example.com`,
+    url: "https://www.youtube.com/@Reeze",
+  },
+  {
+    id: "5-temp",
+    name: usernameSturmwaffel,
+    email: `${usernameSturmwaffel}@example.com`,
+    url: "https://www.youtube.com/@SturmwaffelLP",
+  },
+  {
+    id: "6-temp",
+    name: usernameHenryGibert,
+    email: `${usernameHenryGibert}@example.com`,
+    url: "https://www.youtube.com/@henry.gibert",
+  },
+];
 
 async function createUsers() {
   console.info("Create users");
 
-  await db
-    .insert(usersTable)
-    .values([
-      { name: "Bennett" },
-      { name: usernameHolle },
-      { name: usernameJFG },
-      { name: "Colin Gäbel" },
-      { name: usernameFranklin },
-      { name: usernameReeze },
-      { name: usernameSturmwaffel },
-      { name: usernameHenryGibert },
-      { name: "Rust Cohle" },
-      { name: "Denis Villeneuve" },
-      { name: "David Fincher" },
-    ]);
+  await db.insert(usersTable).values(
+    usersCriticsSeed.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    })),
+  );
 }
 
 main();

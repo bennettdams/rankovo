@@ -54,3 +54,21 @@ export const reviewSources = {
   Instagram: "instagram.com",
 } as const;
 export type ReviewSource = keyof typeof reviewSources;
+
+// Critics
+export const usernameHolle = "Holle21614";
+export const usernameJFG = "JunkFoodGuru";
+export const usernameFranklin = "The Franklin";
+export const usernameReeze = "Reeze";
+export const usernameSturmwaffel = "Sturmwaffel";
+export const usernameHenryGibert = "Henry Gibert";
+
+export const usernamesReserved = [
+  "Bennett",
+  usernameHolle,
+  usernameJFG,
+  usernameFranklin,
+  usernameReeze,
+  usernameSturmwaffel,
+  usernameHenryGibert,
+];

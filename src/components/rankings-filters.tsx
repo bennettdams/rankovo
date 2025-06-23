@@ -11,5 +11,6 @@ export async function RankingFilters({
 }) {
   const filters = await filtersPromise;
   const critics = await criticsPromise;
+
   return <RankingsFiltersClient filters={filters} critics={critics} />;
 }

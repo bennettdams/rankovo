@@ -3,4 +3,5 @@ export const routes = {
   rankings: "/",
   reviews: "/reviews",
   reviewCreate: "/review/create",
+  user: (userId: string) => `/user/${userId}`,
 } as const;

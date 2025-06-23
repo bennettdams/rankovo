@@ -78,7 +78,7 @@ export default async function Home({
 function HeroSection() {
   return (
     <section className="w-full pb-12 md:pb-24">
-      <div className="container px-4 md:px-6">
+      <div className="px-4 md:px-6">
         <div className="flex flex-col items-center space-y-4 text-center">
           <IconRankovo className="h-12 w-12" />
 

@@ -33,7 +33,7 @@ export default function RootLayout({
         <Navbar />
 
         <main className="mb-52 min-h-full pb-40">
-          <div className="container mx-auto">{children}</div>
+          <div className="container mx-auto min-h-full">{children}</div>
         </main>
 
         <footer className="py-8 text-center">

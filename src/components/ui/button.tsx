@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 const variants = {
   primary:
     "bg-primary text-primary-fg hover:bg-tertiary hover:text-tertiary-fg",
+  secondary:
+    "bg-secondary text-secondary-fg hover:bg-tertiary hover:text-tertiary-fg",
 };
 
 const buttonVariants = cva(
@@ -15,11 +17,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: variants.primary,
+        secondary: variants.secondary,
         destructive:
           "bg-red-500 text-stone-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-stone-50 dark:hover:bg-red-900/90",
         outline: "border border-primary hover:bg-primary hover:text-primary-fg",
-        secondary:
-          "bg-stone-100 text-stone-900 hover:bg-stone-100/80 dark:bg-stone-800 dark:text-stone-50 dark:hover:bg-stone-800/80",
         ghost:
           "hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-stone-800 dark:hover:text-stone-50",
         link: "text-stone-900 underline-offset-4 hover:underline dark:text-stone-50",
