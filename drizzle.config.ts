@@ -11,5 +11,8 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
+  // print all SQL statements during drizzle-kit push command
   verbose: true,
+  // prompts confirmation to run printed SQL statements when running drizzle-kit push command
+  strict: true,
 });

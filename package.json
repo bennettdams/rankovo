@@ -13,12 +13,12 @@
     "check-updates": "npx npm-check-updates -u",
     "upgrade-nextjs": "npx @next/codemod@canary upgrade latest",
     "//// DATABASE": "/////////////////////////",
-    "db:push": "npx drizzle-kit push",
-    "db:generate": "npx drizzle-kit generate",
-    "db:migrate": "npx drizzle-kit migrate",
-    "db:s": "npx drizzle-kit studio --verbose",
-    "db:seed": "bun ./src/db/seed.ts",
-    "db:auth-generate": "npx @better-auth/cli generate --config ./src/lib/auth-server.ts"
+    "db:push": "bun scripts/db-cmd-guard.ts \"npx drizzle-kit push\"",
+    "db:generate": "bun scripts/db-cmd-guard.ts \"npx drizzle-kit generate\"",
+    "db:migrate": "bun scripts/db-cmd-guard.ts \"npx drizzle-kit migrate\"",
+    "db:s": "bun scripts/db-cmd-guard.ts \"npx drizzle-kit studio --verbose\"",
+    "db:seed": "bun scripts/db-cmd-guard.ts \"bun ./src/db/seed.ts\"",
+    "db:auth-generate": "bun scripts/db-cmd-guard.ts \"npx @better-auth/cli generate --config ./src/lib/auth-server.ts\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
