@@ -7,7 +7,7 @@ import {
 } from "@/components/form";
 import { InfoMessage } from "@/components/info-message";
 import { MapWithPlace } from "@/components/map-with-place";
-import { SelectionCard } from "@/components/selection-card";
+import { SelectionCard, SelectionCardList } from "@/components/selection-card";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -222,7 +222,7 @@ export function CreateProductForm({
             <div className="mt-10">
               <p>Similar places for your filter:</p>
 
-              <div className="mt-4 flex h-full flex-row gap-x-4 overflow-x-scroll">
+              <SelectionCardList className="mt-4 flex flex-row gap-x-4 overflow-x-scroll">
                 {!filters.placeName ? (
                   <InfoMessage>-</InfoMessage>
                 ) : placesForSearch.length === 0 ? (
@@ -242,7 +242,7 @@ export function CreateProductForm({
                     />
                   ))
                 )}
-              </div>
+              </SelectionCardList>
             </div>
 
             <DrawerCreatePlace

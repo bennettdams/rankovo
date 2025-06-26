@@ -4,7 +4,7 @@ import { CategoryBadge } from "@/components/category-badge";
 import { FieldError, Fieldset } from "@/components/form";
 import { InfoMessage } from "@/components/info-message";
 import { NumberFormatted } from "@/components/number-formatted";
-import { SelectionCard } from "@/components/selection-card";
+import { SelectionCard, SelectionCardList } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,7 +116,7 @@ export function ProductSearch({
       </div>
 
       {/* PRODUCTS LIST */}
-      <div className="mt-8 flex items-center overflow-x-auto">
+      <SelectionCardList className="mt-8 flex items-center overflow-x-auto">
         {hasNoSearch ? (
           <InfoMessage>No filters for search.</InfoMessage>
         ) : (
@@ -142,7 +142,7 @@ export function ProductSearch({
             </div>
           ))
         )}
-      </div>
+      </SelectionCardList>
     </div>
   );
 }
