@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 
-const userMenuWidthStyles = "w-60 min-w-60 max-w-60";
+const userMenuWidthStyles = "w-96 min-w-96 max-w-96";
 
 export function Navbar() {
   return (
@@ -33,6 +33,13 @@ export function Navbar() {
             className="transition-colors hover:text-primary"
           >
             Reviews
+          </Link>
+
+          <Link
+            href={routes.contact}
+            className="transition-colors hover:text-primary"
+          >
+            Contact
           </Link>
         </div>
 
@@ -114,6 +121,9 @@ function MobileMenu() {
           </Link>
           <Link href={routes.reviews} className="hover:text-primary">
             Reviews
+          </Link>
+          <Link href={routes.contact} className="hover:text-primary">
+            Contact
           </Link>
           <Link href={routes.reviewCreate} className="hover:text-primary">
             Create review
