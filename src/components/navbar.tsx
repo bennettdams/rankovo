@@ -57,15 +57,6 @@ export function Navbar() {
               </h1>
             </Link>
           </div>
-
-          <Link
-            href={routes.reviewCreate}
-            className="justify-self-end transition-colors hover:text-primary"
-          >
-            <Button>
-              <NotepadText /> Create review
-            </Button>
-          </Link>
         </div>
 
         <div
@@ -74,6 +65,15 @@ export function Navbar() {
             userMenuWidthStyles,
           )}
         >
+          <Link
+            href={routes.reviewCreate}
+            className="justify-self-end transition-colors hover:text-primary"
+          >
+            <Button>
+              <NotepadText /> Create review
+            </Button>
+          </Link>
+
           <UserMenu />
         </div>
       </nav>

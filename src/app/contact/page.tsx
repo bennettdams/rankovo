@@ -1,6 +1,6 @@
 export default function PageContact() {
   return (
-    <div className="mx-auto space-y-10 px-10 pt-24 text-lg md:px-96">
+    <div className="container mx-auto w-10/12 space-y-10 pt-24 text-lg lg:w-6/12">
       <div>
         <h1 className="text-3xl font-bold text-primary">Contact</h1>
         <p>I would love to hear your ideas or answer your questions!</p>

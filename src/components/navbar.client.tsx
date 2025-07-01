@@ -29,7 +29,14 @@ export function UserMenu() {
   return (
     <div className="flex h-full w-full items-center justify-end gap-2">
       {userAuth.state === "pending" ? (
-        <p>&nbsp;</p>
+        // placeholder, keep in sync with real button below
+        <Button
+          variant="ghost"
+          className="flex h-10 items-center justify-end gap-2 py-0 [&_svg]:size-8"
+        >
+          <p className="min-w-40 max-w-40 truncate">&nbsp;</p>
+          <CircleUser className="stroke-primary" />
+        </Button>
       ) : userAuth.state === "error" ? (
         <>
           <p className="text-error">Error signing in, please try again</p>
@@ -40,11 +47,12 @@ export function UserMenu() {
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
+            {/* keep in sync with placeholder button above */}
             <Button
               variant="ghost"
               className="flex h-10 items-center justify-end gap-2 py-0 [&_svg]:size-8"
             >
-              <p className="min-w-20 truncate">{userAuth.username}</p>
+              <p className="min-w-40 max-w-40 truncate">{userAuth.username}</p>
               <CircleUser className="stroke-primary" />
             </Button>
           </DropdownMenuTrigger>
