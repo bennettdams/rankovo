@@ -38,7 +38,7 @@ export default function RootLayout({
 
         <footer className="py-8 text-center">
           <p className="text-gray-500 text-sm">
-            <span>© 2025 Rankovo | Built by </span>
+            <span>© 2025 Rankovo &mdash; Built by </span>
 
             <a
               href="https://x.com/bennettdams"
