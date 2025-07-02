@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -32,7 +31,7 @@ export function UserMenu() {
         // placeholder, keep in sync with real button below
         <Button
           variant="ghost"
-          className="flex h-10 items-center justify-end gap-2 py-0 [&_svg]:size-8"
+          className="flex h-10 items-center justify-end gap-2 py-0 text-right [&_svg]:size-8"
         >
           <p className="min-w-40 max-w-40 truncate">&nbsp;</p>
           <CircleUser className="stroke-primary" />
@@ -50,16 +49,16 @@ export function UserMenu() {
             {/* keep in sync with placeholder button above */}
             <Button
               variant="ghost"
-              className="flex h-10 items-center justify-end gap-2 py-0 [&_svg]:size-8"
+              className="flex h-10 items-center justify-end gap-2 py-0 text-right [&_svg]:size-8"
             >
               <p className="min-w-40 max-w-40 truncate">{userAuth.username}</p>
               <CircleUser className="stroke-primary" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
-            <DropdownMenuLabel>
+            <DropdownMenuItem>
               <Link href={routes.user(userAuth.id)}>My Profile</Link>
-            </DropdownMenuLabel>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <a

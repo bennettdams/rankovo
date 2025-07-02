@@ -28,6 +28,7 @@ export const cacheKeys = {
   critics: "critics",
   products: "products",
   places: "places",
+  user: (userId: string) => `user:${userId}`,
 };
 
 export const cities = [

@@ -22,6 +22,7 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
+import { notFound } from "next/navigation";
 import { cacheKeys, minCharsSearch, type Category, type City } from "./static";
 
 export type Ranking = {
@@ -344,10 +345,28 @@ async function searchPlaces(placeName: string) {
 
 export type PlaceSearchQuery = Awaited<ReturnType<typeof searchPlaces>>[number];
 
+async function userForId(userId: string) {
+  "use cache";
+  cacheTag(cacheKeys.user(userId));
+  console.debug("🟦 QUERY userForId", " userId: ", userId);
+
+  const userForQuery = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+
+  if (userForQuery.length > 1)
+    throw new Error("Multiple users found for user ID: " + userId);
+  if (!userForQuery[0]) notFound();
+
+  return userForQuery[0];
+}
+
 export const queries = {
   rankings,
   rankingsWithReviews,
   reviews,
   critics,
   searchPlaces,
+  userForId,
 };

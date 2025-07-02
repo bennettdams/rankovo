@@ -71,7 +71,7 @@ async function createTemporaryUsername(
     .where(eq(usersTable.name, usernameRawExternal));
 
   if (existingUsers.length === 0) {
-    return usernameRawExternal + "----" + randomUUID().slice(0, 8);
+    return usernameRawExternal + "-" + randomUUID().slice(0, 4);
   } else {
     console.debug("Duplicate username found, trying again");
     return createTemporaryUsername(usernameRawExternal, tryNum + 1);

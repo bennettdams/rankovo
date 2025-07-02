@@ -26,7 +26,7 @@ const schemaParamsRankings = z.object({
 
 export type FiltersRankings = z.output<typeof schemaParamsRankings>;
 
-export default async function Home({
+export default async function PageHome({
   searchParams,
 }: {
   searchParams: Promise<unknown>;
