@@ -1592,6 +1592,91 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=IoASNy82gm8",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Chingu St. Pauli",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Chicken Wings",
+    category: "chicken",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-26"),
+    rating: 8.3,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=uW6vU3qVOL8",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "The Salli's",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Döner Hähnchen",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-06-29"),
+    rating: 7.1,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=JzRe-WeDfqk",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Siggys Gemüse Kebap",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Gemüsedöner",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-07-03"),
+    rating: 9.0,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=lljaIh8jqxA",
+  });
+
+  product = await createProduct({
+    name: "Dürüm Steak",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-07-03"),
+    rating: 8.7,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=lljaIh8jqxA",
+  });
 }
 
 async function createProducts() {

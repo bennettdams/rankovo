@@ -1,7 +1,9 @@
 import type { FiltersRankings } from "@/app/page";
 import { queries, type RankingWithReviews } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
+import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import Link from "next/dist/client/link";
 import { CategoryBadge } from "./category-badge";
 import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
@@ -247,7 +249,7 @@ function RankingDrawer({
           </TabsList>
 
           <TabsContent value="tab-reviews" className="flex-1 overflow-y-auto">
-            <ReviewsList reviews={reviews} />
+            <LastReviewsList reviews={reviews} />
           </TabsContent>
 
           <TabsContent value="tab-map" className="flex-1">
@@ -257,7 +259,7 @@ function RankingDrawer({
 
         <div className="mt-6 hidden min-h-0 flex-1 flex-col md:flex">
           <div className="mb-3 min-h-0 flex-1 pb-3">
-            <ReviewsList reviews={reviews} />
+            <LastReviewsList reviews={reviews} />
           </div>
           <div className="mt-3 flex-1 pt-3">
             <ProductMap placeName={placeName} city={city} />
@@ -274,7 +276,11 @@ function RankingDrawer({
   );
 }
 
-function ReviewsList({ reviews }: { reviews: RankingWithReviews["reviews"] }) {
+function LastReviewsList({
+  reviews,
+}: {
+  reviews: RankingWithReviews["reviews"];
+}) {
   return (
     <>
       <p className="font-bold">Last 20 reviews</p>
@@ -291,7 +297,12 @@ function ReviewsList({ reviews }: { reviews: RankingWithReviews["reviews"] }) {
               <StarsForRating size="small" rating={review.rating} />
             </div>
 
-            <p className="whitespace-nowrap">{review.username}</p>
+            <Link
+              className="whitespace-nowrap hover:text-primary hover:underline"
+              href={routes.user(review.authorId)}
+            >
+              {review.username}
+            </Link>
 
             <p className="pl-6 text-left">
               {/* TODO remove null check when all reviews have a date */}

@@ -1,8 +1,8 @@
 import { IconRankovo } from "@/components/icons";
-import { MapWithPlace } from "@/components/map-with-place";
 import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
+import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
 import { cities } from "@/data/static";
@@ -48,29 +48,13 @@ export default async function PageHome({
         </div>
 
         <div className="basis-full overflow-y-hidden md:basis-2/3">
-          <Suspense
-            fallback={
-              <div className="flex flex-col gap-y-6">
-                {Array.from({ length: 10 }).map((_, index) => (
-                  <div
-                    className="mx-auto flex flex-row items-center"
-                    key={index}
-                  >
-                    <div className="size-12 animate-pulse rounded-full bg-white/80" />
-                    <div className="ml-10 h-12 w-72 animate-pulse rounded-lg bg-white/80" />
-                  </div>
-                ))}
-              </div>
-            }
-          >
+          <Suspense fallback={<SkeletonList />}>
             <RankingsList filters={filters} />
           </Suspense>
         </div>
       </div>
 
-      <div className="mt-10 grid h-[30rem]">
-        <MapWithPlace placeName="Five Guys" city="Hamburg" />
-      </div>
+      {/* <div className="mt-10 grid h-[30rem]">What is Rankovo?</div> */}
     </div>
   );
 }

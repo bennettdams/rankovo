@@ -44,6 +44,7 @@ export type RankingWithReviews = Ranking & {
     rating: number;
     note: string | null;
     username: string | null;
+    authorId: string;
     // TODO remove null check when all reviews have a date
     reviewedAt: Date | null;
     urlSource: string | null;
@@ -67,6 +68,7 @@ async function rankingsWithReviews(filters: FiltersRankings) {
     .select({
       id: reviewsTable.id,
       note: reviewsTable.note,
+      authorId: reviewsTable.authorId,
       reviewedAt: reviewsTable.reviewedAt,
       urlSource: reviewsTable.urlSource,
       rating: reviewsTable.rating,
@@ -281,9 +283,10 @@ function subqueryRankings(filters: FiltersRankings) {
 
 const pageSizeReviews = 20;
 
-async function reviews(page = 1) {
+async function reviews(page = 1, userIdFilter: string | null = null) {
   "use cache";
-  cacheTag(cacheKeys.reviews);
+  // TODO implications of empty string cache tag?
+  cacheTag(cacheKeys.reviews, userIdFilter ? cacheKeys.user(userIdFilter) : "");
   console.debug("🟦 QUERY reviews");
 
   return await db
@@ -302,6 +305,11 @@ async function reviews(page = 1) {
       isCurrent: reviewsTable.isCurrent,
     })
     .from(reviewsTable)
+    .where(
+      userIdFilter === null
+        ? undefined
+        : eq(reviewsTable.authorId, userIdFilter),
+    )
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
