@@ -25,15 +25,17 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-gradient-to-br from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
+          "flex min-h-screen flex-col bg-gradient-to-br from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
           fontSans.variable,
           fontSerif.variable,
         )}
       >
         <Navbar />
 
-        <main className="mb-52 min-h-full pb-40">
-          <div className="container mx-auto min-h-full">{children}</div>
+        <main className="flex flex-1 flex-col">
+          <div className="container mx-auto flex flex-1 flex-col">
+            <div className="pb-20">{children}</div>
+          </div>
         </main>
 
         <footer className="py-8 text-center">

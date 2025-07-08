@@ -23,35 +23,13 @@ import {
 } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { cacheKeys, minCharsSearch, type Category, type City } from "./static";
-
-export type Ranking = {
-  ratingAvg: number;
-  productId: number;
-  productName: string;
-  productNote: string | null;
-  productCategory: Category;
-  placeName: string | null;
-  city: City | null;
-  numOfReviews: number;
-  // TODO remove null check when all reviews have a date
-  lastReviewedAt: Date | null;
-};
-
-export type RankingWithReviews = Ranking & {
-  reviews: {
-    id: number;
-    rating: number;
-    note: string | null;
-    username: string | null;
-    authorId: string;
-    // TODO remove null check when all reviews have a date
-    reviewedAt: Date | null;
-    urlSource: string | null;
-  }[];
-};
+import { cacheKeys, minCharsSearch } from "./static";
 
 const numOfReviewsForAverage = 20;
+
+export type RankingWithReviewsQuery = Awaited<
+  ReturnType<typeof rankingsWithReviews>
+>["rankings"][number];
 
 async function rankingsWithReviews(filters: FiltersRankings) {
   "use cache";
@@ -94,6 +72,8 @@ async function rankingsWithReviews(filters: FiltersRankings) {
 
   return { rankings: rankingsCombined, queriedAt: new Date() };
 }
+
+export type RankingQuery = Awaited<ReturnType<typeof rankings>>[number];
 
 async function rankings(filters: FiltersRankings) {
   "use cache";

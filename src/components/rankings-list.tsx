@@ -1,5 +1,5 @@
 import type { FiltersRankings } from "@/app/page";
-import { queries, type RankingWithReviews } from "@/data/queries";
+import { queries, type RankingWithReviewsQuery } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -75,15 +75,15 @@ function RankingsTableRow({
   reviews,
   position,
 }: {
-  ratingAvg: RankingWithReviews["ratingAvg"];
-  productName: RankingWithReviews["productName"];
-  productCategory: RankingWithReviews["productCategory"];
-  productNote: RankingWithReviews["productNote"];
-  lastReviewedAt: RankingWithReviews["lastReviewedAt"];
-  placeName: RankingWithReviews["placeName"];
-  city: RankingWithReviews["city"];
-  numOfReviews: RankingWithReviews["numOfReviews"];
-  reviews: RankingWithReviews["reviews"];
+  ratingAvg: RankingWithReviewsQuery["ratingAvg"];
+  productName: RankingWithReviewsQuery["productName"];
+  productCategory: RankingWithReviewsQuery["productCategory"];
+  productNote: RankingWithReviewsQuery["productNote"];
+  lastReviewedAt: RankingWithReviewsQuery["lastReviewedAt"];
+  placeName: RankingWithReviewsQuery["placeName"];
+  city: RankingWithReviewsQuery["city"];
+  numOfReviews: RankingWithReviewsQuery["numOfReviews"];
+  reviews: RankingWithReviewsQuery["reviews"];
   position: number;
 }) {
   return (
@@ -123,8 +123,9 @@ function RankingsTableRow({
             max={2}
           />
         </div>
-        <div>
+        <div className="flex flex-row items-center gap-x-1.5">
           <StarsForRating rating={ratingAvg} size="small" />
+          <span className="text-sm text-tertiary">({numOfReviews})</span>
         </div>
         <div>
           <span className="w-full text-nowrap text-secondary">{placeName}</span>
@@ -164,15 +165,15 @@ function RankingDrawer({
   reviews,
   children,
 }: {
-  ratingAvg: RankingWithReviews["ratingAvg"];
-  productName: RankingWithReviews["productName"];
-  productCategory: RankingWithReviews["productCategory"];
-  productNote: RankingWithReviews["productNote"];
-  lastReviewedAt: RankingWithReviews["lastReviewedAt"];
-  placeName: RankingWithReviews["placeName"];
-  city: RankingWithReviews["city"];
-  numOfReviews: RankingWithReviews["numOfReviews"];
-  reviews: RankingWithReviews["reviews"];
+  ratingAvg: RankingWithReviewsQuery["ratingAvg"];
+  productName: RankingWithReviewsQuery["productName"];
+  productCategory: RankingWithReviewsQuery["productCategory"];
+  productNote: RankingWithReviewsQuery["productNote"];
+  lastReviewedAt: RankingWithReviewsQuery["lastReviewedAt"];
+  placeName: RankingWithReviewsQuery["placeName"];
+  city: RankingWithReviewsQuery["city"];
+  numOfReviews: RankingWithReviewsQuery["numOfReviews"];
+  reviews: RankingWithReviewsQuery["reviews"];
   children: React.ReactNode;
 }) {
   return (
@@ -279,7 +280,7 @@ function RankingDrawer({
 function LastReviewsList({
   reviews,
 }: {
-  reviews: RankingWithReviews["reviews"];
+  reviews: RankingWithReviewsQuery["reviews"];
 }) {
   return (
     <>
@@ -329,8 +330,8 @@ function ProductMap({
   placeName,
   city,
 }: {
-  placeName: RankingWithReviews["placeName"];
-  city: RankingWithReviews["city"];
+  placeName: RankingWithReviewsQuery["placeName"];
+  city: RankingWithReviewsQuery["city"];
 }) {
   return (
     <div className="grid h-full">

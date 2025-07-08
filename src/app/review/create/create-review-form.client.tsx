@@ -11,7 +11,7 @@ import {
   type ProductCreatedByAction,
   type ReviewCreate,
 } from "@/data/actions";
-import type { PlaceSearchQuery, Ranking } from "@/data/queries";
+import type { PlaceSearchQuery, RankingQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
@@ -82,7 +82,7 @@ export function CreateReviewForm({
   productsForSearch,
   placesForSearch,
 }: {
-  productsForSearch: Ranking[];
+  productsForSearch: RankingQuery[];
   placesForSearch: PlaceSearchQuery[];
 }) {
   const router = useRouter();

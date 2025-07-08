@@ -8,7 +8,7 @@ import { SelectionCard, SelectionCardList } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Ranking } from "@/data/queries";
+import type { RankingQuery } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
 import {
   prepareFiltersForUpdate,
@@ -28,7 +28,7 @@ export function ProductSearch({
   selectedProductId,
   onProductSelect,
 }: {
-  productsForSearch: Ranking[];
+  productsForSearch: RankingQuery[];
   selectedProductId: number | null;
   onProductSelect: (productId: number | null) => void;
 }) {
