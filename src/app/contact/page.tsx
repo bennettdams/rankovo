@@ -4,15 +4,30 @@ export default function PageContact() {
       <div>
         <h1 className="text-3xl font-bold text-primary">Contact</h1>
         <p>I would love to hear your ideas or answer your questions!</p>
-        <p className="mt-6">At the moment you can do that via X:</p>
-        <a
-          href="https://x.com/bennettdams"
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 text-primary underline"
-        >
-          Bennett Dams
-        </a>
+        <p className="mt-6">At the moment you can do that in two ways:</p>
+
+        <div className="flex flex-col gap-x-10 lg:flex-row">
+          <div>
+            <p className="font-bold text-secondary">Mail</p>
+            <a
+              href="mailto:hirankovo@gmail.com"
+              className="mt-2 text-primary underline"
+            >
+              hirankovo@gmail.com
+            </a>
+          </div>
+          <div>
+            <p className="font-bold text-secondary">X</p>
+            <a
+              href="https://x.com/bennettdams"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 text-primary underline"
+            >
+              https://x.com/bennettdams
+            </a>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -21,14 +36,13 @@ export default function PageContact() {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold text-primary">Privacy policy</h1>
+        <h1 className="text-3xl font-bold text-primary">Legal</h1>
         <p>
-          We don&apos;t store any personal data besides the one used for
-          authentication.
-        </p>
-        <p>
-          When you sign in via Google, this includes the mail address, open ID
-          and public profile.
+          You can find our{" "}
+          <a href="/privacy-policy" className="text-primary underline">
+            Privacy Policy here
+          </a>
+          .
         </p>
       </div>
     </div>
