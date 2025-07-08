@@ -2,8 +2,9 @@
 
 import { signIn, signOut, useUserAuth } from "@/lib/auth-client";
 import { routes } from "@/lib/navigation";
-import { CircleUser } from "lucide-react";
+import { CircleUser, NotepadText } from "lucide-react";
 import Link from "next/link";
+import { Tooltip } from "./tooltip-custom";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -103,5 +104,35 @@ export function UserMenuForMobile() {
 
       <Button onClick={() => signOut()}>Sign out</Button>
     </>
+  );
+}
+
+export function CreateReviewButtonLink() {
+  const userAuth = useUserAuth();
+
+  if (userAuth.state === "authenticated")
+    return (
+      <Link
+        href={routes.reviewCreate}
+        className="justify-self-end transition-colors hover:text-primary"
+      >
+        <Button>
+          <NotepadText /> Create review
+        </Button>
+      </Link>
+    );
+
+  return (
+    <Tooltip content={<p>You need to be signed in to create a review.</p>}>
+      <div className="justify-self-end">
+        <Button
+          disabled
+          className="cursor-not-allowed disabled:opacity-100"
+          onClick={(e) => e.preventDefault()}
+        >
+          <NotepadText /> Create review
+        </Button>
+      </div>
+    </Tooltip>
   );
 }

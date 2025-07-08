@@ -1,9 +1,13 @@
 import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, NotepadText } from "lucide-react";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { IconRankovo } from "./icons";
-import { UserMenu, UserMenuForMobile } from "./navbar.client";
+import {
+  CreateReviewButtonLink,
+  UserMenu,
+  UserMenuForMobile,
+} from "./navbar.client";
 import { Button } from "./ui/button";
 import {
   Sheet,
@@ -65,14 +69,7 @@ export function Navbar() {
             userMenuWidthStyles,
           )}
         >
-          <Link
-            href={routes.reviewCreate}
-            className="justify-self-end transition-colors hover:text-primary"
-          >
-            <Button>
-              <NotepadText /> Create review
-            </Button>
-          </Link>
+          <CreateReviewButtonLink />
 
           <UserMenu />
         </div>
@@ -128,6 +125,8 @@ function MobileMenu() {
           <Link href={routes.reviewCreate} className="hover:text-primary">
             Create review
           </Link>
+
+          <CreateReviewButtonLink />
 
           <div className="h-0.5 bg-gray"></div>
 

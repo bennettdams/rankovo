@@ -54,7 +54,27 @@ export default async function PageHome({
         </div>
       </div>
 
-      {/* <div className="mt-10 grid h-[30rem]">What is Rankovo?</div> */}
+      <div className="mx-auto mt-14 w-full max-w-5xl px-8">
+        <h2 className="mb-10 text-center text-5xl text-secondary">
+          What is Rankovo?
+        </h2>
+        <p className="mt-2 text-lg">
+          Rankovo helps you find the best products in your area.
+        </p>
+        <p className="mt-2 text-lg">
+          We collect and analyze reviews from various sources to provide you
+          with the most accurate and up-to-date rankings.
+        </p>
+        <p className="mt-2 text-lg">
+          Rankings are calculated based on real user reviews and expert
+          opinions. Everyone can create a review!
+        </p>
+        <p className="mt-2 text-lg">
+          Filter rankings by categories, cities, critics, and ratings to find
+          exactly what you&apos;re looking for. Whether this is the best
+          cheeseburger in town or the new kebab place, Rankovo has it all.
+        </p>
+      </div>
     </div>
   );
 }
