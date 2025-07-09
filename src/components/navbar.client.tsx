@@ -62,13 +62,7 @@ export function UserMenu() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a
-                href="https://x.com/bennettdams"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Support
-              </a>
+              <Link href={routes.contact}>Support</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

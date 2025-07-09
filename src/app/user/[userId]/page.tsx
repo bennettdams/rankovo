@@ -22,17 +22,17 @@ export default async function PageUser({
         <div className="mt-4 flex flex-row justify-between">
           <div>
             <Label>Number of reviews</Label>
-            <p>{reviews.length}</p>
+            <p className="text-xl">{reviews.length}</p>
           </div>
           <div>
             <Label>Created account at</Label>
-            <p>
+            <p className="text-xl">
               <DateTime date={user.createdAt} format="YYYY-MM-DD" />
             </p>
           </div>
           <div>
             <Label>Last updated at</Label>
-            <p>
+            <p className="text-xl">
               <DateTime date={user.updatedAt} format="YYYY-MM-DD" />
             </p>
           </div>
