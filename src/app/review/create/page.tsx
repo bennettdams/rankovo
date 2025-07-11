@@ -17,19 +17,34 @@ export default async function PageReviewCreate({
   searchParams: Promise<unknown>;
 }) {
   return (
-    <div>
-      <h1 className="mb-20 mt-10 flex flex-col items-center text-center text-4xl text-primary">
-        <NotepadText className="size-14 text-secondary" />
-        <span className="mt-6">Create a review</span>
-      </h1>
+    <div className="min-h-screen">
+      {/* Header Section */}
+      <div className="overflow-hidden pb-12 pt-16">
+        <div className="mx-auto max-w-4xl px-4">
+          <h1 className="flex flex-col items-center text-center">
+            <div className="mb-6 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-[#6c3e6e]/40 shadow-lg">
+              <NotepadText className="size-10 text-white" />
+            </div>
+            <span className="text-5xl font-bold text-primary">
+              Create a review
+            </span>
+            <p className="mt-4 text-lg text-secondary">
+              Share your experience and help others discover great products
+            </p>
+          </h1>
+        </div>
+      </div>
 
-      <Suspense
-        fallback={
-          <CreateReviewForm productsForSearch={[]} placesForSearch={[]} />
-        }
-      >
-        <FormWrapper searchParams={searchParams} />
-      </Suspense>
+      {/* Main Content */}
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        <Suspense
+          fallback={
+            <CreateReviewForm productsForSearch={[]} placesForSearch={[]} />
+          }
+        >
+          <FormWrapper searchParams={searchParams} />
+        </Suspense>
+      </div>
     </div>
   );
 }

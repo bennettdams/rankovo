@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { filterButtonStyles } from "./filter-button";
 
-export const formInputWidth = "w-80";
+export const formInputWidth = "w-full md:w-80";
 
 export function Fieldset({
   children,

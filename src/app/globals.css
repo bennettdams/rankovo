@@ -11,7 +11,9 @@
   --secondary-fg: white;
   --tertiary: #6c3e6e;
   --tertiary-fg: white;
-  --gray: #d6d3d1;
+  --gray: #e0ddda;
+  --light-gray: #f8f9fa;
+  --dark-gray: #6b7280;
   --error: #9f3216;
 }
 

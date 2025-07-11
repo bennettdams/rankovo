@@ -70,79 +70,167 @@ export function ProductSearch({
     (!!filters.placeName && filters.placeName.length >= minCharsSearch);
 
   return (
-    <div className="flex flex-col">
-      {/* INPUTS */}
-      <div className="flex flex-col items-start gap-x-6 md:flex-row">
-        <Fieldset>
-          <Label htmlFor="filter-product-name">Filter by product name</Label>
-          <Input
-            name="filter-product-name"
-            type="text"
-            placeholder="e.g. Cheeseburger"
-            value={filters.productName ?? ""}
-            onChange={(e) => changeFilters({ productName: e.target.value })}
-          />
-          <FieldError
-            errorMsg={
-              !!filters.productName &&
-              filters.productName.length < minCharsSearch
-                ? `At least ${minCharsSearch} characters`
-                : undefined
-            }
-          />
-        </Fieldset>
+    <div className="w-full space-y-6 overflow-hidden">
+      {/* Search Filters */}
+      <div className="overflow-hidden rounded-xl bg-light-gray p-4 sm:p-6">
+        <div className="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:gap-6">
+          <Fieldset className="w-full min-w-0 flex-1">
+            <Label
+              htmlFor="filter-product-name"
+              className="text-sm font-medium text-fg"
+            >
+              Filter by product name
+            </Label>
+            <Input
+              name="filter-product-name"
+              type="text"
+              placeholder="e.g. Cheeseburger"
+              value={filters.productName ?? ""}
+              onChange={(e) => changeFilters({ productName: e.target.value })}
+              className="mt-1 w-full"
+            />
+            <FieldError
+              errorMsg={
+                !!filters.productName &&
+                filters.productName.length < minCharsSearch
+                  ? `At least ${minCharsSearch} characters`
+                  : undefined
+              }
+            />
+          </Fieldset>
 
-        <div className="my-3 w-full whitespace-nowrap text-center text-lg md:mt-6 md:w-auto">
-          &mdash; & &mdash;
+          <div className="hidden items-center justify-center px-4 py-2 text-dark-gray md:flex">
+            <span className="text-sm font-medium">AND</span>
+          </div>
+
+          <Fieldset className="w-full min-w-0 flex-1">
+            <Label
+              htmlFor="filter-place-name"
+              className="text-sm font-medium text-fg"
+            >
+              Filter by place name
+            </Label>
+            <Input
+              name="filter-place-name"
+              type="text"
+              placeholder="e.g. Five Guys"
+              value={filters.placeName ?? ""}
+              onChange={(e) => changeFilters({ placeName: e.target.value })}
+              className="mt-1 w-full"
+            />
+            <FieldError
+              errorMsg={
+                !!filters.placeName && filters.placeName.length < minCharsSearch
+                  ? `At least ${minCharsSearch} characters`
+                  : undefined
+              }
+            />
+          </Fieldset>
         </div>
-
-        <Fieldset>
-          <Label htmlFor="filter-place-name">Filter by place name</Label>
-          <Input
-            name="filter-place-name"
-            type="text"
-            placeholder="e.g. Five Guys"
-            value={filters.placeName ?? ""}
-            onChange={(e) => changeFilters({ placeName: e.target.value })}
-          />
-          <FieldError
-            errorMsg={
-              !!filters.placeName && filters.placeName.length < minCharsSearch
-                ? `At least ${minCharsSearch} characters`
-                : undefined
-            }
-          />
-        </Fieldset>
       </div>
 
-      {/* PRODUCTS LIST */}
-      <SelectionCardList className="mt-8 flex items-center overflow-x-auto">
-        {hasNoSearch ? (
-          <InfoMessage>No filters for search.</InfoMessage>
-        ) : (
-          hasValidSearch &&
-          (productsForSearch.length === 0 ? (
-            <InfoMessage>No products found</InfoMessage>
-          ) : (
-            <div className="flex h-full flex-row gap-x-4">
-              {productsForSearch.map((product) => (
-                <ProductCard
-                  key={product.productId}
-                  isSelectedProduct={product.productId === selectedProductId}
-                  onClick={() => handleProductCardClick(product.productId)}
-                  name={product.productName}
-                  category={product.productCategory}
-                  note={product.productNote}
-                  placeName={product.placeName}
-                  city={product.city}
-                  ratingAvg={product.ratingAvg}
-                  numOfReviews={product.numOfReviews}
-                />
-              ))}
+      {/* Results */}
+      <div>
+        {/* Results Header */}
+        {hasValidSearch && (
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="text-lg font-medium text-fg">
+                {productsForSearch.length > 0
+                  ? `Found ${productsForSearch.length} product${productsForSearch.length === 1 ? "" : "s"}`
+                  : "No products found"}
+              </h3>
             </div>
-          ))
+
+            {/* Show active filters */}
+            {(filters.productName || filters.placeName) && (
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="whitespace-nowrap text-dark-gray">
+                  Filtering by:
+                </span>
+                {filters.productName && (
+                  <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
+                    Product: &ldquo;{filters.productName}&rdquo;
+                  </span>
+                )}
+                {filters.placeName && (
+                  <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
+                    Place: &ldquo;{filters.placeName}&rdquo;
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         )}
-      </SelectionCardList>
+
+        <SelectionCardList className="min-h-[200px]">
+          {hasNoSearch ? (
+            <div className="flex h-48 items-center justify-center rounded-xl bg-light-gray">
+              <InfoMessage>
+                Enter a product or place name to start searching
+              </InfoMessage>
+            </div>
+          ) : (
+            hasValidSearch &&
+            (productsForSearch.length === 0 ? (
+              <div className="flex h-48 items-center justify-center rounded-xl bg-light-gray">
+                <div className="text-center">
+                  <svg
+                    className="mx-auto mb-4 size-16 text-dark-gray opacity-40"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <InfoMessage>
+                    No products found matching your search criteria
+                  </InfoMessage>
+                  <p className="mt-2 text-sm text-dark-gray">
+                    Try adjusting your search terms or check the spelling
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Responsive Grid with improved breakpoints */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                  {productsForSearch.map((product) => (
+                    <ProductCard
+                      key={product.productId}
+                      isSelectedProduct={
+                        product.productId === selectedProductId
+                      }
+                      onClick={() => handleProductCardClick(product.productId)}
+                      name={product.productName}
+                      category={product.productCategory}
+                      note={product.productNote}
+                      placeName={product.placeName}
+                      city={product.city}
+                      ratingAvg={product.ratingAvg}
+                      numOfReviews={product.numOfReviews}
+                    />
+                  ))}
+                </div>
+
+                {/* Future: Add "Show More" or pagination here when you limit results */}
+                {productsForSearch.length >= 10 && (
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-dark-gray">
+                      Showing all {productsForSearch.length} results
+                    </p>
+                  </div>
+                )}
+              </>
+            ))
+          )}
+        </SelectionCardList>
+      </div>
     </div>
   );
 }
@@ -170,36 +258,70 @@ function ProductCard({
 }) {
   return (
     <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
-      <p className="line-clamp-2 min-h-10">{name}</p>
-      <div className="flow-row flex items-center justify-start gap-x-1.5">
-        <CategoryBadge size="sm" category={category} />
-        <p className="line-clamp-1 text-xs">{note ?? <>&nbsp;</>}</p>
-      </div>
-      <div className="flow-row flex items-center justify-start gap-x-1.5">
-        {!placeName ? (
-          <p>&nbsp;</p>
-        ) : (
-          <>
-            <p className="text-xs">{placeName}</p>
-            {!!city && (
-              <>
-                <p className="text-xs"> | </p>
-                <p className="text-xs">{city}</p>
-              </>
-            )}
-          </>
+      <div className="flex h-full flex-col gap-3">
+        {/* Header: Product name and category */}
+        <div className="flex-shrink-0">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <h4 className="line-clamp-2 flex-1 text-lg font-semibold leading-tight">
+              {name}
+            </h4>
+            <CategoryBadge size="sm" category={category} />
+          </div>
+
+          {note && (
+            <p className="line-clamp-2 text-sm leading-relaxed text-dark-gray">
+              {note}
+            </p>
+          )}
+        </div>
+
+        {/* Middle: Location - only show if exists */}
+        {placeName && (
+          <div className="flex items-start gap-2 text-sm text-dark-gray">
+            <svg
+              className="mt-0.5 size-4 flex-shrink-0 text-dark-gray"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <div className="min-w-0 flex-1">
+              <span className="line-clamp-1">{placeName}</span>
+              {city && (
+                <span className="text-dark-gray/70 text-xs">{city}</span>
+              )}
+            </div>
+          </div>
         )}
-      </div>
-      <div className="flex flex-row items-center">
-        {!ratingAvg ? (
-          <p>No rating yet</p>
-        ) : (
-          <>
-            <NumberFormatted num={ratingAvg} min={2} max={2} />
-            <StarsForRating size="small" rating={ratingAvg} />
-            <span className="ml-2 text-sm">({numOfReviews})</span>
-          </>
-        )}
+
+        {/* Footer: Rating - always at bottom */}
+        <div className="mt-auto flex-shrink-0 pt-2">
+          {!ratingAvg ? (
+            <span className="text-sm text-dark-gray">No rating yet</span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <NumberFormatted num={ratingAvg} min={1} max={1} />
+                <StarsForRating size="small" rating={ratingAvg} />
+              </div>
+              <span className="text-sm text-dark-gray">
+                ({numOfReviews} review{numOfReviews === 1 ? "" : "s"})
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </SelectionCard>
   );

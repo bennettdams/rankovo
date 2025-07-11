@@ -7,5 +7,14 @@ export function InfoMessage({
   className?: string;
   children: React.ReactNode;
 }) {
-  return <span className={cn("italic", className)}>{children}</span>;
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-secondary px-4 py-3 text-center text-secondary",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }

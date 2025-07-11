@@ -95,6 +95,21 @@ async function createProduct(_: unknown, formData: FormData) {
   return actionCreateProduct(formState, productParsed);
 }
 
+function SubSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl bg-light-gray p-6">
+      <h3 className="mb-4 text-lg font-medium text-fg">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 export function CreateProductForm({
   placesForSearch,
   onCreatedProduct,
@@ -150,150 +165,196 @@ export function CreateProductForm({
     selectedPlaceId === null && filters.placeName !== null;
 
   return (
-    <form action={formAction} className="flex flex-col gap-y-6" noValidate>
-      <Fieldset>
-        <Label htmlFor={formKeys.name}>Product name</Label>
-        <Input
-          name={formKeys.name}
-          value={filters.productName ?? ""}
-          onChange={(e) => {
-            changeFilters({ productName: e.target.value });
-          }}
-        />
-        <FieldError errorMsg={state?.errors?.name} />
-      </Fieldset>
-
-      <Fieldset>
-        <Label htmlFor={formKeys.category}>Category</Label>
-        <SelectionFormField
-          name={formKeys.category}
-          defaultValue={state?.formState.category ?? undefined}
-          options={categories}
-        />
-        <FieldError errorMsg={state?.errors?.category} />
-      </Fieldset>
-
-      <Fieldset>
-        <Label htmlFor={formKeys.note}>Note</Label>
-        <Input
-          name={formKeys.note}
-          placeholder="Want to note something?"
-          defaultValue={state?.formState.note ?? undefined}
-        />
-        <FieldError errorMsg={state?.errors?.note} />
-      </Fieldset>
-
-      {/* PLACE */}
-      <div className="mt-4">
-        <h2 className="flex items-center text-xl text-secondary">
-          <span className="flex size-10 items-center justify-center rounded-full bg-primary text-2xl leading-none text-primary-fg">
-            1.1
-          </span>
-          <span className="ml-4">Select a place (optional)</span>
-        </h2>
-
-        <div className="mt-4 flex size-full flex-col items-start gap-x-10 md:flex-row">
-          <div className="w-full md:w-1/2">
+    <div className="space-y-8">
+      <form action={formAction} className="space-y-6" noValidate>
+        {/* Basic Product Info */}
+        <SubSection title="Product Details">
+          <div className="space-y-4">
             <Fieldset>
-              <Label htmlFor="search-place-name">Place name</Label>
+              <Label
+                htmlFor={formKeys.name}
+                className="text-sm font-medium text-dark-gray"
+              >
+                Product name
+              </Label>
               <Input
-                className={formInputWidth}
-                name="search-place-name"
-                type="text"
-                placeholder="e.g. Five Guys"
-                value={filters.placeName ?? ""}
+                name={formKeys.name}
+                value={filters.productName ?? ""}
                 onChange={(e) => {
-                  setSelectedPlaceId(null);
-                  changeFilters({ placeName: e.target.value });
+                  changeFilters({ productName: e.target.value });
                 }}
+                className="mt-1"
               />
-              <Fieldset>
-                <Input
-                  name={formKeys.placeId}
-                  type="hidden"
-                  defaultValue={selectedPlaceId ?? undefined}
-                />
-                <FieldError errorMsg={state?.errors?.placeId} />
-              </Fieldset>
-
-              <FieldError errorMsg={state?.errors?.placeId} />
+              <FieldError errorMsg={state?.errors?.name} />
             </Fieldset>
 
-            <div className="mt-10">
-              <p>Similar places for your filter:</p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Fieldset>
+                <Label
+                  htmlFor={formKeys.category}
+                  className="text-sm font-medium text-dark-gray"
+                >
+                  Category
+                </Label>
+                <SelectionFormField
+                  name={formKeys.category}
+                  defaultValue={state?.formState.category ?? undefined}
+                  options={categories}
+                />
+                <FieldError errorMsg={state?.errors?.category} />
+              </Fieldset>
 
-              <SelectionCardList className="mt-4 flex flex-row gap-x-4 overflow-x-scroll">
-                {!filters.placeName ? (
-                  <InfoMessage>-</InfoMessage>
-                ) : placesForSearch.length === 0 ? (
-                  <InfoMessage>No places found</InfoMessage>
-                ) : (
-                  placesForSearch.map((place) => (
-                    <PlaceCard
-                      key={place.id}
-                      isSelected={place.id === selectedPlaceId}
-                      onSelect={() =>
-                        setSelectedPlaceId((prev) =>
-                          prev === place.id ? null : place.id,
-                        )
-                      }
-                      name={place.name}
-                      city={place.city}
-                    />
-                  ))
-                )}
-              </SelectionCardList>
+              <Fieldset>
+                <Label
+                  htmlFor={formKeys.note}
+                  className="text-sm font-medium text-dark-gray"
+                >
+                  Note (optional)
+                </Label>
+                <Input
+                  name={formKeys.note}
+                  placeholder="Want to note something?"
+                  defaultValue={state?.formState.note ?? undefined}
+                  className="mt-1"
+                />
+                <FieldError errorMsg={state?.errors?.note} />
+              </Fieldset>
+            </div>
+          </div>
+        </SubSection>
+
+        {/* Place Selection */}
+        <SubSection title="Select a place (optional)">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            {/* Place Search and Selection */}
+            <div className="space-y-6">
+              <Fieldset>
+                <Label
+                  htmlFor="search-place-name"
+                  className="text-sm font-medium text-dark-gray"
+                >
+                  Place name
+                </Label>
+                <Input
+                  name="search-place-name"
+                  type="text"
+                  placeholder="e.g. Five Guys"
+                  value={filters.placeName ?? ""}
+                  onChange={(e) => {
+                    setSelectedPlaceId(null);
+                    changeFilters({ placeName: e.target.value });
+                  }}
+                  className="mt-1"
+                />
+                <Fieldset>
+                  <Input
+                    name={formKeys.placeId}
+                    type="hidden"
+                    defaultValue={selectedPlaceId ?? undefined}
+                  />
+                  <FieldError errorMsg={state?.errors?.placeId} />
+                </Fieldset>
+              </Fieldset>
+
+              <div>
+                <h4 className="mb-3 text-sm font-medium text-dark-gray">
+                  Similar places:
+                </h4>
+                <SelectionCardList className="space-y-3">
+                  {!filters.placeName ? (
+                    <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
+                      <InfoMessage>
+                        Enter a place name to see suggestions
+                      </InfoMessage>
+                    </div>
+                  ) : placesForSearch.length === 0 ? (
+                    <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
+                      <InfoMessage>No places found</InfoMessage>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {placesForSearch.map((place) => (
+                        <PlaceCard
+                          key={place.id}
+                          isSelected={place.id === selectedPlaceId}
+                          onSelect={() =>
+                            setSelectedPlaceId((prev) =>
+                              prev === place.id ? null : place.id,
+                            )
+                          }
+                          name={place.name}
+                          city={place.city}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </SelectionCardList>
+              </div>
+
+              <DrawerCreatePlace
+                placeName={filters.placeName}
+                onChangePlaceName={(placeName) => changeFilters({ placeName })}
+                onCreatedPlace={handlePlaceCreation}
+                isOpen={isPlaceDrawerOpen}
+                setIsOpen={setIsPlaceDrawerOpen}
+              >
+                <div onClick={() => setIsPlaceDrawerOpen(true)}>
+                  <InfoMessage className="inline-block border-tertiary text-tertiary">
+                    Place not found?
+                    <span className="ml-2 font-bold not-italic text-primary">
+                      Create one instead
+                    </span>
+                  </InfoMessage>
+                </div>
+              </DrawerCreatePlace>
             </div>
 
-            <DrawerCreatePlace
-              placeName={filters.placeName}
-              onChangePlaceName={(placeName) => changeFilters({ placeName })}
-              onCreatedPlace={handlePlaceCreation}
-              isOpen={isPlaceDrawerOpen}
-              setIsOpen={setIsPlaceDrawerOpen}
-            >
-              <div onClick={() => setIsPlaceDrawerOpen(true)}>
-                <InfoMessage className="mt-4 inline-block cursor-pointer">
-                  Place not found?
-                  <span className="ml-2 font-bold not-italic text-primary">
-                    Create one instead
-                  </span>
-                </InfoMessage>
+            {/* Map */}
+            <div className="flex flex-col">
+              <h4 className="mb-3 text-sm font-medium text-dark-gray">
+                Location preview
+              </h4>
+              <div className="grid h-40 w-full overflow-hidden md:h-96">
+                {!!placeForMap && placeForMap.city ? (
+                  <MapWithPlace
+                    placeName={placeForMap.name}
+                    city={placeForMap.city}
+                  />
+                ) : (
+                  <MapWithPlace placeName="Bun's" city="Hamburg" />
+                )}
               </div>
-            </DrawerCreatePlace>
+            </div>
           </div>
+        </SubSection>
 
-          {/* margin top to align the map with the input field ("Place name") */}
-          <div className="mt-6 grid h-80 w-full grow md:w-1/2">
-            {!!placeForMap && placeForMap.city ? (
-              <MapWithPlace
-                placeName={placeForMap.name}
-                city={placeForMap.city}
-              />
-            ) : (
-              <MapWithPlace placeName="Bun's" city="Hamburg" />
-            )}
-          </div>
+        {/* Submit */}
+        <div className="flex items-center gap-4 pt-4">
+          <Button
+            className="px-8 py-3 text-base font-medium shadow-lg"
+            type="submit"
+            disabled={isPendingAction || isPlaceSelectionNeeded}
+            size="lg"
+          >
+            <Save className="mr-2 size-5" />
+            {isPendingAction ? "Saving product..." : "Save product"}
+          </Button>
+
+          {isPlaceSelectionNeeded && (
+            <FieldError errorMsg="Either select/create a place or remove your place name search." />
+          )}
+
+          {state?.status === "SUCCESS" && (
+            <p
+              aria-live="polite"
+              className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
+            >
+              Product created successfully!
+            </p>
+          )}
         </div>
-      </div>
-
-      <Button
-        className="w-min"
-        type="submit"
-        disabled={isPendingAction || isPlaceSelectionNeeded}
-      >
-        <Save /> {isPendingAction ? "Saving product..." : "Save product"}
-      </Button>
-      {isPlaceSelectionNeeded && (
-        <FieldError errorMsg="Either select/create a place or remove your place name search." />
-      )}
-
-      {state?.status === "SUCCESS" && (
-        <p aria-live="polite" className="text-xl text-green-700">
-          Product created successfully!
-        </p>
-      )}
-    </form>
+      </form>
+    </div>
   );
 }
 
@@ -310,8 +371,33 @@ function PlaceCard({
 }) {
   return (
     <SelectionCard isSelected={isSelected} onClick={onSelect}>
-      <p className="line-clamp-2 min-h-10 font-bold">{name}</p>
-      <p className="line-clamp-2 min-h-2">{city}</p>
+      <div className="space-y-2">
+        <h4 className="line-clamp-2 font-semibold">{name}</h4>
+        {city && (
+          <div className="flex items-center gap-1 text-sm text-dark-gray">
+            <svg
+              className="size-4 text-dark-gray"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span>{city}</span>
+          </div>
+        )}
+      </div>
     </SelectionCard>
   );
 }

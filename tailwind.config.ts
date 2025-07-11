@@ -27,6 +27,8 @@ export default {
         tertiary: "var(--tertiary)",
         "tertiary-fg": "var(--tertiary-fg)",
         gray: "var(--gray)",
+        "light-gray": "var(--light-gray)",
+        "dark-gray": "var(--dark-gray)",
         error: "var(--error)",
       },
     },

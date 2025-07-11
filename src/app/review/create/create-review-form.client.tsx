@@ -20,6 +20,7 @@ import {
   type FormState,
   prepareFormState,
 } from "@/lib/form-utils";
+import { cn } from "@/lib/utils";
 import { FilePlus, Save, Search } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useActionState, useCallback, useState } from "react";
@@ -112,30 +113,31 @@ export function CreateReviewForm({
   );
 
   return (
-    <div className="flex flex-col gap-y-16 px-10 md:px-0">
-      <div>
-        <h2 className="mb-4 flex items-center text-2xl text-secondary">
-          <span className="flex size-12 items-center justify-center rounded-full bg-primary text-3xl leading-none text-primary-fg">
-            1
-          </span>
-          <span className="ml-4">Select a product</span>
-        </h2>
-
+    <div className="space-y-20">
+      {/* Step 1: Product Selection Card */}
+      <StepSection
+        stepNumber={1}
+        title="Select a product"
+        description="Choose from existing products or create a new one"
+      >
         <Tabs
           value={tabActive}
           onValueChange={(tabSelected) => setTabActive(tabSelected)}
         >
-          <TabsList className="mb-10 grid w-auto grid-cols-2 md:w-96">
-            <TabsTrigger value="search">
-              <Search className="size-5" />
-              <span className="ml-2">Search existing</span>
+          <TabsList className="mb-6 w-full sm:mb-8 sm:w-auto sm:max-w-md">
+            <TabsTrigger value="search" className="flex items-center gap-2">
+              <Search className="size-4" />
+              <span className="hidden sm:inline">Search existing</span>
+              <span className="sm:hidden">Search</span>
             </TabsTrigger>
-            <TabsTrigger value="create">
-              <FilePlus className="size-5" />
-              <span className="ml-2">Create new</span>
+            <TabsTrigger value="create" className="flex items-center gap-2">
+              <FilePlus className="size-4" />
+              <span className="hidden sm:inline">Create new</span>
+              <span className="sm:hidden">Create</span>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="search">
+
+          <TabsContent value="search" className="mt-0">
             <ProductSearch
               productsForSearch={productsForSearch}
               selectedProductId={selectedProductId}
@@ -146,7 +148,8 @@ export function CreateReviewForm({
               }
             />
           </TabsContent>
-          <TabsContent value="create">
+
+          <TabsContent value="create" className="mt-0">
             <CreateProductForm
               placesForSearch={placesForSearch}
               onCreatedProduct={handleProductCreation}
@@ -159,17 +162,15 @@ export function CreateReviewForm({
             !state?.errors?.productId ? undefined : "Please select a product"
           }
         />
-      </div>
+      </StepSection>
 
-      <div>
-        <h2 className="mb-4 flex items-center text-2xl text-secondary">
-          <span className="flex size-12 items-center justify-center rounded-full bg-primary text-3xl leading-none text-primary-fg">
-            2
-          </span>
-          <span className="ml-4">Add your verdict</span>
-        </h2>
-
-        <form action={formAction} className="flex flex-col gap-y-6" noValidate>
+      {/* Step 2: Review Details Card */}
+      <StepSection
+        stepNumber={2}
+        title="Add your verdict"
+        description="Rate the product and share your thoughts"
+      >
+        <form action={formAction} className="space-y-6" noValidate>
           <Fieldset className="hidden">
             <Label htmlFor={formKeys.productId}>Product ID</Label>
             <Input
@@ -180,50 +181,116 @@ export function CreateReviewForm({
             <FieldError errorMsg={state?.errors?.productId} />
           </Fieldset>
 
-          <Fieldset>
-            <Label htmlFor={formKeys.rating}>Rating</Label>
-            <Input
-              name={formKeys.rating}
-              type="number"
-              className="w-32"
-              lang="en"
-              placeholder={`${ratingLowest} to ${ratingHighest}`}
-              defaultValue={state?.formState?.rating ?? undefined}
-            />
-            <FieldError errorMsg={state?.errors?.rating} />
-          </Fieldset>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Fieldset className="w-full">
+              <Label
+                htmlFor={formKeys.rating}
+                className="text-base font-medium"
+              >
+                Rating
+              </Label>
+              <Input
+                name={formKeys.rating}
+                type="number"
+                className="w-full max-w-32"
+                lang="en"
+                placeholder={`${ratingLowest} to ${ratingHighest}`}
+                defaultValue={state?.formState?.rating ?? undefined}
+              />
+              <FieldError errorMsg={state?.errors?.rating} />
+            </Fieldset>
 
-          <Fieldset>
-            <Label htmlFor={formKeys.urlSource}>URL source</Label>
-            <Input
-              name={formKeys.urlSource}
-              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              defaultValue={state?.formState?.urlSource ?? undefined}
-            />
-            <FieldError errorMsg={state?.errors?.urlSource} />
-          </Fieldset>
+            <Fieldset className="w-full">
+              <Label
+                htmlFor={formKeys.urlSource}
+                className="text-base font-medium"
+              >
+                URL source
+              </Label>
+              <Input
+                name={formKeys.urlSource}
+                placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                defaultValue={state?.formState?.urlSource ?? undefined}
+                className="w-full"
+              />
+              <FieldError errorMsg={state?.errors?.urlSource} />
+            </Fieldset>
+          </div>
 
-          <Fieldset>
-            <Label htmlFor={formKeys.note}>Note</Label>
+          <Fieldset className="w-full">
+            <Label htmlFor={formKeys.note} className="text-base font-medium">
+              Note
+            </Label>
             <Textarea
               name={formKeys.note}
               placeholder="Want to note something?"
               defaultValue={state?.formState?.note ?? undefined}
+              className="min-h-[120px] w-full resize-none"
             />
             <FieldError errorMsg={state?.errors?.note} />
           </Fieldset>
 
-          <Button className="w-min" type="submit" disabled={isPendingAction}>
-            <Save /> {isPendingAction ? "Saving review..." : "Save review"}
-          </Button>
+          <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
+            <Button
+              className="w-full px-8 py-3 text-base font-medium shadow-lg sm:w-auto"
+              type="submit"
+              disabled={isPendingAction}
+              size="lg"
+            >
+              <Save className="mr-2 size-5" />
+              {isPendingAction ? "Saving review..." : "Save review"}
+            </Button>
 
-          {state?.status === "SUCCESS" && (
-            <p aria-live="polite" className="text-xl text-green-700">
-              Review saved successfully!
-            </p>
-          )}
+            {state?.status === "SUCCESS" && (
+              <p
+                aria-live="polite"
+                className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
+              >
+                Review saved successfully!
+              </p>
+            )}
+          </div>
         </form>
+      </StepSection>
+    </div>
+  );
+}
+
+function StepSection({
+  stepNumber,
+  title,
+  description,
+  children,
+  className,
+}: {
+  stepNumber: number;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5",
+        className,
+      )}
+    >
+      <div className="bg-gradient-to-r from-[#eb8c21]/40 to-[#6c3e6e]/40 px-4 py-6 sm:px-8">
+        <h2 className="flex items-center text-2xl font-semibold text-secondary">
+          <span className="mr-4 flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xl font-bold text-white shadow-lg">
+            {stepNumber}
+          </span>
+          <div>
+            <span>{title}</span>
+            <p className="mt-1 text-sm font-normal text-dark-gray">
+              {description}
+            </p>
+          </div>
+        </h2>
       </div>
+
+      <div className="p-4 sm:p-8">{children}</div>
     </div>
   );
 }
