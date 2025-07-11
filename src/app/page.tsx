@@ -5,7 +5,7 @@ import { RankingsList } from "@/components/rankings-list";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
-import { cities } from "@/data/static";
+import { cities, ratingHighest } from "@/data/static";
 import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
 import {
   schemaSearchParamMultiple,
@@ -95,7 +95,7 @@ function HeroSection() {
             <span className="block md:ml-2 md:inline">Just the best.</span>
           </p>
 
-          <StarsForRating rating={5} />
+          <StarsForRating rating={ratingHighest} />
         </div>
       </div>
     </section>
