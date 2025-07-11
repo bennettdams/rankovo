@@ -20,7 +20,7 @@ export const categories = [
 export type Category = (typeof categories)[number];
 
 export const ratingLowest = 0;
-export const ratingHighest = 5;
+export const ratingHighest = 10;
 
 export const cacheKeys = {
   rankings: "rankings",

@@ -84,8 +84,12 @@ export function StarsForRating({
   size?: StarSize;
   onMouseDown?: (ratingClicked: number) => void;
 }) {
-  function handleClick(rating: number) {
-    return !onMouseDown ? undefined : () => onMouseDown(rating);
+  // Scale rating from 0-10 to 0-5 for display
+  const scaledRating = rating / 2;
+
+  function handleClick(starPosition: number) {
+    // When clicked, return the full 0-10 scale rating (starPosition * 2)
+    return !onMouseDown ? undefined : () => onMouseDown(starPosition * 2);
   }
 
   return (
@@ -97,31 +101,31 @@ export function StarsForRating({
       <StarForRating
         onMouseDown={handleClick(5)}
         position={5}
-        rating={rating}
+        rating={scaledRating}
         size={size}
       />
       <StarForRating
         onMouseDown={handleClick(4)}
         position={4}
-        rating={rating}
+        rating={scaledRating}
         size={size}
       />
       <StarForRating
         onMouseDown={handleClick(3)}
         position={3}
-        rating={rating}
+        rating={scaledRating}
         size={size}
       />
       <StarForRating
         onMouseDown={handleClick(2)}
         position={2}
-        rating={rating}
+        rating={scaledRating}
         size={size}
       />
       <StarForRating
         onMouseDown={handleClick(1)}
         position={1}
-        rating={rating}
+        rating={scaledRating}
         size={size}
       />
     </div>
