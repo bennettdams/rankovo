@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { SheetClose } from "./ui/sheet";
 
 function SignInButton() {
   return (
@@ -92,19 +93,41 @@ export function UserMenuForMobile() {
     <>
       <p className="truncate text-xl text-primary">{userAuth.username}</p>
 
-      <Link href={routes.user(userAuth.id)} className="hover:text-primary">
-        My Profile
-      </Link>
+      <SheetClose asChild>
+        <Link href={routes.user(userAuth.id)} className="hover:text-primary">
+          My Profile
+        </Link>
+      </SheetClose>
 
       <Button onClick={() => signOut()}>Sign out</Button>
     </>
   );
 }
 
-export function CreateReviewButtonLink() {
+export function CreateReviewButtonLink({
+  inMobileMenu = false,
+}: {
+  inMobileMenu?: boolean;
+}) {
   const userAuth = useUserAuth();
 
-  if (userAuth.state === "authenticated")
+  if (userAuth.state === "authenticated") {
+    if (inMobileMenu) {
+      return (
+        <SheetClose asChild>
+          {/* Cannot easily use a React component here due to the SheetClose needing a ref to be passed. Hence the code duplication below. */}
+          <Link
+            href={routes.reviewCreate}
+            className="justify-self-end transition-colors hover:text-primary"
+          >
+            <Button>
+              <NotepadText /> Create review
+            </Button>
+          </Link>
+        </SheetClose>
+      );
+    }
+
     return (
       <Link
         href={routes.reviewCreate}
@@ -115,6 +138,7 @@ export function CreateReviewButtonLink() {
         </Button>
       </Link>
     );
+  }
 
   return (
     <Tooltip content={<p>You need to be signed in to create a review.</p>}>

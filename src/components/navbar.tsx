@@ -11,6 +11,7 @@ import {
 import { Button } from "./ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -113,20 +114,23 @@ function MobileMenu() {
               <span className="block text-primary">Rankovo</span>
             </h1>
           </Link>
-          <Link href={routes.rankings} className="hover:text-primary">
-            Rankings
-          </Link>
-          <Link href={routes.reviews} className="hover:text-primary">
-            Reviews
-          </Link>
-          <Link href={routes.contact} className="hover:text-primary">
-            Contact
-          </Link>
-          <Link href={routes.reviewCreate} className="hover:text-primary">
-            Create review
-          </Link>
+          <SheetClose asChild>
+            <Link href={routes.rankings} className="hover:text-primary">
+              Rankings
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link href={routes.reviews} className="hover:text-primary">
+              Reviews
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link href={routes.contact} className="hover:text-primary">
+              Contact
+            </Link>
+          </SheetClose>
 
-          <CreateReviewButtonLink />
+          <CreateReviewButtonLink inMobileMenu={true} />
 
           <div className="h-0.5 bg-gray"></div>
 
