@@ -462,58 +462,68 @@ function DrawerCreatePlace({
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
-        <DrawerHeader>
+        <DrawerHeader className="flex-shrink-0">
           <DrawerTitle className="font-normal">Create a new place</DrawerTitle>
         </DrawerHeader>
 
-        <div className="mt-6 flex min-h-0 flex-col gap-x-6 gap-y-6 md:flex-row">
-          <form
-            action={formAction}
-            className="flex min-h-0 w-1/2 flex-1 flex-col gap-y-6"
-            noValidate
-          >
-            <Fieldset>
-              <Label htmlFor={formKeysCreatePlace.name}>Place name</Label>
-              <Input
-                className={formInputWidth}
-                name={formKeysCreatePlace.name}
-                type="text"
-                placeholder="e.g. Five Guys"
-                value={placeName ?? ""}
-                onChange={(e) => onChangePlaceName(e.target.value)}
-              />
-              <FieldError errorMsg={state?.errors?.name} />
-            </Fieldset>
+        <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden md:mt-10">
+          <div className="flex-1 overflow-y-auto px-6">
+            <div className="flex flex-col gap-6 pb-6 md:flex-row md:gap-6">
+              <form
+                action={formAction}
+                className="flex flex-1 flex-col gap-6 md:w-1/2"
+                noValidate
+              >
+                <Fieldset>
+                  <Label htmlFor={formKeysCreatePlace.name}>Place name</Label>
+                  <Input
+                    className={formInputWidth}
+                    name={formKeysCreatePlace.name}
+                    type="text"
+                    placeholder="e.g. Five Guys"
+                    value={placeName ?? ""}
+                    onChange={(e) => onChangePlaceName(e.target.value)}
+                  />
+                  <FieldError errorMsg={state?.errors?.name} />
+                </Fieldset>
 
-            <Fieldset>
-              <Label htmlFor={formKeysCreatePlace.city}>City</Label>
-              <Input
-                name={formKeysCreatePlace.city}
-                type="hidden"
-                defaultValue={selectedCity ?? undefined}
-              />
-              <CitiesSelection
-                citiesActive={!selectedCity ? [] : [selectedCity]}
-                onClick={setSelectedCity}
-              />
-              <FieldError errorMsg={state?.errors?.city} />
-            </Fieldset>
+                <Fieldset>
+                  <Label htmlFor={formKeysCreatePlace.city}>City</Label>
+                  <Input
+                    name={formKeysCreatePlace.city}
+                    type="hidden"
+                    defaultValue={selectedCity ?? undefined}
+                  />
+                  <CitiesSelection
+                    citiesActive={!selectedCity ? [] : [selectedCity]}
+                    onClick={setSelectedCity}
+                  />
+                  <FieldError errorMsg={state?.errors?.city} />
+                </Fieldset>
 
-            <Button className="w-min" type="submit" disabled={isPendingAction}>
-              <Save /> {isPendingAction ? "Saving place..." : "Save place"}
-            </Button>
-          </form>
+                <Button
+                  className="w-min"
+                  type="submit"
+                  disabled={isPendingAction}
+                >
+                  <Save /> {isPendingAction ? "Saving place..." : "Save place"}
+                </Button>
+              </form>
 
-          <div className="grid h-40 w-full md:h-80 md:w-1/2">
-            {!!placeName && !!selectedCity ? (
-              <MapWithPlace placeName={placeName} city={selectedCity} />
-            ) : (
-              <MapWithPlace placeName="Bun's" city="Hamburg" />
-            )}
+              <div className="flex flex-col md:w-1/2">
+                <div className="h-60 w-full md:h-80">
+                  {!!placeName && !!selectedCity ? (
+                    <MapWithPlace placeName={placeName} city={selectedCity} />
+                  ) : (
+                    <MapWithPlace placeName="Bun's" city="Hamburg" />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <DrawerFooter className="flex items-end">
+        <DrawerFooter className="flex-shrink-0">
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>
           </DrawerClose>
