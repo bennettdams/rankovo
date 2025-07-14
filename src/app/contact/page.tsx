@@ -115,8 +115,8 @@ export default function PageContact() {
 
             <h3 className="mb-3 text-xl font-semibold text-primary">About</h3>
             <p className="text-fg/80 leading-relaxed">
-              This website is created and maintained by one person who&apos;s
-              passionate about building meaningful digital experiences.
+              This website is created and maintained by one person who just
+              likes to build things.
             </p>
           </div>
 
@@ -130,7 +130,7 @@ export default function PageContact() {
 
             <h3 className="mb-3 text-xl font-semibold text-primary">Legal</h3>
             <p className="text-fg/80 leading-relaxed">
-              Your privacy matters to us. Read our{" "}
+              Your privacy matters. Read our{" "}
               <a
                 href="/privacy-policy"
                 className="hover:text-primary/80 decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
