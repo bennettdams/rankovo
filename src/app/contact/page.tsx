@@ -1,49 +1,146 @@
+import { FileText, Mail, MessageCircle, User } from "lucide-react";
+
 export default function PageContact() {
   return (
-    <div className="container mx-auto w-10/12 space-y-10 pt-24 text-lg lg:w-6/12">
-      <div>
-        <h1 className="text-3xl font-bold text-primary">Contact</h1>
-        <p>I would love to hear your ideas or answer your questions!</p>
-        <p className="mt-6">At the moment you can do that in two ways:</p>
+    <div className="min-h-screen">
+      <div className="container mx-auto max-w-4xl px-6 pb-20 pt-16">
+        {/* Hero Section */}
+        <div className="mb-16 text-center">
+          <h1 className="mb-4 text-5xl font-bold text-primary">Get In Touch</h1>
+          <p className="text-fg/80 mx-auto max-w-2xl text-xl leading-relaxed">
+            I would love to hear your ideas or answer your questions!
+          </p>
+        </div>
 
-        <div className="flex flex-col gap-x-10 lg:flex-row">
-          <div>
-            <p className="font-bold text-secondary">Mail</p>
-            <a
-              href="mailto:hirankovo@gmail.com"
-              className="mt-2 text-primary underline"
-            >
-              hirankovo@gmail.com
-            </a>
-          </div>
-          <div>
-            <p className="font-bold text-secondary">X</p>
-            <a
-              href="https://x.com/bennettdams"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 text-primary underline"
-            >
-              https://x.com/bennettdams
-            </a>
+        {/* Contact Methods Section */}
+        <div className="mb-20">
+          <h2 className="mb-8 text-center text-2xl font-semibold text-fg">
+            Choose Your Preferred Way to Connect
+          </h2>
+
+          <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
+            {/* Email Card */}
+            <div className="border-gray/50 hover:shadow-primary/10 group relative overflow-hidden rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div className="from-primary/5 absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+              <div className="relative z-10">
+                <div className="mb-4">
+                  <div className="bg-primary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                    <Mail className="h-6 w-6" />
+                  </div>
+                </div>
+
+                <h3 className="mb-2 text-lg font-semibold text-secondary">
+                  Email
+                </h3>
+                <p className="text-fg/70 mb-4 text-sm">
+                  Send me a direct message for detailed discussions
+                </p>
+
+                <a
+                  href="mailto:hirankovo@gmail.com"
+                  className="hover:text-primary/80 inline-flex items-center font-medium text-primary transition-colors"
+                >
+                  hirankovo@gmail.com
+                  <svg
+                    className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            {/* X/Twitter Card */}
+            <div className="border-gray/50 hover:shadow-secondary/10 group relative overflow-hidden rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div className="from-secondary/5 absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+              <div className="relative z-10">
+                <div className="mb-4">
+                  <div className="bg-secondary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-secondary transition-all duration-300 group-hover:bg-secondary group-hover:text-white">
+                    <MessageCircle className="h-6 w-6" />
+                  </div>
+                </div>
+
+                <h3 className="mb-2 text-lg font-semibold text-secondary">
+                  X (Twitter)
+                </h3>
+                <p className="text-fg/70 mb-4 text-sm">
+                  Follow me for updates and quick conversations
+                </p>
+
+                <a
+                  href="https://x.com/bennettdams"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-secondary/80 inline-flex items-center font-medium text-secondary transition-colors"
+                >
+                  @bennettdams
+                  <svg
+                    className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div>
-        <h1 className="text-3xl font-bold text-primary">About</h1>
-        <p>This website is created and maintained by one person.</p>
-      </div>
+        {/* Additional Info Section */}
+        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
+          {/* About Card */}
+          <div className="border-gray/50 rounded-2xl border bg-white p-8 shadow-sm">
+            <div className="mb-4">
+              <div className="bg-tertiary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-tertiary">
+                <User className="h-6 w-6" />
+              </div>
+            </div>
 
-      <div>
-        <h1 className="text-3xl font-bold text-primary">Legal</h1>
-        <p>
-          You can find our{" "}
-          <a href="/privacy-policy" className="text-primary underline">
-            Privacy Policy here
-          </a>
-          .
-        </p>
+            <h3 className="mb-3 text-xl font-semibold text-primary">About</h3>
+            <p className="text-fg/80 leading-relaxed">
+              This website is created and maintained by one person who&apos;s
+              passionate about building meaningful digital experiences.
+            </p>
+          </div>
+
+          {/* Legal Card */}
+          <div className="border-gray/50 rounded-2xl border bg-white p-8 shadow-sm">
+            <div className="mb-4">
+              <div className="bg-dark-gray/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-dark-gray">
+                <FileText className="h-6 w-6" />
+              </div>
+            </div>
+
+            <h3 className="mb-3 text-xl font-semibold text-primary">Legal</h3>
+            <p className="text-fg/80 leading-relaxed">
+              Your privacy matters to us. Read our{" "}
+              <a
+                href="/privacy-policy"
+                className="hover:text-primary/80 decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
+              >
+                Privacy Policy
+              </a>{" "}
+              to learn how we protect your data.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

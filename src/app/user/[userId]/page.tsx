@@ -1,3 +1,4 @@
+import { Box } from "@/components/box";
 import { DateTime } from "@/components/date-time";
 import { ReviewsList } from "@/components/reviews-list";
 import { Label } from "@/components/ui/label";
@@ -15,9 +16,12 @@ export default async function PageUser({
 
   return (
     <div className="pt-20">
-      <div className="flex max-w-xl flex-col justify-between rounded-md bg-white p-8">
+      <Box
+        variant="lg"
+        className="mx-auto flex max-w-xl flex-col justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
         </div>
         <div className="mt-4 flex flex-row justify-between">
           <div>
@@ -37,7 +41,7 @@ export default async function PageUser({
             </p>
           </div>
         </div>
-      </div>
+      </Box>
 
       {/* <h1 className="mt-10 text-xl">Rankings</h1>
       <div className="basis-full overflow-y-hidden md:basis-2/3">

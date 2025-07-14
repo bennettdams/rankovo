@@ -4,6 +4,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/dist/client/link";
+import { Box } from "./box";
 import { CategoryBadge } from "./category-badge";
 import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
@@ -98,7 +99,7 @@ function RankingsTableRow({
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <div className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg">
+      <Box className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md p-0 hover:bg-secondary hover:text-secondary-fg">
         <div
           className={cn(
             "ml-3 grid size-12 place-items-center rounded-full border-2 border-gray text-xl group-hover/ranking-row:text-secondary-fg",
@@ -128,7 +129,9 @@ function RankingsTableRow({
           <span className="text-sm text-tertiary">({numOfReviews})</span>
         </div>
         <div>
-          <span className="w-full text-nowrap text-secondary">{placeName}</span>
+          <span className="w-full text-nowrap text-secondary group-hover/ranking-row:text-secondary-fg">
+            {placeName}
+          </span>
         </div>
         <div>
           <span className="w-full text-nowrap">{city}</span>
@@ -148,7 +151,7 @@ function RankingsTableRow({
             <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
           )}
         </div>
-      </div>
+      </Box>
     </RankingDrawer>
   );
 }

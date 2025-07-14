@@ -1,4 +1,5 @@
 import type { ReviewQuery } from "@/data/queries";
+import { Box } from "./box";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { NumberFormatted } from "./number-formatted";
@@ -12,9 +13,9 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
         <InfoMessage>No reviews found</InfoMessage>
       ) : (
         reviews.map((review) => (
-          <div
+          <Box
             key={review.id}
-            className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md bg-white hover:bg-secondary hover:text-secondary-fg"
+            className="col-span-12 grid h-16 grid-cols-subgrid items-center p-0"
           >
             <div>{review.productName}</div>
             <NumberFormatted num={review.rating} min={2} max={2} />
@@ -44,7 +45,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
                 <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
               )}
             </div>
-          </div>
+          </Box>
         ))
       )}
     </div>
