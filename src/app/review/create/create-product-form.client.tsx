@@ -40,7 +40,7 @@ import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
 } from "@/lib/url-state";
-import { Save } from "lucide-react";
+import { PlusIcon, Save } from "lucide-react";
 import {
   type Dispatch,
   type SetStateAction,
@@ -169,39 +169,25 @@ export function CreateProductForm({
       <form action={formAction} className="space-y-6" noValidate>
         {/* Basic Product Info */}
         <SubSection title="Product Details">
-          <div className="space-y-4">
-            <Fieldset>
-              <Label
-                htmlFor={formKeys.name}
-                className="text-sm font-medium text-dark-gray"
-              >
-                Product name
-              </Label>
-              <Input
-                name={formKeys.name}
-                value={filters.productName ?? ""}
-                onChange={(e) => {
-                  changeFilters({ productName: e.target.value });
-                }}
-                className="mt-1"
-              />
-              <FieldError errorMsg={state?.errors?.name} />
-            </Fieldset>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start">
+            {/* Left section: Product name and Note */}
+            <div className="space-y-4">
               <Fieldset>
                 <Label
-                  htmlFor={formKeys.category}
+                  htmlFor={formKeys.name}
                   className="text-sm font-medium text-dark-gray"
                 >
-                  Category
+                  Product name
                 </Label>
-                <SelectionFormField
-                  name={formKeys.category}
-                  defaultValue={state?.formState.category ?? undefined}
-                  options={categories}
+                <Input
+                  name={formKeys.name}
+                  value={filters.productName ?? ""}
+                  onChange={(e) => {
+                    changeFilters({ productName: e.target.value });
+                  }}
+                  className="mt-1"
                 />
-                <FieldError errorMsg={state?.errors?.category} />
+                <FieldError errorMsg={state?.errors?.name} />
               </Fieldset>
 
               <Fieldset>
@@ -218,6 +204,24 @@ export function CreateProductForm({
                   className="mt-1"
                 />
                 <FieldError errorMsg={state?.errors?.note} />
+              </Fieldset>
+            </div>
+
+            {/* Right section: Category */}
+            <div>
+              <Fieldset>
+                <Label
+                  htmlFor={formKeys.category}
+                  className="text-sm font-medium text-dark-gray"
+                >
+                  Category
+                </Label>
+                <SelectionFormField
+                  name={formKeys.category}
+                  defaultValue={state?.formState.category ?? undefined}
+                  options={categories}
+                />
+                <FieldError errorMsg={state?.errors?.category} />
               </Fieldset>
             </div>
           </div>
@@ -298,14 +302,20 @@ export function CreateProductForm({
                 isOpen={isPlaceDrawerOpen}
                 setIsOpen={setIsPlaceDrawerOpen}
               >
-                <div onClick={() => setIsPlaceDrawerOpen(true)}>
-                  <InfoMessage className="inline-block border-tertiary text-tertiary">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setIsPlaceDrawerOpen(true)}
+                  className="text-primary"
+                >
+                  <PlusIcon className="size-4 flex-shrink-0" />
+                  <span>
                     Place not found?
-                    <span className="ml-2 font-bold not-italic text-primary">
+                    <span className="ml-1 font-semibold">
                       Create one instead
                     </span>
-                  </InfoMessage>
-                </div>
+                  </span>
+                </Button>
               </DrawerCreatePlace>
             </div>
 

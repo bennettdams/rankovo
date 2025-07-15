@@ -1,3 +1,4 @@
+import { Box } from "@/components/box";
 import { FileText, Mail, MessageCircle, User } from "lucide-react";
 
 export default function PageContact() {
@@ -7,7 +8,7 @@ export default function PageContact() {
         {/* Hero Section */}
         <div className="mb-16 text-center">
           <h1 className="mb-4 text-5xl font-bold text-primary">Get In Touch</h1>
-          <p className="text-fg/80 mx-auto max-w-2xl text-xl leading-relaxed">
+          <p className="mx-auto max-w-2xl text-xl leading-relaxed">
             I would love to hear your ideas or answer your questions!
           </p>
         </div>
@@ -20,12 +21,12 @@ export default function PageContact() {
 
           <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
             {/* Email Card */}
-            <div className="border-gray/50 hover:shadow-primary/10 group relative overflow-hidden rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div className="from-primary/5 absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <Box className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
                 <div className="mb-4">
-                  <div className="bg-primary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
                     <Mail className="h-6 w-6" />
                   </div>
                 </div>
@@ -33,13 +34,13 @@ export default function PageContact() {
                 <h3 className="mb-2 text-lg font-semibold text-secondary">
                   Email
                 </h3>
-                <p className="text-fg/70 mb-4 text-sm">
+                <p className="mb-4 text-sm">
                   Send me a direct message for detailed discussions
                 </p>
 
                 <a
                   href="mailto:hirankovo@gmail.com"
-                  className="hover:text-primary/80 inline-flex items-center font-medium text-primary transition-colors"
+                  className="inline-flex items-center font-medium text-primary transition-colors"
                 >
                   hirankovo@gmail.com
                   <svg
@@ -57,15 +58,15 @@ export default function PageContact() {
                   </svg>
                 </a>
               </div>
-            </div>
+            </Box>
 
             {/* X/Twitter Card */}
-            <div className="border-gray/50 hover:shadow-secondary/10 group relative overflow-hidden rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div className="from-secondary/5 absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <Box className="hover:shadow-secondary/10 group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
                 <div className="mb-4">
-                  <div className="bg-secondary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-secondary transition-all duration-300 group-hover:bg-secondary group-hover:text-white">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-secondary transition-all duration-300 group-hover:bg-secondary group-hover:text-white">
                     <MessageCircle className="h-6 w-6" />
                   </div>
                 </div>
@@ -81,7 +82,7 @@ export default function PageContact() {
                   href="https://x.com/bennettdams"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-secondary/80 inline-flex items-center font-medium text-secondary transition-colors"
+                  className="inline-flex items-center font-medium text-secondary transition-colors"
                 >
                   @bennettdams
                   <svg
@@ -99,31 +100,31 @@ export default function PageContact() {
                   </svg>
                 </a>
               </div>
-            </div>
+            </Box>
           </div>
         </div>
 
         {/* Additional Info Section */}
         <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
           {/* About Card */}
-          <div className="border-gray/50 rounded-2xl border bg-white p-8 shadow-sm">
+          <Box>
             <div className="mb-4">
-              <div className="bg-tertiary/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-tertiary">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-tertiary">
                 <User className="h-6 w-6" />
               </div>
             </div>
 
             <h3 className="mb-3 text-xl font-semibold text-primary">About</h3>
-            <p className="text-fg/80 leading-relaxed">
+            <p className="leading-relaxed">
               This website is created and maintained by one person who just
               likes to build things.
             </p>
-          </div>
+          </Box>
 
           {/* Legal Card */}
-          <div className="border-gray/50 rounded-2xl border bg-white p-8 shadow-sm">
+          <Box>
             <div className="mb-4">
-              <div className="bg-dark-gray/10 inline-flex h-12 w-12 items-center justify-center rounded-xl text-dark-gray">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-dark-gray">
                 <FileText className="h-6 w-6" />
               </div>
             </div>
@@ -133,13 +134,13 @@ export default function PageContact() {
               Your privacy matters. Read our{" "}
               <a
                 href="/privacy-policy"
-                className="hover:text-primary/80 decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
+                className="decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
               >
                 Privacy Policy
               </a>{" "}
               to learn how we protect your data.
             </p>
-          </div>
+          </Box>
         </div>
       </div>
     </div>

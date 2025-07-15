@@ -1,6 +1,9 @@
 "use client";
 
 import { FieldError, Fieldset } from "@/components/form";
+import { NumberFormatted } from "@/components/number-formatted";
+import { Slider } from "@/components/slider";
+import { StarsForRating } from "@/components/stars-for-rating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +15,7 @@ import {
   type ReviewCreate,
 } from "@/data/actions";
 import type { PlaceSearchQuery, RankingQuery } from "@/data/queries";
-import { ratingHighest, ratingLowest } from "@/data/static";
+import { ratingHighest, ratingLowest, ratingMiddle } from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
@@ -93,6 +96,7 @@ export function CreateReviewForm({
     withCallbacks(createReview, {
       onSuccess: () => {
         setSelectedProductId(null);
+        setRatingSlider(null);
         // reset search params
         router.push(pathname, { scroll: false });
       },
@@ -103,6 +107,9 @@ export function CreateReviewForm({
     null,
   );
   const [tabActive, setTabActive] = useState<string>(tabs.search);
+  const [ratingSlider, setRatingSlider] = useState<number | null>(
+    state?.formState?.rating ?? null,
+  );
 
   const handleProductCreation = useCallback(
     (productCreated: ProductCreatedByAction) => {
@@ -189,13 +196,45 @@ export function CreateReviewForm({
               >
                 Rating
               </Label>
+
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-2xl font-semibold">
+                  {ratingSlider !== null ? (
+                    <NumberFormatted num={ratingSlider ?? 0} min={1} max={1} />
+                  ) : (
+                    "—"
+                  )}
+                </div>
+
+                <StarsForRating
+                  rating={ratingSlider ?? ratingMiddle}
+                  size="large"
+                  onMouseDown={(ratingClicked) =>
+                    setRatingSlider(ratingClicked)
+                  }
+                />
+
+                <div className="w-full max-w-xs">
+                  <Slider
+                    min={ratingLowest}
+                    max={ratingHighest}
+                    step={0.1}
+                    value={!ratingSlider ? undefined : [ratingSlider]}
+                    onValueChange={(value) => {
+                      const newRating = value[0];
+                      if (newRating !== undefined) {
+                        setRatingSlider(newRating);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
               <Input
                 name={formKeys.rating}
-                type="number"
-                className="w-full max-w-32"
-                lang="en"
-                placeholder={`${ratingLowest} to ${ratingHighest}`}
-                defaultValue={state?.formState?.rating ?? undefined}
+                type="hidden"
+                value={ratingSlider ?? ""}
+                readOnly
               />
               <FieldError errorMsg={state?.errors?.rating} />
             </Fieldset>

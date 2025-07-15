@@ -16,7 +16,7 @@ import { startTransition, useOptimistic, useState } from "react";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
 import { FieldError } from "./form";
-import { SliderDual } from "./slider-dual";
+import { SliderDual } from "./slider";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
