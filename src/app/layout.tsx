@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Domine } from "next/font/google";
 import localFont from "next/font/local";
@@ -30,6 +31,7 @@ export default function RootLayout({
           fontSerif.variable,
         )}
       >
+        <Analytics />
         <Navbar />
 
         <main className="flex flex-1 flex-col">
