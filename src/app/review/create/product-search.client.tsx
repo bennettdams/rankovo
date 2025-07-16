@@ -14,6 +14,7 @@ import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
 } from "@/lib/url-state";
+import { cn } from "@/lib/utils";
 import { startTransition, useOptimistic } from "react";
 import { searchParamKeysCreateReview } from "./create-review-form.client";
 import { SearchParamsCreateReview } from "./page";
@@ -269,17 +270,15 @@ function ProductCard({
           </div>
 
           {note && (
-            <p className="line-clamp-2 text-sm leading-relaxed text-dark-gray">
-              {note}
-            </p>
+            <p className="line-clamp-2 text-sm leading-relaxed">{note}</p>
           )}
         </div>
 
         {/* Middle: Location - only show if exists */}
         {placeName && (
-          <div className="flex items-start gap-2 text-sm text-dark-gray">
+          <div className="flex items-start gap-2 text-sm">
             <svg
-              className="mt-0.5 size-4 flex-shrink-0 text-dark-gray"
+              className="mt-0.5 size-4 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -299,9 +298,7 @@ function ProductCard({
             </svg>
             <div className="min-w-0 flex-1">
               <span className="line-clamp-1">{placeName}</span>
-              {city && (
-                <span className="text-dark-gray/70 text-xs">{city}</span>
-              )}
+              {city && <span className="text-xs">{city}</span>}
             </div>
           </div>
         )}
@@ -309,14 +306,17 @@ function ProductCard({
         {/* Footer: Rating - always at bottom */}
         <div className="mt-auto flex-shrink-0 pt-2">
           {!ratingAvg ? (
-            <span className="text-sm text-dark-gray">No rating yet</span>
+            <span className="text-sm">No rating yet</span>
           ) : (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <NumberFormatted num={ratingAvg} min={1} max={1} />
-                <StarsForRating size="small" rating={ratingAvg} />
+                {/* prevent primary on primary */}
+                <div className={cn(isSelectedProduct && "rounded-sm bg-gray")}>
+                  <StarsForRating size="small" rating={ratingAvg} />
+                </div>
               </div>
-              <span className="text-sm text-dark-gray">
+              <span className="text-sm">
                 ({numOfReviews} review{numOfReviews === 1 ? "" : "s"})
               </span>
             </div>
