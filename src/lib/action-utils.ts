@@ -14,12 +14,10 @@ export type ActionStateSuccess = {
   status: "SUCCESS";
   formState: FormStateBase;
   data: unknown;
-  errors: null;
 };
 export type ActionStateError = {
   status: "ERROR";
   formState: FormStateBase;
-  data: null;
   errors: Partial<Record<keyof FormStateBase, string[]>>;
 };
 
@@ -36,21 +34,21 @@ export function withCallbacks<
         status: "SUCCESS";
         formState: TFormState;
         data: TActionData;
-        errors: null;
       }
     | {
         status: "ERROR";
         formState: TFormState;
-        data: null;
         errors: FormErrors<TFormState>;
       },
 >(
   action: (...args: TArgs) => Promise<TActionState>,
   callbacks?: {
-    onSuccess?:
-      | ((actionData: NonNullable<TActionState["data"]>) => void)
-      | (() => void);
-    onError?: (errors: FormErrors<TFormState>) => void;
+    onSuccess?: TActionState extends { status: "SUCCESS" }
+      ? ((actionData: NonNullable<TActionState["data"]>) => void) | (() => void)
+      : never;
+    onError?: TActionState extends { status: "ERROR" }
+      ? (errors: FormErrors<TFormState>) => void
+      : never;
   },
 ): (...args: TArgs) => Promise<TActionState> {
   return async (...args: TArgs) => {

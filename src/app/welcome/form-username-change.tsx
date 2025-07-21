@@ -41,7 +41,6 @@ async function changeUsername(_: unknown, formData: FormData) {
       status: "ERROR",
       formState,
       errors: error.flatten().fieldErrors,
-      data: null,
     } satisfies ActionStateError;
   }
 

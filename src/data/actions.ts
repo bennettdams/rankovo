@@ -62,7 +62,6 @@ export async function actionCreatePlace(
       status: "ERROR",
       formState,
       errors: error.flatten().fieldErrors,
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -83,7 +82,6 @@ export async function actionCreatePlace(
   return {
     status: "SUCCESS",
     formState,
-    errors: null,
     data: {
       placeIdCreated: placeCreated.id,
     },
@@ -117,7 +115,6 @@ export async function actionCreateReview(
       status: "ERROR",
       formState,
       errors: error.flatten().fieldErrors,
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -151,7 +148,6 @@ export async function actionCreateReview(
   return {
     status: "SUCCESS",
     formState,
-    errors: null,
     data: null,
   } satisfies ActionStateSuccess;
 }
@@ -215,7 +211,6 @@ export async function actionCreateProduct(
       status: "ERROR",
       formState,
       errors: error.flatten().fieldErrors,
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -250,7 +245,6 @@ export async function actionCreateProduct(
   return {
     status: "SUCCESS",
     formState,
-    errors: null,
     data: {
       productCreated,
     },
@@ -278,7 +272,6 @@ export async function actionChangeUsername(
       status: "ERROR",
       formState,
       errors: error.flatten().fieldErrors,
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -289,7 +282,6 @@ export async function actionChangeUsername(
       status: "ERROR",
       formState,
       errors: { [formKeyName]: ["Please select a new name"] },
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -302,7 +294,6 @@ export async function actionChangeUsername(
       status: "ERROR",
       formState,
       errors: { [formKeyName]: ["Username already taken"] },
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -317,7 +308,6 @@ export async function actionChangeUsername(
       status: "ERROR",
       formState,
       errors: { [formKeyName]: ["Username already taken"] },
-      data: null,
     } satisfies ActionStateError;
   }
 
@@ -334,14 +324,12 @@ export async function actionChangeUsername(
       status: "ERROR",
       formState,
       errors: { [formKeyName]: ["Username already taken"] },
-      data: null,
     } satisfies ActionStateError;
   }
 
   return {
     status: "SUCCESS",
     formState,
-    errors: null,
     data: null,
   } satisfies ActionStateSuccess;
 }
