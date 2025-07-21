@@ -1213,7 +1213,7 @@ async function createReviewsReal() {
   });
 
   product = await createProduct({
-    name: "Snashburger",
+    name: "Smashburger",
     category: "burger",
     placeId: place.id,
     note: null,
@@ -1676,6 +1676,45 @@ async function createReviewsReal() {
     authorId: userIdHolle,
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=lljaIh8jqxA",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Erika's Eck",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Schnitzel Wiener Art",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-07-13"),
+    rating: 8.2,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=QfQeHCQFKFc",
+  });
+
+  product = await createProduct({
+    name: "Currywurst XXL",
+    category: "grill & barbecue",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-07-13"),
+    rating: 8.1,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=QfQeHCQFKFc",
   });
 }
 

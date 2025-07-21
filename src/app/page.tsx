@@ -13,6 +13,7 @@ import {
 } from "@/lib/schemas";
 import { Suspense } from "react";
 import { z } from "zod";
+import { HeaderQuestion } from "./header-question.client";
 
 const schemaParamsRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
@@ -40,7 +41,7 @@ export default async function PageHome({
     <div className="md:pt-12">
       <HeroSection />
 
-      <div className="flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:flex-row md:px-0">
+      <div className="mt-6 flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:mt-10 md:flex-row md:px-0">
         <div className="basis-full md:basis-1/3">
           <Suspense fallback={<RankingsFiltersSkeleton />}>
             <RankingFilters filters={filters} critics={criticsPromise} />
@@ -81,22 +82,24 @@ export default async function PageHome({
 
 function HeroSection() {
   return (
-    <section className="w-full pb-12 md:pb-24">
-      <div className="px-4 md:px-6">
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <IconRankovo className="h-12 w-12" />
+    <section className="w-full pb-4 md:pb-8">
+      <div className="flex flex-col items-center space-y-4 px-4 text-center md:px-6">
+        <IconRankovo className="h-12 w-12" />
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-fg md:text-5xl lg:text-6xl">
-            <span className="block text-primary">Rankovo</span>
-          </h1>
+        <h1 className="text-4xl font-extrabold tracking-tight text-fg md:text-5xl lg:text-6xl">
+          <span className="block text-primary">Rankovo</span>
+        </h1>
 
-          <p className="mx-auto line-clamp-2 max-w-[600px] text-xl text-fg md:text-2xl">
-            <span className="block md:inline">No surprises.</span>
-            <span className="block md:ml-2 md:inline">Just the best.</span>
-          </p>
+        <p className="mx-auto line-clamp-2 max-w-[600px] text-xl text-fg md:text-2xl">
+          <span className="block md:inline">No surprises.</span>
+          <span className="block md:ml-2 md:inline">Just the best.</span>
+        </p>
 
-          <StarsForRating rating={ratingHighest} />
-        </div>
+        <StarsForRating rating={ratingHighest} />
+      </div>
+
+      <div className="mt-16">
+        <HeaderQuestion />
       </div>
     </section>
   );
