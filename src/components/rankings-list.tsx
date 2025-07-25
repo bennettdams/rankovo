@@ -2,7 +2,6 @@ import type { FiltersRankings } from "@/app/page";
 import { queries, type RankingWithReviewsQuery } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
-import { cn } from "@/lib/utils";
 import Link from "next/dist/client/link";
 import { Box } from "./box";
 import { CategoryBadge } from "./category-badge";
@@ -11,6 +10,7 @@ import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { MapWithPlace } from "./map-with-place";
 import { NumberFormatted } from "./number-formatted";
+import { RankingPositionMarker } from "./ranking-position-marker";
 import { ReviewSourceIcon } from "./review-source-icon";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -100,17 +100,8 @@ function RankingsTableRow({
       reviews={reviews}
     >
       <Box className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md p-0 hover:bg-secondary hover:text-secondary-fg">
-        <div className="hd-full wd-full sticky left-0 z-10 bg-white/70 group-hover/ranking-row:bg-secondary group-hover/ranking-row:text-secondary-fg">
-          <div
-            className={cn(
-              "mx-2 grid size-12 place-items-center rounded-full border-2 border-gray text-xl",
-              position === 1 && "border-none bg-[#FFD966] text-4xl text-white",
-              position === 2 && "border-none bg-[#B7CADB] text-2xl text-white",
-              position === 3 && "border-none bg-[#c27d6e] text-2xl text-white",
-            )}
-          >
-            <p>{position}</p>
-          </div>
+        <div className="sticky left-0 z-10 bg-white/70 group-hover/ranking-row:bg-secondary group-hover/ranking-row:text-secondary-fg">
+          <RankingPositionMarker position={position} />
         </div>
         <div className="w-12 p-0">
           <CategoryIcon category={productCategory} />

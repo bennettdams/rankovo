@@ -261,6 +261,65 @@ function subqueryRankings(filters: FiltersRankings) {
   return qRankings;
 }
 
+export type RankingsTop3CategorizedQuery = Awaited<
+  ReturnType<typeof rankingsTop3Categorized>
+>;
+
+async function rankingsTop3Categorized() {
+  "use cache";
+  cacheTag(cacheKeys.rankings, cacheKeys.reviews);
+  console.debug("🟦 QUERY rankingsTop3Categorized");
+
+  // Subquery: calculate avg rating per product for selected categories
+  const qProductsWithAvg = db
+    .select({
+      id: productsTable.id,
+      name: productsTable.name,
+      category: productsTable.category,
+      ratingAvg: avg(reviewsTable.rating).mapWith(Number).as("ratingAvg"),
+    })
+    .from(productsTable)
+    .leftJoin(reviewsTable, eq(productsTable.id, reviewsTable.productId))
+    .where(inArray(productsTable.category, ["burger", "pizza", "kebab"]))
+    .groupBy(productsTable.id, productsTable.name, productsTable.category)
+    .as("qProductsWithAvg");
+
+  // Add row_number partitioned by category, ordered by ratingAvg desc
+  const qRanked = db
+    .with(qProductsWithAvg)
+    .select({
+      id: qProductsWithAvg.id,
+      name: qProductsWithAvg.name,
+      category: qProductsWithAvg.category,
+      ratingAvg: qProductsWithAvg.ratingAvg,
+      rowNumber:
+        sql<number>`row_number() over (partition by ${qProductsWithAvg.category} order by ${qProductsWithAvg.ratingAvg} desc)`
+          .mapWith(Number)
+          .as("rowNumber"),
+    })
+    .from(qProductsWithAvg)
+    .as("qRanked");
+
+  // Select top 3 per category
+  const flatResults = await db
+    .with(qRanked)
+    .select({
+      id: qRanked.id,
+      name: qRanked.name,
+      category: qRanked.category,
+      ratingAvg: qRanked.ratingAvg,
+    })
+    .from(qRanked)
+    .where(lte(qRanked.rowNumber, 3));
+
+  // Group results by category
+  return {
+    burger: flatResults.filter((item) => item.category === "burger"),
+    pizza: flatResults.filter((item) => item.category === "pizza"),
+    kebab: flatResults.filter((item) => item.category === "kebab"),
+  };
+}
+
 const pageSizeReviews = 20;
 
 async function reviews(page = 1, userIdFilter: string | null = null) {
@@ -357,4 +416,5 @@ export const queries = {
   critics,
   searchPlaces,
   userForId,
+  rankingsTop3Categorized,
 };

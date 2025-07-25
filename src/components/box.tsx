@@ -4,6 +4,7 @@ const boxStyles = {
   sm: "rounded-md p-3 shadow-md",
   md: "rounded-md p-6 shadow-lg",
   lg: "rounded-lg p-8 shadow-lg",
+  xl: "rounded-3xl p-8 shadow-lg",
 } as const;
 
 export function Box({
