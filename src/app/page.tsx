@@ -150,8 +150,8 @@ async function TopByCategories({
 
 const categoriesForTop = {
   burger: "/category-card-burger.png",
-  pizza: "/image-placeholder.svg",
-  kebab: "/image-placeholder.svg",
+  pizza: "/category-card-pizza.png",
+  kebab: "/category-card-kebab.png",
 } as const satisfies Partial<Record<Category, string>>;
 type CategoryForTop = keyof typeof categoriesForTop;
 
