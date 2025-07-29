@@ -264,7 +264,7 @@ function subqueryRankings(filters: FiltersRankings) {
 export type RankingsTop3CategorizedQuery = Awaited<
   ReturnType<typeof rankingsTop3Categorized>
 >;
-
+const categoriesForTop3 = ["burger", "pizza", "kebab"] as const;
 async function rankingsTop3Categorized() {
   "use cache";
   cacheTag(cacheKeys.rankings, cacheKeys.reviews);
@@ -280,7 +280,7 @@ async function rankingsTop3Categorized() {
     })
     .from(productsTable)
     .leftJoin(reviewsTable, eq(productsTable.id, reviewsTable.productId))
-    .where(inArray(productsTable.category, ["burger", "pizza", "kebab"]))
+    .where(inArray(productsTable.category, categoriesForTop3))
     .groupBy(productsTable.id, productsTable.name, productsTable.category)
     .as("qProductsWithAvg");
 
@@ -317,7 +317,7 @@ async function rankingsTop3Categorized() {
     burger: flatResults.filter((item) => item.category === "burger"),
     pizza: flatResults.filter((item) => item.category === "pizza"),
     kebab: flatResults.filter((item) => item.category === "kebab"),
-  };
+  } satisfies Record<(typeof categoriesForTop3)[number], unknown>;
 }
 
 const pageSizeReviews = 20;

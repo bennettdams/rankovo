@@ -46,14 +46,15 @@ export default async function PageHome({
     <div className="md:pt-12">
       <HeroSection />
 
-      <div className="mt-10">
-        <h2 className="mb-5 text-center text-4xl">Top products by category</h2>
-        <TopByCategories
-          rankingsTop3CategorizedPromise={rankingsTop3CategorizedPromise}
-        />
-      </div>
+      <SectionHeader>Top products by category</SectionHeader>
 
-      <div className="mt-6 flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:mt-20 md:flex-row md:px-0">
+      <TopByCategories
+        rankingsTop3CategorizedPromise={rankingsTop3CategorizedPromise}
+      />
+
+      <SectionHeader>All rankings</SectionHeader>
+
+      <div className="flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:flex-row md:px-0">
         <div className="basis-full md:basis-1/3">
           <Suspense fallback={<RankingsFiltersSkeleton />}>
             <RankingFilters filters={filters} critics={criticsPromise} />
@@ -251,5 +252,11 @@ function TopByCategoryCard({
         </p>
       </div>
     </Box>
+  );
+}
+
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="pb-6 pt-8 text-center text-4xl text-primary">{children}</h2>
   );
 }
