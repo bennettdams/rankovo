@@ -1,19 +1,25 @@
 import { Box } from "@/components/box";
 import { IconRankovo } from "@/components/icons";
 import { NumberFormatted } from "@/components/number-formatted";
+import { RankingDrawer } from "@/components/ranking-drawer";
 import { RankingPositionMarker } from "@/components/ranking-position-marker";
 import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
-import { queries, type RankingsTop3CategorizedQuery } from "@/data/queries";
-import { type Category, cities, ratingHighest } from "@/data/static";
+import {
+  queries,
+  type QueryRankingWithReviews,
+  type RankingWithReviewsQuery,
+} from "@/data/queries";
+import { cities, ratingHighest, type Category } from "@/data/static";
 import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
 import {
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
 } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -31,6 +37,16 @@ const schemaParamsRankings = z.object({
 
 export type FiltersRankings = z.output<typeof schemaParamsRankings>;
 
+const defaultFilters: FiltersRankings = {
+  categories: null,
+  cities: null,
+  critics: null,
+  ratingMin: null,
+  ratingMax: null,
+  productName: null,
+  placeName: null,
+};
+
 export default async function PageHome({
   searchParams,
 }: {
@@ -40,7 +56,18 @@ export default async function PageHome({
     schemaParamsRankings.parse(params),
   );
   const criticsPromise = queries.critics();
-  const rankingsTop3CategorizedPromise = queries.rankingsTop3Categorized();
+  const rankingsBurgersPromise = queries.rankingsWithReviews({
+    ...defaultFilters,
+    categories: ["burger"],
+  });
+  const rankingsKebabsPromise = queries.rankingsWithReviews({
+    ...defaultFilters,
+    categories: ["kebab"],
+  });
+  const rankingsPizzasPromise = queries.rankingsWithReviews({
+    ...defaultFilters,
+    categories: ["pizza"],
+  });
 
   return (
     <div className="md:pt-12">
@@ -49,7 +76,9 @@ export default async function PageHome({
       <SectionHeader>Top products by category</SectionHeader>
 
       <TopByCategories
-        rankingsTop3CategorizedPromise={rankingsTop3CategorizedPromise}
+        rankingsBurgersPromise={rankingsBurgersPromise}
+        rankingsKebabsPromise={rankingsKebabsPromise}
+        rankingsPizzasPromise={rankingsPizzasPromise}
       />
 
       <SectionHeader>All rankings</SectionHeader>
@@ -99,7 +128,7 @@ function HeroSection() {
       <div className="flex flex-col items-center space-y-4 px-4 text-center md:px-6">
         <IconRankovo className="h-12 w-12" />
 
-        <h1 className="text-4xl font-extrabold tracking-tight text-fg md:text-5xl lg:text-6xl">
+        <h1 className="animate-appear text-4xl font-extrabold tracking-tight text-fg md:text-5xl lg:text-6xl">
           <span className="block text-primary">Rankovo</span>
         </h1>
 
@@ -119,30 +148,38 @@ function HeroSection() {
 }
 
 async function TopByCategories({
-  rankingsTop3CategorizedPromise,
+  rankingsBurgersPromise,
+  rankingsKebabsPromise,
+  rankingsPizzasPromise,
 }: {
-  rankingsTop3CategorizedPromise: Promise<RankingsTop3CategorizedQuery>;
+  rankingsBurgersPromise: QueryRankingWithReviews;
+  rankingsKebabsPromise: QueryRankingWithReviews;
+  rankingsPizzasPromise: QueryRankingWithReviews;
 }) {
-  const rankingsCategorized = await rankingsTop3CategorizedPromise;
+  const [rankingsBurgers, rankingsKebabs, rankingsPizzas] = await Promise.all([
+    rankingsBurgersPromise,
+    rankingsKebabsPromise,
+    rankingsPizzasPromise,
+  ]);
 
   return (
     <div className="flex gap-x-4 overflow-x-auto px-4 sm:px-6 md:grid md:grid-cols-3 md:gap-x-8 md:overflow-x-visible md:px-0 lg:px-8">
       <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="burger"
-          rankings={rankingsCategorized.burger}
+          rankings={rankingsBurgers.rankings}
         />
       </div>
       <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="kebab"
-          rankings={rankingsCategorized.kebab}
+          rankings={rankingsKebabs.rankings}
         />
       </div>
       <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="pizza"
-          rankings={rankingsCategorized.pizza}
+          rankings={rankingsPizzas.rankings}
         />
       </div>
     </div>
@@ -161,7 +198,7 @@ function TopByCategoryCard({
   rankings,
 }: {
   category: CategoryForTop;
-  rankings: RankingsTop3CategorizedQuery[CategoryForTop];
+  rankings: RankingWithReviewsQuery[];
 }) {
   const rankingOne = rankings[0];
   const rankingTwo = rankings[1];
@@ -184,79 +221,115 @@ function TopByCategoryCard({
         </h3>
       </div>
 
-      <div className="grid grid-cols-[min-content,1fr] grid-rows-3 place-items-center gap-y-4 py-4">
+      <div className="grid grid-cols-[min-content,1fr] grid-rows-3 place-items-center gap-y-2">
         {/* RANKING ONE */}
-        <div className="mx-2 md:mx-3">
-          <RankingPositionMarker
-            position={1}
-            labelOverwrite={
-              !rankingOne ? (
-                ""
-              ) : (
-                <NumberFormatted
-                  className="text-xl"
-                  num={rankingOne.ratingAvg}
-                  min={2}
-                  max={2}
-                />
-              )
-            }
-          />
-        </div>
-        <p className="line-clamp-2 place-self-start self-center font-bold">
-          {rankingOne?.name ?? "-"}
-        </p>
+        {!rankingOne ? (
+          <RankingCardRow position={1} ranking={null} />
+        ) : (
+          <RankingDrawer
+            placeName={rankingOne.placeName}
+            ratingAvg={rankingOne.ratingAvg}
+            productName={rankingOne.productName}
+            productCategory={rankingOne.productCategory}
+            productNote={rankingOne.productNote}
+            city={rankingOne.city}
+            lastReviewedAt={rankingOne.lastReviewedAt}
+            numOfReviews={rankingOne.numOfReviews}
+            reviews={rankingOne.reviews}
+          >
+            <RankingCardRow position={1} ranking={rankingOne} />
+          </RankingDrawer>
+        )}
 
         {/* RANKING TWO */}
-        <div className="mx-2 md:mx-3">
-          <RankingPositionMarker
-            position={2}
-            labelOverwrite={
-              !rankingTwo ? (
-                ""
-              ) : (
-                <NumberFormatted
-                  className="text-xl"
-                  num={rankingTwo.ratingAvg}
-                  min={2}
-                  max={2}
-                />
-              )
-            }
-          />
-        </div>
-        <p className="line-clamp-2 place-self-start self-center">
-          {rankingTwo?.name ?? "-"}
-        </p>
+        {!rankingTwo ? (
+          <RankingCardRow position={2} ranking={null} />
+        ) : (
+          <RankingDrawer
+            placeName={rankingTwo.placeName}
+            ratingAvg={rankingTwo.ratingAvg}
+            productName={rankingTwo.productName}
+            productCategory={rankingTwo.productCategory}
+            productNote={rankingTwo.productNote}
+            city={rankingTwo.city}
+            lastReviewedAt={rankingTwo.lastReviewedAt}
+            numOfReviews={rankingTwo.numOfReviews}
+            reviews={rankingTwo.reviews}
+          >
+            <RankingCardRow position={2} ranking={rankingTwo} />
+          </RankingDrawer>
+        )}
 
         {/* RANKING THREE */}
-        <div className="mx-2 md:mx-3">
-          <RankingPositionMarker
-            position={3}
-            labelOverwrite={
-              !rankingThree ? (
-                ""
-              ) : (
-                <NumberFormatted
-                  className="text-xl"
-                  num={rankingThree.ratingAvg}
-                  min={2}
-                  max={2}
-                />
-              )
-            }
-          />
-        </div>
-        <p className="line-clamp-2 place-self-start self-center">
-          {rankingThree?.name ?? "-"}
-        </p>
+        {!rankingThree ? (
+          <RankingCardRow position={3} ranking={null} />
+        ) : (
+          <RankingDrawer
+            placeName={rankingThree.placeName}
+            ratingAvg={rankingThree.ratingAvg}
+            productName={rankingThree.productName}
+            productCategory={rankingThree.productCategory}
+            productNote={rankingThree.productNote}
+            city={rankingThree.city}
+            lastReviewedAt={rankingThree.lastReviewedAt}
+            numOfReviews={rankingThree.numOfReviews}
+            reviews={rankingThree.reviews}
+          >
+            <RankingCardRow position={3} ranking={rankingThree} />
+          </RankingDrawer>
+        )}
       </div>
     </Box>
   );
 }
 
+function RankingCardRow({
+  position,
+  ranking,
+}: {
+  position: 1 | 2 | 3;
+  ranking: RankingWithReviewsQuery | null;
+}) {
+  return (
+    <div className="col-span-2 grid cursor-pointer grid-cols-subgrid py-2 hover:bg-secondary hover:text-secondary-fg">
+      <div className="mx-2 md:mx-3">
+        <RankingPositionMarker
+          position={position}
+          labelOverwrite={
+            !ranking ? (
+              ""
+            ) : (
+              <NumberFormatted
+                className="text-xl"
+                num={ranking.ratingAvg}
+                min={2}
+                max={2}
+              />
+            )
+          }
+        />
+      </div>
+      <p
+        className={cn(
+          "line-clamp-2 place-self-start self-center",
+          position === 1 && "font-bold",
+        )}
+      >
+        {ranking?.productName ?? "-"}
+      </p>
+    </div>
+  );
+}
+
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="pb-6 pt-8 text-center text-4xl text-primary">{children}</h2>
+    <div className="animate-appear flex flex-col items-center pb-6 pt-16">
+      <div className="flex items-center gap-2">
+        <h2 className="text-center text-4xl font-extrabold tracking-tight text-primary">
+          {children}
+        </h2>
+      </div>
+      <span className="mt-2 block h-1 w-52 rounded-full bg-gradient-to-r from-primary to-secondary opacity-80" />
+    </div>
   );
 }

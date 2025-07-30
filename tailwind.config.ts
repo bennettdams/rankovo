@@ -31,6 +31,15 @@ export default {
         "dark-gray": "var(--dark-gray)",
         error: "var(--error)",
       },
+      keyframes: {
+        appear: {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        appear: "appear 0.8s cubic-bezier(0.4,0,0.2,1)",
+      },
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports

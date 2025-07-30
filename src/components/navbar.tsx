@@ -33,12 +33,12 @@ export function Navbar() {
             Rankings
           </Link>
 
-          <Link
+          {/* <Link
             href={routes.reviews}
             className="transition-colors hover:text-primary"
           >
             Reviews
-          </Link>
+          </Link> */}
 
           <Link
             href={routes.contact}
