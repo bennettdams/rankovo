@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
-    dynamicIO: true,
     ppr: true,
+    cacheComponents: true,
     authInterrupts: true,
   },
 };
