@@ -42,10 +42,9 @@ export function RankingsFiltersSkeleton() {
         categories: null,
         cities: null,
         critics: null,
-        productName: null,
-        placeName: null,
         ratingMin: null,
         ratingMax: null,
+        q: null,
       }}
       critics={[]}
       updateSearchParams={() => {}}
@@ -116,8 +115,7 @@ function RankingsFiltersClientInternal({
         critics: null,
         ratingMin: null,
         ratingMax: null,
-        productName: null,
-        placeName: null,
+        q: null,
       });
 
       router.push(routes.rankings, { scroll: false });
@@ -144,6 +142,23 @@ function RankingsFiltersClientInternal({
         )}
       </div>
 
+      <FilterRow label="Search">
+        <Input
+          name="filter-search"
+          type="text"
+          placeholder="e.g. Döner Berlin or Cheeseburger München"
+          value={filters.q ?? ""}
+          onChange={(e) => changeFilters({ q: e.target.value })}
+        />
+        <FieldError
+          errorMsg={
+            !!filters.q && filters.q.length < minCharsSearch
+              ? `At least ${minCharsSearch} characters`
+              : undefined
+          }
+        />
+      </FilterRow>
+
       <FilterRow label="Categories">
         <div className="col-start-2 row-start-2">
           <CategoriesSelection
@@ -155,40 +170,6 @@ function RankingsFiltersClientInternal({
             categoriesActive={filters.categories}
           />
         </div>
-      </FilterRow>
-
-      <FilterRow label="Product name">
-        <Input
-          name="filter-product-name"
-          type="text"
-          placeholder="e.g. Cheeseburger"
-          value={filters.productName ?? ""}
-          onChange={(e) => changeFilters({ productName: e.target.value })}
-        />
-        <FieldError
-          errorMsg={
-            !!filters.productName && filters.productName.length < minCharsSearch
-              ? `At least ${minCharsSearch} characters`
-              : undefined
-          }
-        />
-      </FilterRow>
-
-      <FilterRow label="Place name">
-        <Input
-          name="filter-place-name"
-          type="text"
-          placeholder="e.g. Five Guys"
-          value={filters.placeName ?? ""}
-          onChange={(e) => changeFilters({ placeName: e.target.value })}
-        />
-        <FieldError
-          errorMsg={
-            !!filters.placeName && filters.placeName.length < minCharsSearch
-              ? `At least ${minCharsSearch} characters`
-              : undefined
-          }
-        />
       </FilterRow>
 
       <FilterRow label="Critics">

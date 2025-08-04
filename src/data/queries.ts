@@ -17,7 +17,9 @@ import {
   gte,
   ilike,
   inArray,
+  isNotNull,
   lte,
+  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -31,6 +33,36 @@ export type QueryRankingWithReviews = ReturnType<typeof rankingsWithReviews>;
 export type RankingWithReviewsQuery = Awaited<
   ReturnType<typeof rankingsWithReviews>
 >["rankings"][number];
+
+export function conditionsSearchProducts(searchQuery: string) {
+  // Clean and split the search query
+  const searchTerms = searchQuery
+    .trim()
+    .toLowerCase()
+    .split(/\s+/) // Split by whitespace
+    .filter((term) => term.length > 0); // Remove empty strings
+
+  if (searchTerms.length === 0) {
+    return undefined;
+  }
+
+  // Create ILIKE conditions for each search term across all searchable fields
+  const searchConditions = searchTerms.map((term) => {
+    const wildcardTerm = `%${term}%`;
+
+    return or(
+      // PRODUCTS: Always search in product fields (these are never null)
+      ilike(productsTable.name, wildcardTerm),
+      ilike(productsTable.note, wildcardTerm),
+      ilike(productsTable.category, wildcardTerm),
+      // PLACES: Only search in place fields if they exist (not null)
+      and(isNotNull(placesTable.name), ilike(placesTable.name, wildcardTerm)),
+      and(isNotNull(placesTable.city), ilike(placesTable.city, wildcardTerm)),
+    );
+  });
+
+  return searchConditions;
+}
 
 async function rankingsWithReviews(filters: FiltersRankings) {
   "use cache";
@@ -88,21 +120,17 @@ async function rankings(filters: FiltersRankings) {
 
 function subqueryRankings(filters: FiltersRankings) {
   // FILTERS for products
-  const filtersForProductsSQL: SQL[] = [];
+  const filtersForProductsSQL: (SQL | undefined)[] = [];
   if (filters.categories)
     filtersForProductsSQL.push(
       inArray(productsTable.category, filters.categories),
     );
   if (filters.cities)
     filtersForProductsSQL.push(inArray(placesTable.city, filters.cities));
-  if (!!filters.productName && filters.productName.length >= minCharsSearch)
-    filtersForProductsSQL.push(
-      ilike(productsTable.name, `%${filters.productName}%`),
-    );
-  if (!!filters.placeName && filters.placeName.length >= minCharsSearch)
-    filtersForProductsSQL.push(
-      ilike(placesTable.name, `%${filters.placeName}%`),
-    );
+  if (!!filters.q && filters.q.length >= minCharsSearch) {
+    const filtersForSearch = conditionsSearchProducts(filters.q);
+    if (filtersForSearch) filtersForProductsSQL.push(...filtersForSearch);
+  }
 
   // FILTERS for reviews
   const filtersForReviewsSQL: SQL[] = [];

@@ -59,13 +59,12 @@ async function FormWrapper({
     !paramsParsed.productName && !paramsParsed.placeName
       ? []
       : await queries.rankings({
-          productName: paramsParsed.productName,
-          placeName: paramsParsed.placeName,
           categories: null,
           cities: null,
           critics: null,
           ratingMin: null,
           ratingMax: null,
+          q: paramsParsed.productName,
         });
 
   const placesForSearch = !paramsParsed.placeName

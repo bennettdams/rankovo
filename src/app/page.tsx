@@ -31,8 +31,7 @@ const schemaParamsRankings = z.object({
   critics: schemaSearchParamMultiple(schemaUsername),
   ratingMin: schemaSearchParamSingle(schemaRating, "number"),
   ratingMax: schemaSearchParamSingle(schemaRating, "number"),
-  productName: schemaSearchParamSingle(z.string().min(1), "string"),
-  placeName: schemaSearchParamSingle(z.string().min(1), "string"),
+  q: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 
 export type FiltersRankings = z.output<typeof schemaParamsRankings>;
@@ -43,8 +42,7 @@ const defaultFilters: FiltersRankings = {
   critics: null,
   ratingMin: null,
   ratingMax: null,
-  productName: null,
-  placeName: null,
+  q: null,
 };
 
 export default async function PageHome({
@@ -323,7 +321,7 @@ function RankingCardRow({
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div className="animate-appear flex flex-col items-center pb-6 pt-16">
+    <div className="flex animate-appear flex-col items-center pb-6 pt-16">
       <div className="flex items-center gap-2">
         <h2 className="text-center text-4xl font-extrabold tracking-tight text-primary">
           {children}
