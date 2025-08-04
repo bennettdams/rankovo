@@ -12,10 +12,11 @@ import { cn } from "@/lib/utils";
 import { FilterX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { startTransition, useOptimistic, useState } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
 import { FieldError } from "./form";
+import { LoadingSpinner } from "./loading-spinner";
 import { SliderDual } from "./slider";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
@@ -83,6 +84,7 @@ function RankingsFiltersClientInternal({
   ) => void;
 }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
   const [ratingMinUncommited, setRatingMinUncommited] = useState(
@@ -128,18 +130,24 @@ function RankingsFiltersClientInternal({
 
   return (
     <div className="flex flex-col gap-y-10">
-      <div className="relative">
-        <h2 className="text-center text-2xl text-secondary">Filters</h2>
-        {hasFilters && (
-          <Button
-            onMouseDown={() => clearFilters()}
-            variant="outline"
-            size="sm"
-            className="absolute left-0 top-0 flex items-center"
-          >
-            <FilterX /> <span>Clear</span>
-          </Button>
-        )}
+      <div className="grid grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]">
+        <div>
+          {hasFilters && (
+            <Button
+              onMouseDown={() => clearFilters()}
+              variant="outline"
+              size="sm"
+            >
+              <FilterX /> <span>Clear</span>
+            </Button>
+          )}
+        </div>
+        <h2 className="w-full text-center text-2xl text-secondary">Filters</h2>
+        <div className="flex items-center pl-2">
+          {isPending && (
+            <LoadingSpinner className="flex size-5 items-center fill-tertiary" />
+          )}
+        </div>
       </div>
 
       <FilterRow label="Search">
