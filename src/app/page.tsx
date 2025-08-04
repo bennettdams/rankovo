@@ -29,8 +29,8 @@ const schemaParamsRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
   cities: schemaSearchParamMultiple(z.enum(cities)),
   critics: schemaSearchParamMultiple(schemaUsername),
-  ratingMin: schemaSearchParamSingle(schemaRating, "number"),
-  ratingMax: schemaSearchParamSingle(schemaRating, "number"),
+  "rating-min": schemaSearchParamSingle(schemaRating, "number"),
+  "rating-max": schemaSearchParamSingle(schemaRating, "number"),
   q: schemaSearchParamSingle(z.string().min(1), "string"),
 });
 
@@ -40,8 +40,8 @@ const defaultFilters: FiltersRankings = {
   categories: null,
   cities: null,
   critics: null,
-  ratingMin: null,
-  ratingMax: null,
+  "rating-min": null,
+  "rating-max": null,
   q: null,
 };
 

@@ -55,7 +55,7 @@ import { SearchParamsCreateReview } from "./page";
 
 type SearchParamsCreateProduct = Pick<
   SearchParamsCreateReview,
-  "placeName" | "productName"
+  "place-name" | "product-name"
 >;
 
 const formKeys = {
@@ -124,9 +124,10 @@ export function CreateProductForm({
   );
   const { searchParams, updateSearchParams } = useSearchParamsHelper();
   const [filters, setOptimisticFilters] = useOptimistic({
-    productName:
-      searchParams.get(searchParamKeysCreateReview.productName) ?? null,
-    placeName: searchParams.get(searchParamKeysCreateReview.placeName) ?? null,
+    "product-name":
+      searchParams.get(searchParamKeysCreateReview["product-name"]) ?? null,
+    "place-name":
+      searchParams.get(searchParamKeysCreateReview["place-name"]) ?? null,
   } satisfies SearchParamsCreateProduct);
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
   const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
@@ -140,10 +141,10 @@ export function CreateProductForm({
         setOptimisticFilters(filtersNew);
         updateSearchParams(
           filtersNew,
-          (!!filtersNew.productName &&
-            filtersNew.productName.length >= minCharsSearch) ||
-            (!!filtersNew.placeName &&
-              filtersNew.placeName.length >= minCharsSearch),
+          (!!filtersNew["product-name"] &&
+            filtersNew["product-name"].length >= minCharsSearch) ||
+            (!!filtersNew["place-name"] &&
+              filtersNew["place-name"].length >= minCharsSearch),
         );
       });
     }
@@ -161,7 +162,7 @@ export function CreateProductForm({
 
   /** We remind the user to select a place so it is not assumed that entering a place name automatically makes a selection. */
   const isPlaceSelectionNeeded =
-    selectedPlaceId === null && filters.placeName !== null;
+    selectedPlaceId === null && filters["place-name"] !== null;
 
   return (
     <div className="space-y-8">
@@ -180,9 +181,9 @@ export function CreateProductForm({
                 </Label>
                 <Input
                   name={formKeys.name}
-                  value={filters.productName ?? ""}
+                  value={filters["product-name"] ?? ""}
                   onChange={(e) => {
-                    changeFilters({ productName: e.target.value });
+                    changeFilters({ "product-name": e.target.value });
                   }}
                   className="mt-1"
                 />
@@ -242,10 +243,10 @@ export function CreateProductForm({
                   name="search-place-name"
                   type="text"
                   placeholder="e.g. Five Guys"
-                  value={filters.placeName ?? ""}
+                  value={filters["place-name"] ?? ""}
                   onChange={(e) => {
                     setSelectedPlaceId(null);
-                    changeFilters({ placeName: e.target.value });
+                    changeFilters({ "place-name": e.target.value });
                   }}
                   className="mt-1"
                 />
@@ -264,7 +265,7 @@ export function CreateProductForm({
                   Similar places:
                 </h4>
                 <SelectionCardList className="space-y-3">
-                  {!filters.placeName ? (
+                  {!filters["place-name"] ? (
                     <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
                       <InfoMessage>
                         Enter a place name to see suggestions
@@ -295,8 +296,10 @@ export function CreateProductForm({
               </div>
 
               <DrawerCreatePlace
-                placeName={filters.placeName}
-                onChangePlaceName={(placeName) => changeFilters({ placeName })}
+                placeName={filters["place-name"]}
+                onChangePlaceName={(placeName) =>
+                  changeFilters({ "place-name": placeName })
+                }
                 onCreatedPlace={handlePlaceCreation}
                 isOpen={isPlaceDrawerOpen}
                 setIsOpen={setIsPlaceDrawerOpen}

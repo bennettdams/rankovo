@@ -6,8 +6,8 @@ import { z } from "zod";
 import { CreateReviewForm } from "./create-review-form.client";
 
 const schemaSearchParams = z.object({
-  productName: schemaSearchParamSingle(z.string().min(1), "string"),
-  placeName: schemaSearchParamSingle(z.string().min(1), "string"),
+  "product-name": schemaSearchParamSingle(z.string().min(1), "string"),
+  "place-name": schemaSearchParamSingle(z.string().min(1), "string"),
 });
 export type SearchParamsCreateReview = z.output<typeof schemaSearchParams>;
 
@@ -56,20 +56,20 @@ async function FormWrapper({
 }) {
   const paramsParsed = schemaSearchParams.parse(await searchParams);
   const productsForSearch =
-    !paramsParsed.productName && !paramsParsed.placeName
+    !paramsParsed["product-name"] && !paramsParsed["place-name"]
       ? []
       : await queries.rankings({
           categories: null,
           cities: null,
           critics: null,
-          ratingMin: null,
-          ratingMax: null,
-          q: paramsParsed.productName,
+          "rating-min": null,
+          "rating-max": null,
+          q: paramsParsed["product-name"],
         });
 
-  const placesForSearch = !paramsParsed.placeName
+  const placesForSearch = !paramsParsed["place-name"]
     ? []
-    : await queries.searchPlaces(paramsParsed.placeName);
+    : await queries.searchPlaces(paramsParsed["place-name"]);
 
   return (
     <CreateReviewForm

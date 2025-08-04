@@ -32,8 +32,8 @@ import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
 
 export const searchParamKeysCreateReview = {
-  productName: "productName",
-  placeName: "placeName",
+  "product-name": "product-name",
+  "place-name": "place-name",
 } satisfies SearchParamsCreateReview;
 
 const formKeys = {

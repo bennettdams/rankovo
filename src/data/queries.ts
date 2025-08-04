@@ -136,10 +136,10 @@ function subqueryRankings(filters: FiltersRankings) {
   const filtersForReviewsSQL: SQL[] = [];
   if (filters.critics)
     filtersForReviewsSQL.push(inArray(usersTable.name, filters.critics));
-  if (filters.ratingMin)
-    filtersForReviewsSQL.push(gte(reviewsTable.rating, filters.ratingMin));
-  if (filters.ratingMax)
-    filtersForReviewsSQL.push(lte(reviewsTable.rating, filters.ratingMax));
+  if (filters["rating-min"])
+    filtersForReviewsSQL.push(gte(reviewsTable.rating, filters["rating-min"]));
+  if (filters["rating-max"])
+    filtersForReviewsSQL.push(lte(reviewsTable.rating, filters["rating-max"]));
 
   /** Products for filters */
   const qProductsFiltered = db

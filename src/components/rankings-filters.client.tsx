@@ -42,8 +42,8 @@ export function RankingsFiltersSkeleton() {
         categories: null,
         cities: null,
         critics: null,
-        ratingMin: null,
-        ratingMax: null,
+        "rating-min": null,
+        "rating-max": null,
         q: null,
       }}
       critics={[]}
@@ -86,10 +86,10 @@ function RankingsFiltersClientInternal({
 
   const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
   const [ratingMinUncommited, setRatingMinUncommited] = useState(
-    filtersExternal.ratingMin,
+    filtersExternal["rating-min"],
   );
   const [ratingMaxUncommited, setRatingMaxUncommited] = useState(
-    filtersExternal.ratingMax,
+    filtersExternal["rating-max"],
   );
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
@@ -113,8 +113,8 @@ function RankingsFiltersClientInternal({
         categories: null,
         cities: null,
         critics: null,
-        ratingMin: null,
-        ratingMax: null,
+        "rating-min": null,
+        "rating-max": null,
         q: null,
       });
 
@@ -237,8 +237,8 @@ function RankingsFiltersClientInternal({
                 setRatingMinUncommited(ratingClicked);
                 setRatingMaxUncommited(ratingHighest);
                 changeFilters({
-                  ratingMin: ratingClicked,
-                  ratingMax: ratingHighest,
+                  "rating-min": ratingClicked,
+                  "rating-max": ratingHighest,
                 });
               }}
             />
@@ -259,8 +259,8 @@ function RankingsFiltersClientInternal({
                 setRatingMinUncommited(range[0]);
                 setRatingMaxUncommited(range[1]);
                 changeFilters({
-                  ratingMin: range[0],
-                  ratingMax: range[1],
+                  "rating-min": range[0],
+                  "rating-max": range[1],
                 });
               }}
             />

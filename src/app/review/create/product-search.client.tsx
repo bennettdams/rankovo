@@ -21,7 +21,7 @@ import { SearchParamsCreateReview } from "./page";
 
 type SearchParamsProductSearch = Pick<
   SearchParamsCreateReview,
-  "productName" | "placeName"
+  "product-name" | "place-name"
 >;
 
 export function ProductSearch({
@@ -36,9 +36,10 @@ export function ProductSearch({
   const { searchParams, updateSearchParams } = useSearchParamsHelper();
 
   const [filters, setOptimisticFilters] = useOptimistic({
-    productName:
-      searchParams.get(searchParamKeysCreateReview.productName) ?? null,
-    placeName: searchParams.get(searchParamKeysCreateReview.placeName) ?? null,
+    "product-name":
+      searchParams.get(searchParamKeysCreateReview["product-name"]) ?? null,
+    "place-name":
+      searchParams.get(searchParamKeysCreateReview["place-name"]) ?? null,
   } satisfies SearchParamsProductSearch);
 
   function changeFilters(
@@ -50,10 +51,10 @@ export function ProductSearch({
         setOptimisticFilters(filtersNew);
         updateSearchParams(
           filtersNew,
-          (!!filtersNew.productName &&
-            filtersNew.productName.length >= minCharsSearch) ||
-            (!!filtersNew.placeName &&
-              filtersNew.placeName.length >= minCharsSearch),
+          (!!filtersNew["product-name"] &&
+            filtersNew["product-name"].length >= minCharsSearch) ||
+            (!!filtersNew["place-name"] &&
+              filtersNew["place-name"].length >= minCharsSearch),
         );
       });
     }
@@ -65,10 +66,11 @@ export function ProductSearch({
     );
   }
 
-  const hasNoSearch = !filters.productName && !filters.placeName;
+  const hasNoSearch = !filters["product-name"] && !filters["place-name"];
   const hasValidSearch =
-    (!!filters.productName && filters.productName.length >= minCharsSearch) ||
-    (!!filters.placeName && filters.placeName.length >= minCharsSearch);
+    (!!filters["product-name"] &&
+      filters["product-name"].length >= minCharsSearch) ||
+    (!!filters["place-name"] && filters["place-name"].length >= minCharsSearch);
 
   return (
     <div className="w-full space-y-6 overflow-hidden">
@@ -86,14 +88,16 @@ export function ProductSearch({
               name="filter-product-name"
               type="text"
               placeholder="e.g. Cheeseburger"
-              value={filters.productName ?? ""}
-              onChange={(e) => changeFilters({ productName: e.target.value })}
+              value={filters["product-name"] ?? ""}
+              onChange={(e) =>
+                changeFilters({ "product-name": e.target.value })
+              }
               className="mt-1 w-full"
             />
             <FieldError
               errorMsg={
-                !!filters.productName &&
-                filters.productName.length < minCharsSearch
+                !!filters["product-name"] &&
+                filters["product-name"].length < minCharsSearch
                   ? `At least ${minCharsSearch} characters`
                   : undefined
               }
@@ -115,13 +119,14 @@ export function ProductSearch({
               name="filter-place-name"
               type="text"
               placeholder="e.g. Five Guys"
-              value={filters.placeName ?? ""}
-              onChange={(e) => changeFilters({ placeName: e.target.value })}
+              value={filters["place-name"] ?? ""}
+              onChange={(e) => changeFilters({ "place-name": e.target.value })}
               className="mt-1 w-full"
             />
             <FieldError
               errorMsg={
-                !!filters.placeName && filters.placeName.length < minCharsSearch
+                !!filters["place-name"] &&
+                filters["place-name"].length < minCharsSearch
                   ? `At least ${minCharsSearch} characters`
                   : undefined
               }
@@ -144,19 +149,19 @@ export function ProductSearch({
             </div>
 
             {/* Show active filters */}
-            {(filters.productName || filters.placeName) && (
+            {(filters["product-name"] || filters["place-name"]) && (
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="whitespace-nowrap text-dark-gray">
                   Filtering by:
                 </span>
-                {filters.productName && (
+                {filters["product-name"] && (
                   <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
-                    Product: &ldquo;{filters.productName}&rdquo;
+                    Product: &ldquo;{filters["product-name"]}&rdquo;
                   </span>
                 )}
-                {filters.placeName && (
+                {filters["place-name"] && (
                   <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
-                    Place: &ldquo;{filters.placeName}&rdquo;
+                    Place: &ldquo;{filters["place-name"]}&rdquo;
                   </span>
                 )}
               </div>
