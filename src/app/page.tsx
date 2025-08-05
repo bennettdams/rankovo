@@ -6,6 +6,7 @@ import { RankingPositionMarker } from "@/components/ranking-position-marker";
 import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
+import { RankingSearch } from "@/components/rankings-search";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import {
@@ -68,10 +69,10 @@ export default async function PageHome({
   });
 
   return (
-    <div className="md:pt-12">
+    <div className="px-4 md:px-0 md:pt-12">
       <HeroSection />
 
-      <SectionHeader>Top products by category</SectionHeader>
+      <SectionHeader>The Very Best</SectionHeader>
 
       <TopByCategories
         rankingsBurgersPromise={rankingsBurgersPromise}
@@ -79,9 +80,13 @@ export default async function PageHome({
         rankingsPizzasPromise={rankingsPizzasPromise}
       />
 
-      <SectionHeader>All rankings</SectionHeader>
+      <SectionHeader>The Best Food in Town</SectionHeader>
 
-      <div className="flex flex-col-reverse gap-x-4 gap-y-10 px-4 md:flex-row md:px-0">
+      <Suspense fallback={"loading"}>
+        <RankingSearch filters={filters} />
+      </Suspense>
+
+      <div className="mt-10 flex flex-col-reverse gap-x-4 gap-y-10 md:flex-row">
         <div className="basis-full md:basis-1/3">
           <Suspense fallback={<RankingsFiltersSkeleton />}>
             <RankingFilters filters={filters} critics={criticsPromise} />
@@ -161,7 +166,7 @@ async function TopByCategories({
   ]);
 
   return (
-    <div className="flex gap-x-4 overflow-x-auto px-4 sm:px-6 md:grid md:grid-cols-3 md:gap-x-8 md:overflow-x-visible md:px-0 lg:px-8">
+    <div className="flex gap-x-4 overflow-x-auto md:grid md:grid-cols-3 md:gap-x-8 md:overflow-x-visible">
       <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="burger"

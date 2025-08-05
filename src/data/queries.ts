@@ -40,7 +40,14 @@ export function conditionsSearchProducts(searchQuery: string) {
     .trim()
     .toLowerCase()
     .split(/\s+/) // Split by whitespace
-    .filter((term) => term.length > 0); // Remove empty strings
+    .filter((term) => {
+      // Remove empty strings
+      if (term.length === 0) return false;
+      // Exclude common search term conjunction (e.g. "Burger in Hamburg")
+      if (term === "in") return false;
+
+      return true;
+    });
 
   if (searchTerms.length === 0) {
     return undefined;

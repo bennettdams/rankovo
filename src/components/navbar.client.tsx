@@ -17,7 +17,7 @@ import { SheetClose } from "./ui/sheet";
 
 function SignInButton() {
   return (
-    <Button onClick={() => signIn()}>
+    <Button onClick={() => signIn()} className="bg-secondary text-secondary-fg">
       <CircleUser />
       <p>Sign in</p>
     </Button>

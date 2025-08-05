@@ -2,7 +2,7 @@
 
 import type { FiltersRankings } from "@/app/page";
 import { CriticQuery } from "@/data/queries";
-import { minCharsSearch, ratingHighest, ratingLowest } from "@/data/static";
+import { ratingHighest, ratingLowest } from "@/data/static";
 import { routes } from "@/lib/navigation";
 import {
   prepareFiltersForUpdate,
@@ -15,12 +15,10 @@ import { useRouter } from "next/navigation";
 import { useOptimistic, useState, useTransition } from "react";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
-import { FieldError } from "./form";
 import { LoadingSpinner } from "./loading-spinner";
 import { SliderDual } from "./slider";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 
 function updateArray<T extends string>(arr: T[] | null, entry: T) {
   if (arr === null) {
@@ -149,23 +147,6 @@ function RankingsFiltersClientInternal({
           )}
         </div>
       </div>
-
-      <FilterRow label="Search">
-        <Input
-          name="filter-search"
-          type="text"
-          placeholder="e.g. Döner Berlin or Cheeseburger München"
-          value={filters.q ?? ""}
-          onChange={(e) => changeFilters({ q: e.target.value })}
-        />
-        <FieldError
-          errorMsg={
-            !!filters.q && filters.q.length < minCharsSearch
-              ? `At least ${minCharsSearch} characters`
-              : undefined
-          }
-        />
-      </FilterRow>
 
       <FilterRow label="Categories">
         <div className="col-start-2 row-start-2">
