@@ -7,8 +7,9 @@ import {
   useSearchParamsHelper,
 } from "@/lib/url-state";
 import { SearchIcon } from "lucide-react";
-import { startTransition, useOptimistic } from "react";
+import { useOptimistic, useTransition } from "react";
 import { FieldError } from "./form";
+import { LoadingSpinner } from "./loading-spinner";
 import { Input } from "./ui/input";
 
 export function RankingsSearchClient({
@@ -20,6 +21,7 @@ export function RankingsSearchClient({
   const [filters, setOptimisticFilters] = useOptimistic({
     q: searchQuery,
   });
+  const [isLoading, startTransition] = useTransition();
 
   function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
     const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
@@ -43,7 +45,7 @@ export function RankingsSearchClient({
           onChange={(e) => changeFilters({ q: e.target.value })}
         />
         <div className="absolute left-4 top-1/2 -translate-y-1/2 transform">
-          <SearchIcon />
+          {isLoading ? <LoadingSpinner className="size-7" /> : <SearchIcon />}
         </div>
       </div>
       {!!filters.q && filters.q.length < minCharsSearch ? (

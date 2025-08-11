@@ -3,6 +3,7 @@ import { sql, type SQL } from "drizzle-orm";
 import {
   type AnyPgColumn,
   boolean,
+  index,
   integer,
   pgTable,
   real,
@@ -101,15 +102,19 @@ export const schemaCreatePlace = createInsertSchema(placesTable)
   });
 export type PlaceCreateDb = z.infer<typeof schemaCreatePlace>;
 
-export const productsTable = pgTable("products", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
-  note: varchar({ length: 255 }),
-  category: varchar({ length: 255, enum: categories }).notNull(),
-  placeId: integer("place_id").references(() => placesTable.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at"),
-});
+export const productsTable = pgTable(
+  "products",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar({ length: 255 }).notNull(),
+    note: varchar({ length: 255 }),
+    category: varchar({ length: 255, enum: categories }).notNull(),
+    placeId: integer("place_id").references(() => placesTable.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
+  },
+  (table) => [index("products_name_idx_custom").on(table.name)],
+);
 
 export const schemaCategory = z.enum(categories, {
   message: "Please pick a category",
@@ -129,7 +134,7 @@ export type ProductCreateDb = z.infer<typeof schemaCreateProduct>;
 
 // #################### Auth schema generated
 // Changed:
-// - usersTable: add "users_name_unique_custom" to "name" that includes a lower() function for case-insensitive uniqueness
+// - usersTable: add "users_name_unique_idx_custom" to "name" that includes a lower() function for case-insensitive uniqueness
 // ####################
 export const usersTable = pgTable(
   "users",
@@ -148,7 +153,9 @@ export const usersTable = pgTable(
       .$defaultFn(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [uniqueIndex("users_name_unique_custom").on(lower(table.name))],
+  (table) => [
+    uniqueIndex("users_name_unique_idx_custom").on(lower(table.name)),
+  ],
 );
 
 export const sessionsTable = pgTable("sessions", {
