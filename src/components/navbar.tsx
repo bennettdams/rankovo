@@ -41,10 +41,10 @@ export function Navbar() {
           </Link> */}
 
           <Link
-            href={routes.contact}
+            href={routes.aboutUs}
             className="transition-colors hover:text-primary"
           >
-            Contact
+            About Us
           </Link>
         </div>
 
@@ -125,8 +125,8 @@ function MobileMenu() {
             </Link>
           </SheetClose>
           <SheetClose asChild>
-            <Link href={routes.contact} className="hover:text-primary">
-              Contact
+            <Link href={routes.aboutUs} className="hover:text-primary">
+              About Us
             </Link>
           </SheetClose>
 

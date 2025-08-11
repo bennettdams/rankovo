@@ -4,5 +4,5 @@ export const routes = {
   reviews: "/reviews",
   reviewCreate: "/review/create",
   user: (userId: string) => `/user/${userId}`,
-  contact: "/contact",
+  aboutUs: "/about-us",
 } as const;

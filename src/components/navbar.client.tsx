@@ -63,7 +63,7 @@ export function UserMenu() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={routes.contact}>Support</Link>
+              <Link href={routes.aboutUs}>Support</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

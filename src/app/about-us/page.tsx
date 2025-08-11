@@ -1,7 +1,7 @@
 import { Box } from "@/components/box";
 import { FileText, Mail, MessageCircle, User } from "lucide-react";
 
-export default function PageContact() {
+export default function PageAboutUs() {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto max-w-4xl px-6 pb-20 pt-16">

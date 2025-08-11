@@ -7,9 +7,9 @@ const products = [
   "Cheeseburger",
   "Döner",
   "Salami Pizza",
-  "Sushi",
   "Fried Chicken",
-  "Gyros",
+  "Chicken Burger",
+  "Pizza Tonno",
 ];
 const cities = [
   "Hamburg",
