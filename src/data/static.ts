@@ -19,6 +19,16 @@ export const categories = [
 
 export type Category = (typeof categories)[number];
 
+export const categoriesActive = [
+  "burger",
+  "chicken",
+  "kebab",
+  "pizza",
+  "sandwich",
+] as const satisfies Category[];
+
+export type CategoryActive = (typeof categoriesActive)[number];
+
 export const ratingLowest = 0;
 export const ratingHighest = 10;
 export const ratingMiddle = 5;

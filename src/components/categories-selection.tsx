@@ -1,23 +1,23 @@
-import { categories, type Category } from "@/data/static";
+import { categoriesActive, type Category } from "@/data/static";
 import { CategoryIcon } from "./category-icon";
 import { FilterButton } from "./filter-button";
 
 export function CategoriesSelection({
   onClick,
-  categoriesActive,
+  categoriesSelected,
 }: {
   onClick: (category: Category) => void;
-  categoriesActive: Category[] | null;
+  categoriesSelected: Category[] | null;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {categories.map((category) => (
+      {categoriesActive.map((category) => (
         <FilterButton
           key={category}
           isActive={
-            categoriesActive === null
+            categoriesSelected === null
               ? true
-              : categoriesActive.includes(category)
+              : categoriesSelected.includes(category)
           }
           onMouseDown={() => onClick(category)}
         >

@@ -167,19 +167,19 @@ async function TopByCategories({
 
   return (
     <div className="flex gap-x-4 overflow-x-auto md:grid md:grid-cols-3 md:gap-x-8 md:overflow-x-visible">
-      <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
+      <div className="min-w-[300px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="burger"
           rankings={rankingsBurgers.rankings}
         />
       </div>
-      <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
+      <div className="min-w-[300px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="kebab"
           rankings={rankingsKebabs.rankings}
         />
       </div>
-      <div className="min-w-[280px] flex-shrink-0 md:min-w-0">
+      <div className="min-w-[300px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
           category="pizza"
           rankings={rankingsPizzas.rankings}
@@ -206,6 +206,8 @@ function TopByCategoryCard({
   const rankingOne = rankings[0];
   const rankingTwo = rankings[1];
   const rankingThree = rankings[2];
+  const rankingFour = rankings[3];
+  const rankingFive = rankings[4];
 
   return (
     <Box variant="xl" className="overflow-hidden p-0">
@@ -281,6 +283,44 @@ function TopByCategoryCard({
             <RankingCardRow position={3} ranking={rankingThree} />
           </RankingDrawer>
         )}
+
+        {/* RANKING FOUR */}
+        {!rankingFour ? (
+          <RankingCardRow position={4} ranking={null} />
+        ) : (
+          <RankingDrawer
+            placeName={rankingFour.placeName}
+            ratingAvg={rankingFour.ratingAvg}
+            productName={rankingFour.productName}
+            productCategory={rankingFour.productCategory}
+            productNote={rankingFour.productNote}
+            city={rankingFour.city}
+            lastReviewedAt={rankingFour.lastReviewedAt}
+            numOfReviews={rankingFour.numOfReviews}
+            reviews={rankingFour.reviews}
+          >
+            <RankingCardRow position={4} ranking={rankingFour} />
+          </RankingDrawer>
+        )}
+
+        {/* RANKING FIVE */}
+        {!rankingFive ? (
+          <RankingCardRow position={5} ranking={null} />
+        ) : (
+          <RankingDrawer
+            placeName={rankingFive.placeName}
+            ratingAvg={rankingFive.ratingAvg}
+            productName={rankingFive.productName}
+            productCategory={rankingFive.productCategory}
+            productNote={rankingFive.productNote}
+            city={rankingFive.city}
+            lastReviewedAt={rankingFive.lastReviewedAt}
+            numOfReviews={rankingFive.numOfReviews}
+            reviews={rankingFive.reviews}
+          >
+            <RankingCardRow position={5} ranking={rankingFive} />
+          </RankingDrawer>
+        )}
       </div>
     </Box>
   );
@@ -290,11 +330,11 @@ function RankingCardRow({
   position,
   ranking,
 }: {
-  position: 1 | 2 | 3;
+  position: 1 | 2 | 3 | 4 | 5;
   ranking: RankingWithReviewsQuery | null;
 }) {
   return (
-    <div className="col-span-2 grid cursor-pointer grid-cols-subgrid py-2 hover:bg-secondary hover:text-secondary-fg">
+    <div className="group/ranking-card-row col-span-2 grid cursor-pointer grid-cols-subgrid py-2 hover:bg-secondary hover:text-secondary-fg">
       <div className="mx-2 md:mx-3">
         <RankingPositionMarker
           position={position}
@@ -312,14 +352,27 @@ function RankingCardRow({
           }
         />
       </div>
-      <p
-        className={cn(
-          "line-clamp-2 place-self-start self-center",
-          position === 1 && "font-bold",
-        )}
-      >
-        {ranking?.productName ?? "-"}
-      </p>
+
+      <div className="flex flex-col overflow-hidden text-start">
+        <p className={cn("truncate text-lg", position === 1 && "font-bold")}>
+          {ranking?.productName ?? "-"}
+        </p>
+
+        <p className="text-secondary group-hover/ranking-card-row:text-secondary-fg">
+          {ranking?.placeName && (
+            <>
+              <span>{ranking.placeName}</span>
+
+              {ranking.city && (
+                <>
+                  <span className="ml-2">|</span>
+                  <span className="ml-2">{ranking.city}</span>
+                </>
+              )}
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

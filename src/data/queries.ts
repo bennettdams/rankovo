@@ -25,7 +25,7 @@ import {
 } from "drizzle-orm";
 import { unstable_cacheTag as cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { cacheKeys, minCharsSearch } from "./static";
+import { cacheKeys, categoriesActive, minCharsSearch } from "./static";
 
 const numOfReviewsForAverage = 20;
 
@@ -128,10 +128,16 @@ async function rankings(filters: FiltersRankings) {
 function subqueryRankings(filters: FiltersRankings) {
   // FILTERS for products
   const filtersForProductsSQL: (SQL | undefined)[] = [];
-  if (filters.categories)
+  if (filters.categories) {
     filtersForProductsSQL.push(
       inArray(productsTable.category, filters.categories),
     );
+  } else {
+    filtersForProductsSQL.push(
+      inArray(productsTable.category, categoriesActive),
+    );
+  }
+
   if (filters.cities)
     filtersForProductsSQL.push(inArray(placesTable.city, filters.cities));
   if (!!filters.q && filters.q.length >= minCharsSearch) {

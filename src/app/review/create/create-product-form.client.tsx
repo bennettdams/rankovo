@@ -28,7 +28,7 @@ import {
   type ProductCreatedByAction,
 } from "@/data/actions";
 import { PlaceSearchQuery } from "@/data/queries";
-import { categories, type City, minCharsSearch } from "@/data/static";
+import { categoriesActive, type City, minCharsSearch } from "@/data/static";
 import { schemaCreatePlace, schemaCreateProduct } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
@@ -219,7 +219,7 @@ export function CreateProductForm({
                 <SelectionFormField
                   name={formKeys.category}
                   defaultValue={state?.formState.category ?? undefined}
-                  options={categories}
+                  options={categoriesActive}
                 />
                 <FieldError errorMsg={state?.errors?.category} />
               </Fieldset>

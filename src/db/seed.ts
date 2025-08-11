@@ -28,7 +28,7 @@ import {
 } from "./db-schema";
 import { db } from "./drizzle-setup";
 
-const numOfReviews = 1_000;
+const numOfReviews = 10_000;
 
 type Mode = "real" | "bulk" | "specific";
 const mode: Mode = "real";

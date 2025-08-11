@@ -156,7 +156,7 @@ function RankingsFiltersClientInternal({
                 categories: updateArray(filters.categories, category),
               })
             }
-            categoriesActive={filters.categories}
+            categoriesSelected={filters.categories}
           />
         </div>
       </FilterRow>
