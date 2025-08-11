@@ -1,13 +1,35 @@
 import { loadEnvConfig } from "@next/env";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
-const client = postgres(process.env.DATABASE_URL!);
+// Fix for "sorry, too many clients already" from:
+// https://www.answeroverflow.com/m/1162714716137865236
 
-export const db = drizzle({
-  client,
-  // logger: process.env.NODE_ENV === "development" ? true : undefined,
-});
+declare global {
+  var db: PostgresJsDatabase | undefined;
+}
+
+let db: PostgresJsDatabase;
+
+if (process.env.NODE_ENV === "production") {
+  const client = postgres(process.env.DATABASE_URL!);
+
+  db = drizzle({
+    client,
+  });
+} else {
+  if (!global.db) {
+    const client = postgres(process.env.DATABASE_URL!);
+
+    global.db = drizzle({
+      client,
+    });
+  }
+
+  db = global.db;
+}
+
+export { db };
