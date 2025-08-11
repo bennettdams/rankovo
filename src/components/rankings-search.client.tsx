@@ -6,7 +6,7 @@ import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
 } from "@/lib/url-state";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { useOptimistic, useTransition } from "react";
 import { FieldError } from "./form";
 import { LoadingSpinner } from "./loading-spinner";
@@ -33,6 +33,10 @@ export function RankingsSearchClient({
     }
   }
 
+  function resetSearchFilter() {
+    changeFilters({ q: null });
+  }
+
   return (
     <div className="mx-auto w-full md:w-2/3">
       <div className="relative">
@@ -42,12 +46,27 @@ export function RankingsSearchClient({
           className="h-14 rounded-xl border-none bg-white text-center text-lg leading-none shadow-sm placeholder:text-center focus:placeholder:text-white focus-visible:ring-primary md:text-2xl md:placeholder:text-2xl"
           placeholder='e.g. "Döner in Hamburg"'
           value={filters.q ?? ""}
-          onChange={(e) => changeFilters({ q: e.target.value })}
+          onChange={(e) => {
+            changeFilters({ q: e.target.value });
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") resetSearchFilter();
+          }}
         />
         <div className="absolute left-4 top-1/2 -translate-y-1/2 transform">
-          {isLoading ? <LoadingSpinner className="size-7" /> : <SearchIcon />}
+          {isLoading ? (
+            <LoadingSpinner className="size-7" />
+          ) : filters.q ? (
+            <XIcon
+              className="size-8 cursor-pointer stroke-primary"
+              onClick={() => resetSearchFilter()}
+            />
+          ) : (
+            <SearchIcon className="size-8 stroke-primary" />
+          )}
         </div>
       </div>
+
       {!!filters.q && filters.q.length < minCharsSearch ? (
         <FieldError errorMsg={`At least ${minCharsSearch} characters`} />
       ) : (
