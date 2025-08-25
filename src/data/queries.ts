@@ -113,7 +113,9 @@ async function rankingsWithReviews(filters: FiltersRankings) {
 
   // TODO 2025-05 Is there a nice way to do this in one query instead of getting the reviews separately?
   const reviews = await db
-    .with(qRankings)
+    // The .with(qRankings) is not needed because when a CTE is used only in JOIN clauses (not as the main FROM table), Drizzle can automatically resolve its dependencies.
+    // Using .with(qRankings) here would DUPLICATE parameters: once for the WITH definition and once for the JOIN reference, causing a parameter binding error for the Postgres connection pooler.
+    // .with(qRankings)
     .select({
       id: reviewsTable.id,
       note: reviewsTable.note,

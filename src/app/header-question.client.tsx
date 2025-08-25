@@ -67,7 +67,7 @@ function SentenceTopic({
     <span>
       <span
         className={cn(
-          "inline-block text-nowrap rounded bg-gradient-to-r from-primary to-secondary bg-clip-text px-2 font-bold text-transparent drop-shadow-md transition-all ease-in-out",
+          "inline-block text-nowrap rounded bg-gradient-to-r from-primary to-secondary bg-clip-text px-2 font-bold text-transparent drop-shadow-lg transition-all ease-in-out",
           isAnimating
             ? "-translate-y-2 opacity-0"
             : "translate-y-0 opacity-100",
