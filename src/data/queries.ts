@@ -93,13 +93,12 @@ export function conditionsSearchProducts(searchQuery: string) {
   ))`;
 
   // Each search term gets ONE condition that searches the concatenated field
-  // This allows unlimited search terms while using only 1 parameter per term
-  const searchConditions = searchTerms.map((term) => {
-    const wildcardTerm = `%${term}%`;
-    return sql`${searchableContent} LIKE ${wildcardTerm}`;
-  });
+  // FIXED PARAMETER COUNT: Instead of one parameter per term, combine all terms into a single LIKE condition
+  // This ensures consistent parameter count regardless of number of search terms
+  const combinedSearchPattern = `%${searchTerms.join("%")}%`;
+  const searchCondition = sql`${searchableContent} LIKE ${combinedSearchPattern}`;
 
-  return searchConditions;
+  return [searchCondition];
 }
 
 async function rankingsWithReviews(filters: FiltersRankings) {
@@ -165,7 +164,7 @@ async function rankings(filters: FiltersRankings) {
   return await db.select().from(qRankings);
 }
 
-function subqueryRankings(filters: FiltersRankings) {
+export function subqueryRankings(filters: FiltersRankings) {
   // FILTERS for products
   const filtersForProductsSQL: (SQL | undefined)[] = [];
   if (filters.categories) {
