@@ -68,7 +68,10 @@ export function RankingsSearchClient({
       </div>
 
       {!!filters.q && filters.q.length < minCharsSearch ? (
-        <FieldError errorMsg={`At least ${minCharsSearch} characters`} />
+        <FieldError
+          className="mt-1.5"
+          errorMsg={`At least ${minCharsSearch} characters`}
+        />
       ) : (
         <p className="mt-1.5">
           Search by product name, restaurant name or category
