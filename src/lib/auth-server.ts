@@ -93,11 +93,11 @@ export async function getUserAuthGated(headers: Headers) {
   return { id: data.user.id, username: data.user.name };
 }
 
-export async function verifyAuthenticated(headers: Headers) {
+export async function assertAuthenticated(headers: Headers) {
   await getUserAuthGated(headers);
 }
 
-export async function verifyUserForEntity(
+export async function assertUserForEntity(
   headers: Headers,
   cb: () => Promise<string>,
 ) {

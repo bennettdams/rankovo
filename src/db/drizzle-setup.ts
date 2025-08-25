@@ -15,14 +15,22 @@ declare global {
 let db: PostgresJsDatabase;
 
 if (process.env.NODE_ENV === "production") {
-  const client = postgres(process.env.DATABASE_URL!);
+  const client = postgres(
+    process.env.DATABASE_URL!,
+    // avoid clash of cached prepared statements for connection pool
+    { prepare: false },
+  );
 
   db = drizzle({
     client,
   });
 } else {
   if (!global.db) {
-    const client = postgres(process.env.DATABASE_URL!);
+    const client = postgres(
+      process.env.DATABASE_URL!,
+      // avoid clash of cached prepared statements for connection pool
+      { prepare: false },
+    );
 
     global.db = drizzle({
       client,

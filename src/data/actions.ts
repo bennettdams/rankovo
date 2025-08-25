@@ -31,9 +31,9 @@ import type {
   ActionStateSuccess,
 } from "@/lib/action-utils";
 import {
+  assertAuthenticated,
+  assertUserForEntity,
   getUserAuthGated,
-  verifyAuthenticated,
-  verifyUserForEntity,
 } from "@/lib/auth-server";
 import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
@@ -49,7 +49,7 @@ export async function actionCreatePlace(
 ) {
   console.debug("🟦 ACTION create place");
 
-  await verifyAuthenticated(await headers());
+  await assertAuthenticated(await headers());
 
   const {
     success,
@@ -158,7 +158,7 @@ export async function actionUpdateReview(
 ) {
   console.debug("🟦 ACTION update review");
 
-  await verifyUserForEntity(await headers(), async () => {
+  await assertUserForEntity(await headers(), async () => {
     const reviewFromDb = await db
       .select({ authorId: reviewsTable.authorId })
       .from(reviewsTable)
@@ -198,7 +198,7 @@ export async function actionCreateProduct(
 ) {
   console.debug("🟦 ACTION create product");
 
-  await verifyAuthenticated(await headers());
+  await assertAuthenticated(await headers());
 
   const {
     success,
