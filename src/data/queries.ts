@@ -111,11 +111,14 @@ async function rankingsWithReviews(filters: FiltersRankings) {
 
   const rankingsData = await db.select().from(qRankings);
 
+  const productIdsOfRankings = rankingsData.map((ranking) => ranking.productId);
+
+  if (productIdsOfRankings.length === 0) {
+    return { rankings: [], queriedAt: new Date() };
+  }
+
   // TODO 2025-05 Is there a nice way to do this in one query instead of getting the reviews separately?
   const reviews = await db
-    // The .with(qRankings) is not needed because when a CTE is used only in JOIN clauses (not as the main FROM table), Drizzle can automatically resolve its dependencies.
-    // Using .with(qRankings) here would DUPLICATE parameters: once for the WITH definition and once for the JOIN reference, causing a parameter binding error for the Postgres connection pooler.
-    // .with(qRankings)
     .select({
       id: reviewsTable.id,
       note: reviewsTable.note,
@@ -123,12 +126,16 @@ async function rankingsWithReviews(filters: FiltersRankings) {
       reviewedAt: reviewsTable.reviewedAt,
       urlSource: reviewsTable.urlSource,
       rating: reviewsTable.rating,
-      productId: qRankings.productId,
+      productId: reviewsTable.productId,
       username: usersTable.name,
     })
     .from(reviewsTable)
-    .where(eq(reviewsTable.isCurrent, true))
-    .innerJoin(qRankings, eq(reviewsTable.productId, qRankings.productId))
+    .where(
+      and(
+        eq(reviewsTable.isCurrent, true),
+        inArray(reviewsTable.productId, productIdsOfRankings),
+      ),
+    )
     .innerJoin(usersTable, eq(usersTable.id, reviewsTable.authorId))
     .orderBy(desc(reviewsTable.reviewedAt))
     .limit(numOfReviewsForAverage);
