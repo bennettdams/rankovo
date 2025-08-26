@@ -17,7 +17,9 @@ import {
   gte,
   ilike,
   inArray,
+  isNotNull,
   lte,
+  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -33,35 +35,6 @@ export type RankingWithReviewsQuery = Awaited<
 >["rankings"][number];
 
 export function conditionsSearchProducts(searchQuery: string) {
-  // PARAMETER CONSISTENCY FIX:
-  // This function was causing "bind message supplies X parameters, but prepared statement requires Y"
-  // errors in production. The issue was that each search term created 5 SQL parameters
-  // (one per searchable field), making the total parameter count unpredictable:
-  // - 1 term = 5 params, 2 terms = 10 params, 3 terms = 15 params, etc.
-  // The "5" comes from searching across 5 target fields: product name, product note, product category, place name, place city.
-  // This caused conflicts with the DB's connection pooler's prepared statement cache.
-  //
-  // OLD APPROACH (problematic - variable parameters):
-  // return or(
-  //   ilike(productsTable.name, wildcardTerm),
-  //   ilike(productsTable.note, wildcardTerm),
-  //   ilike(productsTable.category, wildcardTerm),
-  //   and(isNotNull(placesTable.name), ilike(placesTable.name, wildcardTerm)),
-  //   and(isNotNull(placesTable.city), ilike(placesTable.city, wildcardTerm))
-  // );
-  //
-  // WHY THIS FAILED:
-  // 1. Each search term created 5 separate SQL parameters (one per field)
-  // 2. Multiple terms multiplied the parameters: "burger berlin" = 10 parameters total
-  // 3. When users typed rapidly, different queries (1 term vs 2 terms) would hit Supabase's
-  //    connection pooler with different parameter counts for what looked like the "same" query
-  // 4. Supabase's pooler caches prepared statements by SQL structure, but parameter count
-  //    mismatches caused "bind message supplies X parameters, but prepared statement requires Y"
-  // 5. Even with prepare: false, postgres.js internally parameterizes queries, causing conflicts
-  //
-  // Solution: Use CONCAT + COALESCE to create a single searchable field
-  // Result: Each search term uses exactly 1 parameter instead of 5, making count predictable
-
   // Clean and split the search query
   const searchTerms = searchQuery
     .trim()
@@ -80,25 +53,22 @@ export function conditionsSearchProducts(searchQuery: string) {
     return undefined;
   }
 
-  // Create a single concatenated search field that contains all searchable content
-  // This way each search term only needs ONE parameter instead of 5 per term
-  // - CONCAT: Combines all 5 searchable fields into 1 unified field, reducing parameters from 5→1 per term
-  // - COALESCE: Converts NULL values to empty strings, preventing CONCAT from returning NULL
-  const searchableContent = sql`LOWER(CONCAT(
-    COALESCE(${productsTable.name}, ''), ' ',
-    COALESCE(${productsTable.note}, ''), ' ',
-    COALESCE(${productsTable.category}, ''), ' ',
-    COALESCE(${placesTable.name}, ''), ' ',
-    COALESCE(${placesTable.city}, '')
-  ))`;
+  // Create ILIKE conditions for each search term across all searchable fields
+  const searchConditions = searchTerms.map((term) => {
+    const wildcardTerm = `%${term}%`;
 
-  // Each search term gets ONE condition that searches the concatenated field
-  // FIXED PARAMETER COUNT: Instead of one parameter per term, combine all terms into a single LIKE condition
-  // This ensures consistent parameter count regardless of number of search terms
-  const combinedSearchPattern = `%${searchTerms.join("%")}%`;
-  const searchCondition = sql`${searchableContent} LIKE ${combinedSearchPattern}`;
+    return or(
+      // PRODUCTS: Always search in product fields (these are never null)
+      ilike(productsTable.name, wildcardTerm),
+      ilike(productsTable.note, wildcardTerm),
+      ilike(productsTable.category, wildcardTerm),
+      // PLACES: Only search in place fields if they exist (not null)
+      and(isNotNull(placesTable.name), ilike(placesTable.name, wildcardTerm)),
+      and(isNotNull(placesTable.city), ilike(placesTable.city, wildcardTerm)),
+    );
+  });
 
-  return [searchCondition];
+  return searchConditions;
 }
 
 async function rankingsWithReviews(filters: FiltersRankings) {
@@ -164,7 +134,7 @@ async function rankings(filters: FiltersRankings) {
   return await db.select().from(qRankings);
 }
 
-export function subqueryRankings(filters: FiltersRankings) {
+function subqueryRankings(filters: FiltersRankings) {
   // FILTERS for products
   const filtersForProductsSQL: (SQL | undefined)[] = [];
   if (filters.categories) {
