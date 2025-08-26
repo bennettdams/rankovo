@@ -7,6 +7,7 @@ import { RankingFilters } from "@/components/rankings-filters";
 import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import { RankingSearch } from "@/components/rankings-search";
+import { RankingsSearchClient } from "@/components/rankings-search.client";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import {
@@ -82,7 +83,7 @@ export default async function PageHome({
 
       <SectionHeader>The Best Food in Town</SectionHeader>
 
-      <Suspense fallback={"loading"}>
+      <Suspense fallback={<RankingsSearchClient searchQuery={null} />}>
         <RankingSearch filters={filters} />
       </Suspense>
 
