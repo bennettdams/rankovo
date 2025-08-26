@@ -11,7 +11,6 @@ import {
   and,
   asc,
   avg,
-  count,
   desc,
   eq,
   gte,
@@ -134,24 +133,27 @@ async function rankings(filters: FiltersRankings) {
   return await db.select().from(qRankings);
 }
 
-function subqueryRankings(filters: FiltersRankings) {
-  // FILTERS for products
-  const filtersForProductsSQL: (SQL | undefined)[] = [];
+export function subqueryRankings(filters: FiltersRankings) {
+  // FILTERS for products only
+  const sqlFiltersProducts: (SQL | undefined)[] = [];
   if (filters.categories) {
-    filtersForProductsSQL.push(
+    sqlFiltersProducts.push(
       inArray(productsTable.category, filters.categories),
     );
   } else {
-    filtersForProductsSQL.push(
-      inArray(productsTable.category, categoriesActive),
-    );
+    sqlFiltersProducts.push(inArray(productsTable.category, categoriesActive));
   }
 
+  // FILTERS for places only
+  const sqlFiltersPlaces: (SQL | undefined)[] = [];
   if (filters.cities)
-    filtersForProductsSQL.push(inArray(placesTable.city, filters.cities));
+    sqlFiltersPlaces.push(inArray(placesTable.city, filters.cities));
+
+  // FILTERS that span multiple tables (products + places)
+  const sqlFiltersCrossTable: (SQL | undefined)[] = [];
   if (!!filters.q && filters.q.length >= minCharsSearch) {
-    const filtersForSearch = conditionsSearchProducts(filters.q);
-    if (filtersForSearch) filtersForProductsSQL.push(...filtersForSearch);
+    const searchConditions = conditionsSearchProducts(filters.q);
+    if (searchConditions) sqlFiltersCrossTable.push(...searchConditions);
   }
 
   // FILTERS for reviews
@@ -163,119 +165,81 @@ function subqueryRankings(filters: FiltersRankings) {
   if (filters["rating-max"])
     filtersForReviewsSQL.push(lte(reviewsTable.rating, filters["rating-max"]));
 
-  /** Products for filters */
-  const qProductsFiltered = db.$with("queryProductsFiltered").as(
+  /** Get filtered product IDs that match all criteria */
+  const qFilteredProducts = db.$with("queryFilteredProducts").as(
     db
-      .select({
-        productId: productsTable.id,
-      })
+      .select({ productId: productsTable.id })
       .from(productsTable)
-      .where(and(...filtersForProductsSQL))
-      // join needed for filtering by place name (via filtersSQL)
-      .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id)),
+      .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+      .where(
+        and(
+          ...sqlFiltersProducts,
+          ...sqlFiltersPlaces,
+          ...sqlFiltersCrossTable,
+        ),
+      ),
   );
 
-  /** Filtered reviews for products (all filters, no row number) */
-  const qReviewsFiltered = db.$with("queryReviewsFiltered").as(
+  /** Get all reviews with analytics in one step */
+  const qReviewsWithAnalytics = db.$with("queryReviewsWithAnalytics").as(
     db
       .select({
-        id: reviewsTable.id,
         productId: reviewsTable.productId,
         rating: reviewsTable.rating,
         reviewedAt: reviewsTable.reviewedAt,
-        urlSource: reviewsTable.urlSource,
-        note: reviewsTable.note,
-        username: usersTable.name,
+        // Calculate row number for limiting to most recent reviews
+        rowNumber: sql<number>`row_number() over (
+          partition by ${reviewsTable.productId}
+          order by ${reviewsTable.reviewedAt} desc
+        )`
+          .mapWith(Number)
+          .as("rowNumber"),
+        // Calculate total reviews count per product
+        totalReviews:
+          sql<number>`count(*) over (partition by ${reviewsTable.productId})`
+            .mapWith(Number)
+            .as("totalReviews"),
       })
       .from(reviewsTable)
-      .where(and(eq(reviewsTable.isCurrent, true), ...filtersForReviewsSQL))
-      .innerJoin(
-        qProductsFiltered,
-        eq(reviewsTable.productId, qProductsFiltered.productId),
-      )
-      // join needed for filtering by username (via filtersSQL)
       .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
-      .orderBy(desc(reviewsTable.reviewedAt)),
+      .innerJoin(
+        qFilteredProducts,
+        eq(reviewsTable.productId, qFilteredProducts.productId),
+      )
+      .where(and(eq(reviewsTable.isCurrent, true), ...filtersForReviewsSQL)),
   );
 
-  /** Reviews for products with row number to limit later */
-  const qReviewsForProductsWithSequence = db
-    .$with("queryReviewsForProducts")
-    .as(
-      db
-        .select({
-          id: qReviewsFiltered.id,
-          productId: qReviewsFiltered.productId,
-          rating: qReviewsFiltered.rating,
-          reviewedAt: qReviewsFiltered.reviewedAt,
-          urlSource: qReviewsFiltered.urlSource,
-          note: qReviewsFiltered.note,
-          username: qReviewsFiltered.username,
-          rowNumber: sql<number>`row_number() over (
-          partition by ${qReviewsFiltered.productId}
-          order by ${qReviewsFiltered.reviewedAt} desc
-        )`
-            .mapWith(Number)
-            .as("rowNumber"),
-        })
-        .from(qReviewsFiltered),
-    );
-
-  /** Total number of reviews per product (not limited by row number) */
-  const qNumReviewsPerProduct = db.$with("queryNumReviewsPerProduct").as(
+  /** Calculate product ratings from the limited review set */
+  const qProductRatings = db.$with("queryProductRatings").as(
     db
       .select({
-        productId: qReviewsFiltered.productId,
-        numOfReviews: count(qReviewsFiltered.id).as("numOfReviews"),
-      })
-      .from(qReviewsFiltered)
-      .groupBy(qReviewsFiltered.productId),
-  );
-
-  /** Products with average rating calculated */
-  const qProductsWithRatings = db.$with("queryProductsWithRatings").as(
-    db
-      .select({
-        productId: qProductsFiltered.productId,
-        ratingAvg: avg(qReviewsForProductsWithSequence.rating)
+        productId: qReviewsWithAnalytics.productId,
+        ratingAvg: avg(qReviewsWithAnalytics.rating)
           .mapWith(Number)
           .as("ratingAvg"),
-        lastReviewedAt:
-          sql<Date>`MAX(${qReviewsForProductsWithSequence.reviewedAt})`
-            .mapWith(qReviewsForProductsWithSequence.reviewedAt)
-            .as("lastReviewedAt"),
-        numOfReviews: qNumReviewsPerProduct.numOfReviews,
+        lastReviewedAt: sql<Date>`max(${qReviewsWithAnalytics.reviewedAt})`
+          .mapWith(qReviewsWithAnalytics.reviewedAt)
+          .as("lastReviewedAt"),
+        numOfReviews: sql<number>`max(${qReviewsWithAnalytics.totalReviews})`
+          .mapWith(Number)
+          .as("numOfReviews"),
       })
-      .from(qReviewsForProductsWithSequence)
-      .where(
-        lte(qReviewsForProductsWithSequence.rowNumber, numOfReviewsForAverage),
-      )
-      .innerJoin(
-        qProductsFiltered,
-        eq(
-          qReviewsForProductsWithSequence.productId,
-          qProductsFiltered.productId,
-        ),
-      )
-      .leftJoin(
-        qNumReviewsPerProduct,
-        eq(qProductsFiltered.productId, qNumReviewsPerProduct.productId),
-      )
-      .groupBy(qProductsFiltered.productId, qNumReviewsPerProduct.numOfReviews),
+      .from(qReviewsWithAnalytics)
+      .where(lte(qReviewsWithAnalytics.rowNumber, numOfReviewsForAverage))
+      .groupBy(qReviewsWithAnalytics.productId),
   );
 
-  /** Products with highest rating and limited to the X best ones */
-  const qProductRankingsLimited = db.$with("queryProductsLimited").as(
+  /** Get top 10 products by rating */
+  const qTopProducts = db.$with("queryTopProducts").as(
     db
       .select({
-        productId: qProductsWithRatings.productId,
-        ratingAvg: qProductsWithRatings.ratingAvg,
-        lastReviewedAt: qProductsWithRatings.lastReviewedAt,
-        numOfReviews: qProductsWithRatings.numOfReviews,
+        productId: qProductRatings.productId,
+        ratingAvg: qProductRatings.ratingAvg,
+        lastReviewedAt: qProductRatings.lastReviewedAt,
+        numOfReviews: qProductRatings.numOfReviews,
       })
-      .from(qProductsWithRatings)
-      .orderBy(desc(qProductsWithRatings.ratingAvg))
-      // only 10 products needed for rankings
+      .from(qProductRatings)
+      .orderBy(desc(qProductRatings.ratingAvg))
       .limit(10),
   );
 
@@ -286,34 +250,28 @@ function subqueryRankings(filters: FiltersRankings) {
   const placeNameHack = "placeName";
 
   const qRankings = db
-    // Use a single .with() to define ALL CTEs at once to avoid duplication
     .with(
-      qProductsFiltered,
-      qReviewsFiltered,
-      qReviewsForProductsWithSequence,
-      qNumReviewsPerProduct,
-      qProductsWithRatings,
-      qProductRankingsLimited,
+      qFilteredProducts,
+      qReviewsWithAnalytics,
+      qProductRatings,
+      qTopProducts,
     )
     .select({
       productName: productsTable.name,
       productCategory: productsTable.category,
       productNote: productsTable.note,
       placeId: productsTable.placeId,
-      productId: qProductRankingsLimited.productId,
-      ratingAvg: qProductRankingsLimited.ratingAvg,
-      lastReviewedAt: qProductRankingsLimited.lastReviewedAt,
+      productId: qTopProducts.productId,
+      ratingAvg: qTopProducts.ratingAvg,
+      lastReviewedAt: qTopProducts.lastReviewedAt,
       city: placesTable.city,
       [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
-      numOfReviews: qProductRankingsLimited.numOfReviews,
+      numOfReviews: qTopProducts.numOfReviews,
     })
-    .from(qProductRankingsLimited)
-    .innerJoin(
-      productsTable,
-      eq(qProductRankingsLimited.productId, productsTable.id),
-    )
+    .from(qTopProducts)
+    .innerJoin(productsTable, eq(qTopProducts.productId, productsTable.id))
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
-    .orderBy(desc(qProductRankingsLimited.ratingAvg))
+    .orderBy(desc(qTopProducts.ratingAvg))
     .as("queryRankings");
 
   return qRankings;
