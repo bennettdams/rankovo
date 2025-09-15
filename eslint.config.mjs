@@ -15,6 +15,9 @@ const compat = new FlatCompat({
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default [
+  {
+    ignores: ["node_modules/**", ".next/**", "next-env.d.ts"],
+  },
   ...fixupConfigRules(
     compat.extends(
       "next/core-web-vitals",
