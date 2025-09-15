@@ -1716,6 +1716,29 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=QfQeHCQFKFc",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Mis Tantuni & Döner",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Döner Kalb",
+    category: "kebab",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2025-07-31"),
+    rating: 8.7,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=CUBIVLhqxpA",
+  });
 }
 
 async function createProducts() {
