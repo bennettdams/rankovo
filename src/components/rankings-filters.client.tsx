@@ -271,7 +271,7 @@ function FilterRow({
     <div>
       <div className="mb-4 flex items-center">
         <h3 className="text-xl font-medium">{label}</h3>
-        <div className="border-gray-400 mx-4 flex-1 border-t border-gray"></div>
+        <div className="mx-4 flex-1 border-t border-gray"></div>
       </div>
 
       {children}

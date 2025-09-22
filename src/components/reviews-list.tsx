@@ -16,7 +16,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
         reviews.map((review) => (
           <ReviewWithDrawer key={review.id} productId={review.productId}>
             <Box
-              className="hover:bg-gray-50 col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center p-0 transition-colors"
+              className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center p-0 transition-colors hover:bg-secondary hover:text-secondary-fg"
               variant="sm"
             >
               <div>{review.productName}</div>

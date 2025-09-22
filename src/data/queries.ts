@@ -240,7 +240,8 @@ export function subqueryRankings(
         numOfReviews: qProductRatings.numOfReviews,
       })
       .from(qProductRatings)
-      .orderBy(desc(qProductRatings.ratingAvg))
+      // sorted by product ID as tiebreaker from same average rating
+      .orderBy(desc(qProductRatings.ratingAvg), asc(qProductRatings.productId))
       .limit(specificProductId !== undefined ? 1 : 10),
   );
 
@@ -272,7 +273,8 @@ export function subqueryRankings(
     .from(qTopProducts)
     .innerJoin(productsTable, eq(qTopProducts.productId, productsTable.id))
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
-    .orderBy(desc(qTopProducts.ratingAvg))
+    // sorted by product ID as tiebreaker from same average rating
+    .orderBy(desc(qTopProducts.ratingAvg), asc(qTopProducts.productId))
     .as("queryRankings");
 
   return qRankings;
@@ -346,15 +348,17 @@ function createReviewsQuery(options: {
 
 async function reviews(page = 1, userIdFilter: string | null = null) {
   "use cache";
-  // TODO implications of empty string cache tag?
-  cacheTag(cacheKeys.reviews, userIdFilter ? cacheKeys.user(userIdFilter) : "");
+  cacheTag(
+    cacheKeys.reviews,
+    ...(userIdFilter ? [cacheKeys.user(userIdFilter)] : []),
+  );
   console.debug("🟦 QUERY reviews");
 
-  // When fetching reviews for a specific user, show ALL their reviews (not just current)
-  // When fetching general reviews, only show current reviews
   return await createReviewsQuery({
     page,
     userIdFilter,
+    // When fetching reviews for a specific user, show ALL their reviews (not just current)
+    // When fetching general reviews, only show current reviews
     onlyCurrentReviews: userIdFilter === null,
   });
 }
