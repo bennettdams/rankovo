@@ -40,6 +40,7 @@ export const cacheKeys = {
   products: "products",
   places: "places",
   user: (userId: string) => `user:${userId}`,
+  ranking: (productId: number) => `ranking:${productId}`,
 };
 
 export const cities = [

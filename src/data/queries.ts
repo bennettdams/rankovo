@@ -85,28 +85,12 @@ async function rankingsWithReviews(filters: FiltersRankings) {
     return { rankings: [], queriedAt: new Date() };
   }
 
-  // TODO 2025-05 Is there a nice way to do this in one query instead of getting the reviews separately?
-  const reviews = await db
-    .select({
-      id: reviewsTable.id,
-      note: reviewsTable.note,
-      authorId: reviewsTable.authorId,
-      reviewedAt: reviewsTable.reviewedAt,
-      urlSource: reviewsTable.urlSource,
-      rating: reviewsTable.rating,
-      productId: reviewsTable.productId,
-      username: usersTable.name,
-    })
-    .from(reviewsTable)
-    .where(
-      and(
-        eq(reviewsTable.isCurrent, true),
-        inArray(reviewsTable.productId, productIdsOfRankings),
-      ),
-    )
-    .innerJoin(usersTable, eq(usersTable.id, reviewsTable.authorId))
-    .orderBy(desc(reviewsTable.reviewedAt))
-    .limit(numOfReviewsForAverage);
+  // Fetch reviews for the ranked products using the shared helper
+  const reviews = await createReviewsQuery({
+    productIdsFilter: productIdsOfRankings,
+    limit: numOfReviewsForAverage,
+    onlyCurrentReviews: true,
+  });
 
   const rankingsCombined = rankingsData.map((ranking) => {
     const reviewsForProduct = reviews.filter(
@@ -133,37 +117,54 @@ async function rankings(filters: FiltersRankings) {
   return await db.select().from(qRankings);
 }
 
-export function subqueryRankings(filters: FiltersRankings) {
-  // FILTERS for products only
+export function subqueryRankings(
+  filters: FiltersRankings,
+  specificProductId?: number,
+) {
+  // Initialize all filter arrays
   const sqlFiltersProducts: (SQL | undefined)[] = [];
-  if (filters.categories) {
-    sqlFiltersProducts.push(
-      inArray(productsTable.category, filters.categories),
-    );
-  } else {
-    sqlFiltersProducts.push(inArray(productsTable.category, categoriesActive));
-  }
-
-  // FILTERS for places only
   const sqlFiltersPlaces: (SQL | undefined)[] = [];
-  if (filters.cities)
-    sqlFiltersPlaces.push(inArray(placesTable.city, filters.cities));
-
-  // FILTERS that span multiple tables (products + places)
+  const sqlFiltersReviews: SQL[] = [];
   const sqlFiltersCrossTable: (SQL | undefined)[] = [];
-  if (!!filters.q && filters.q.length >= minCharsSearch) {
-    const searchConditions = conditionsSearchProducts(filters.q);
-    if (searchConditions) sqlFiltersCrossTable.push(...searchConditions);
-  }
 
-  // FILTERS for reviews
-  const filtersForReviewsSQL: SQL[] = [];
-  if (filters.critics)
-    filtersForReviewsSQL.push(inArray(usersTable.name, filters.critics));
-  if (filters["rating-min"])
-    filtersForReviewsSQL.push(gte(reviewsTable.rating, filters["rating-min"]));
-  if (filters["rating-max"])
-    filtersForReviewsSQL.push(lte(reviewsTable.rating, filters["rating-max"]));
+  if (specificProductId !== undefined) {
+    // SPECIFIC PRODUCT CASE: Only filter by the product ID, ignore all other filters
+    sqlFiltersProducts.push(eq(productsTable.id, specificProductId));
+    // All other filter arrays remain empty for specific product queries
+  } else {
+    // GENERAL FILTERING CASE: Apply all the normal filters
+
+    // FILTERS for products only
+    if (filters.categories) {
+      // custom condition if categories are given because we use the active categories as default (instead of ALL categories)
+      sqlFiltersProducts.push(
+        inArray(productsTable.category, filters.categories),
+      );
+    } else {
+      sqlFiltersProducts.push(
+        inArray(productsTable.category, categoriesActive),
+      );
+    }
+
+    // FILTERS for places only
+    if (filters.cities) {
+      sqlFiltersPlaces.push(inArray(placesTable.city, filters.cities));
+    }
+
+    // FILTERS that span multiple tables (products + places)
+    if (!!filters.q && filters.q.length >= minCharsSearch) {
+      const searchConditions = conditionsSearchProducts(filters.q);
+      if (searchConditions) sqlFiltersCrossTable.push(...searchConditions);
+    }
+
+    // FILTERS for reviews
+    if (filters.critics)
+      sqlFiltersReviews.push(inArray(usersTable.name, filters.critics));
+    if (filters["rating-min"])
+      sqlFiltersReviews.push(gte(reviewsTable.rating, filters["rating-min"]));
+    if (filters["rating-max"])
+      sqlFiltersReviews.push(lte(reviewsTable.rating, filters["rating-max"]));
+  }
 
   /** Get filtered product IDs that match all criteria */
   const qFilteredProducts = db.$with("queryFilteredProducts").as(
@@ -206,7 +207,7 @@ export function subqueryRankings(filters: FiltersRankings) {
         qFilteredProducts,
         eq(reviewsTable.productId, qFilteredProducts.productId),
       )
-      .where(and(eq(reviewsTable.isCurrent, true), ...filtersForReviewsSQL)),
+      .where(and(eq(reviewsTable.isCurrent, true), ...sqlFiltersReviews)),
   );
 
   /** Calculate product ratings from the limited review set */
@@ -229,7 +230,7 @@ export function subqueryRankings(filters: FiltersRankings) {
       .groupBy(qReviewsWithAnalytics.productId),
   );
 
-  /** Get top 10 products by rating */
+  /** Get top products by rating - limit to 1 if specific product, 10 otherwise */
   const qTopProducts = db.$with("queryTopProducts").as(
     db
       .select({
@@ -239,8 +240,9 @@ export function subqueryRankings(filters: FiltersRankings) {
         numOfReviews: qProductRatings.numOfReviews,
       })
       .from(qProductRatings)
-      .orderBy(desc(qProductRatings.ratingAvg))
-      .limit(10),
+      // sorted by product ID as tiebreaker from same average rating
+      .orderBy(desc(qProductRatings.ratingAvg), asc(qProductRatings.productId))
+      .limit(specificProductId !== undefined ? 1 : 10),
   );
 
   // 2025-05
@@ -271,7 +273,8 @@ export function subqueryRankings(filters: FiltersRankings) {
     .from(qTopProducts)
     .innerJoin(productsTable, eq(qTopProducts.productId, productsTable.id))
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
-    .orderBy(desc(qTopProducts.ratingAvg))
+    // sorted by product ID as tiebreaker from same average rating
+    .orderBy(desc(qTopProducts.ratingAvg), asc(qTopProducts.productId))
     .as("queryRankings");
 
   return qRankings;
@@ -279,13 +282,39 @@ export function subqueryRankings(filters: FiltersRankings) {
 
 const pageSizeReviews = 20;
 
-async function reviews(page = 1, userIdFilter: string | null = null) {
-  "use cache";
-  // TODO implications of empty string cache tag?
-  cacheTag(cacheKeys.reviews, userIdFilter ? cacheKeys.user(userIdFilter) : "");
-  console.debug("🟦 QUERY reviews");
+function createReviewsQuery(options: {
+  page?: number;
+  userIdFilter?: string | null;
+  productIdsFilter?: number[];
+  limit?: number;
+  onlyCurrentReviews?: boolean;
+}) {
+  const {
+    page = 1,
+    userIdFilter = null,
+    productIdsFilter,
+    limit,
+    onlyCurrentReviews = true,
+  } = options;
 
-  return await db
+  const whereConditions: SQL[] = [];
+
+  // Add user filter if provided
+  if (userIdFilter !== null) {
+    whereConditions.push(eq(reviewsTable.authorId, userIdFilter));
+  }
+
+  // Add multiple products filter if provided
+  if (productIdsFilter !== undefined && productIdsFilter.length > 0) {
+    whereConditions.push(inArray(reviewsTable.productId, productIdsFilter));
+  }
+
+  // Add current reviews filter if requested (default true for rankings)
+  if (onlyCurrentReviews) {
+    whereConditions.push(eq(reviewsTable.isCurrent, true));
+  }
+
+  return db
     .select({
       id: reviewsTable.id,
       rating: reviewsTable.rating,
@@ -293,19 +322,17 @@ async function reviews(page = 1, userIdFilter: string | null = null) {
       createdAt: reviewsTable.createdAt,
       updatedAt: reviewsTable.updatedAt,
       urlSource: reviewsTable.urlSource,
+      productId: reviewsTable.productId,
       productName: productsTable.name,
       placeName: placesTable.name,
       username: usersTable.name,
       city: placesTable.city,
       reviewedAt: reviewsTable.reviewedAt,
       isCurrent: reviewsTable.isCurrent,
+      authorId: reviewsTable.authorId,
     })
     .from(reviewsTable)
-    .where(
-      userIdFilter === null
-        ? undefined
-        : eq(reviewsTable.authorId, userIdFilter),
-    )
+    .where(and(...whereConditions))
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
@@ -315,8 +342,25 @@ async function reviews(page = 1, userIdFilter: string | null = null) {
       // order by ID for pagination
       asc(reviewsTable.id),
     )
-    .limit(pageSizeReviews)
-    .offset((page - 1) * pageSizeReviews);
+    .limit(limit || pageSizeReviews)
+    .offset(limit ? 0 : (page - 1) * pageSizeReviews);
+}
+
+async function reviews(page = 1, userIdFilter: string | null = null) {
+  "use cache";
+  cacheTag(
+    cacheKeys.reviews,
+    ...(userIdFilter ? [cacheKeys.user(userIdFilter)] : []),
+  );
+  console.debug("🟦 QUERY reviews");
+
+  return await createReviewsQuery({
+    page,
+    userIdFilter,
+    // When fetching reviews for a specific user, show ALL their reviews (not just current)
+    // When fetching general reviews, only show current reviews
+    onlyCurrentReviews: userIdFilter === null,
+  });
 }
 export type ReviewQuery = Awaited<ReturnType<typeof reviews>>[number];
 
@@ -366,9 +410,45 @@ async function userForId(userId: string) {
   return userForQuery[0];
 }
 
+async function rankingForProductId(productId: number) {
+  "use cache";
+  cacheTag(cacheKeys.rankings, cacheKeys.reviews, cacheKeys.ranking(productId));
+  console.debug("🟦 QUERY rankingForProductId");
+
+  // Create minimal filters and pass the specific product ID
+  const filters: FiltersRankings = {
+    categories: null,
+    cities: null,
+    critics: null,
+    "rating-min": null,
+    "rating-max": null,
+    q: null,
+  };
+
+  const qRankings = subqueryRankings(filters, productId);
+  const rankingsData = await db.select().from(qRankings);
+
+  if (rankingsData.length === 0 || !rankingsData[0]) {
+    throw new Error("No ranking data found for product ID: " + productId);
+  }
+
+  const ranking = rankingsData[0];
+
+  const reviews = await createReviewsQuery({
+    productIdsFilter: [productId],
+    limit: numOfReviewsForAverage,
+  });
+
+  return {
+    ...ranking,
+    reviews: reviews,
+  };
+}
+
 export const queries = {
   rankings,
   rankingsWithReviews,
+  rankingForProductId,
   reviews,
   critics,
   searchPlaces,

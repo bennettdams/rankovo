@@ -41,7 +41,7 @@ export default function RootLayout({
         </main>
 
         <footer className="py-8 text-center">
-          <p className="text-gray-500 text-sm">
+          <p className="text-sm">
             <span>© 2025 Rankovo &mdash; Built by </span>
 
             <a

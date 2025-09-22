@@ -84,8 +84,8 @@ function RankingsTableRow({
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <Box className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md p-0 hover:bg-secondary hover:text-secondary-fg">
-        <div className="sticky left-0 z-10 bg-white/70 group-hover/ranking-row:bg-secondary group-hover/ranking-row:text-secondary-fg">
+      <Box className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md p-0 transition-colors hover:bg-secondary hover:text-secondary-fg">
+        <div className="sticky left-0 z-10 bg-white transition-colors group-hover/ranking-row:bg-secondary group-hover/ranking-row:text-secondary-fg">
           <RankingPositionMarker position={position} />
         </div>
         <div className="w-12 p-0">
