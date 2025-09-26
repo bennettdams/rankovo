@@ -95,6 +95,7 @@ export function CreateReviewForm({
           productId={selectedProductId}
           onSuccess={() => setSelectedProductId(null)}
           showSuccessMessage={true}
+          layout="grid"
         />
       </StepSection>
     </div>
