@@ -4,7 +4,7 @@ export function ProductDescriptionRow({
   productName,
   placeName,
   city,
-  showBold = false,
+  showBold,
 }: {
   productName: string | null;
   placeName: string | null;

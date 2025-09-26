@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "prettier . --write",
     "tsc": "tsc --pretty --noEmit",
-    "check": "npm run lint && npm run tc",
+    "check": "bun run lint && bun run tsc",
     "check-updates": "npx npm-check-updates -u",
     "upgrade-nextjs": "npx @next/codemod@canary upgrade latest",
     "//// DATABASE": "/////////////////////////",
