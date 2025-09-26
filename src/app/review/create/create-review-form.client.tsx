@@ -1,32 +1,12 @@
 "use client";
 
-import { FieldError, Fieldset } from "@/components/form";
-import { NumberFormatted } from "@/components/number-formatted";
-import { Slider } from "@/components/slider";
-import { StarsForRating } from "@/components/stars-for-rating";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ReviewForm } from "@/components/review-form.client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  actionCreateReview,
-  type ProductCreatedByAction,
-  type ReviewCreate,
-} from "@/data/actions";
+import { type ProductCreatedByAction } from "@/data/actions";
 import type { PlaceSearchQuery, RankingQuery } from "@/data/queries";
-import { ratingHighest, ratingLowest, ratingMiddle } from "@/data/static";
-import { schemaCreateReview } from "@/db/db-schema";
-import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
-import {
-  type FormConfig,
-  type FormState,
-  prepareFormState,
-} from "@/lib/form-utils";
 import { cn } from "@/lib/utils";
-import { FilePlus, Save, Search } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { useActionState, useCallback, useState } from "react";
+import { FilePlus, Search } from "lucide-react";
+import { useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
@@ -36,50 +16,10 @@ export const searchParamKeysCreateReview = {
   "place-name": "place-name",
 } satisfies SearchParamsCreateReview;
 
-const formKeys = {
-  productId: "productId",
-  note: "note",
-  rating: "rating",
-  reviewedAt: "reviewedAt",
-  urlSource: "urlSource",
-} satisfies Record<keyof typeof formConfig, string>;
-
-const formConfig = {
-  productId: "number",
-  note: "string",
-  rating: "number",
-  urlSource: "string",
-  reviewedAt: "date",
-} satisfies FormConfig<ReviewCreate>;
-
-export type FormStateCreateReview = FormState<typeof formConfig>;
-
 const tabs = {
   search: "search",
   create: "create",
 };
-
-async function createReview(_: unknown, formData: FormData) {
-  const formState = prepareFormState(formConfig, formData);
-
-  const {
-    success,
-    error,
-    data: reviewParsed,
-  } = schemaCreateReview
-    .omit({ authorId: true, isCurrent: true })
-    .safeParse(formState);
-
-  if (!success) {
-    return {
-      status: "ERROR",
-      formState,
-      errors: error.flatten().fieldErrors,
-    } satisfies ActionStateError;
-  }
-
-  return actionCreateReview(formState, reviewParsed);
-}
 
 export function CreateReviewForm({
   productsForSearch,
@@ -88,35 +28,15 @@ export function CreateReviewForm({
   productsForSearch: RankingQuery[];
   placesForSearch: PlaceSearchQuery[];
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const [state, formAction, isPendingAction] = useActionState(
-    withCallbacks(createReview, {
-      onSuccess: () => {
-        setSelectedProductId(null);
-        setRatingSlider(null);
-        // reset search params
-        router.push(pathname, { scroll: false });
-      },
-    }),
-    null,
-  );
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null,
   );
   const [tabActive, setTabActive] = useState<string>(tabs.search);
-  const [ratingSlider, setRatingSlider] = useState<number | null>(
-    state?.formState?.rating ?? null,
-  );
 
-  const handleProductCreation = useCallback(
-    (productCreated: ProductCreatedByAction) => {
-      setSelectedProductId(productCreated.id);
-      setTabActive(tabs.search);
-    },
-    [],
-  );
+  function handleProductCreation(productCreated: ProductCreatedByAction) {
+    setSelectedProductId(productCreated.id);
+    setTabActive(tabs.search);
+  }
 
   return (
     <div className="space-y-20">
@@ -162,12 +82,6 @@ export function CreateReviewForm({
             />
           </TabsContent>
         </Tabs>
-
-        <FieldError
-          errorMsg={
-            !state?.errors?.productId ? undefined : "Please select a product"
-          }
-        />
       </StepSection>
 
       {/* Step 2: Review Details Card */}
@@ -176,119 +90,13 @@ export function CreateReviewForm({
         title="Add your verdict"
         description="Rate the product and share your thoughts"
       >
-        <form action={formAction} className="space-y-6" noValidate>
-          <Fieldset className="hidden">
-            <Label htmlFor={formKeys.productId}>Product ID</Label>
-            <Input
-              name={formKeys.productId}
-              type="hidden"
-              defaultValue={selectedProductId ?? undefined}
-            />
-            <FieldError errorMsg={state?.errors?.productId} />
-          </Fieldset>
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Fieldset className="w-full">
-              <Label
-                htmlFor={formKeys.rating}
-                className="text-base font-medium"
-              >
-                Rating
-              </Label>
-
-              <div className="flex flex-col items-center space-y-4">
-                <div className="text-2xl font-semibold">
-                  {ratingSlider !== null ? (
-                    <NumberFormatted num={ratingSlider ?? 0} min={1} max={1} />
-                  ) : (
-                    "—"
-                  )}
-                </div>
-
-                <StarsForRating
-                  rating={ratingSlider ?? ratingMiddle}
-                  size="large"
-                  onMouseDown={(ratingClicked) =>
-                    setRatingSlider(ratingClicked)
-                  }
-                />
-
-                <div className="w-full max-w-xs">
-                  <Slider
-                    min={ratingLowest}
-                    max={ratingHighest}
-                    step={0.1}
-                    value={!ratingSlider ? undefined : [ratingSlider]}
-                    onValueChange={(value) => {
-                      const newRating = value[0];
-                      if (newRating !== undefined) {
-                        setRatingSlider(newRating);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-
-              <Input
-                name={formKeys.rating}
-                type="hidden"
-                value={ratingSlider ?? ""}
-                readOnly
-              />
-              <FieldError errorMsg={state?.errors?.rating} />
-            </Fieldset>
-
-            <Fieldset className="w-full">
-              <Label
-                htmlFor={formKeys.urlSource}
-                className="text-base font-medium"
-              >
-                URL source
-              </Label>
-              <Input
-                name={formKeys.urlSource}
-                placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                defaultValue={state?.formState?.urlSource ?? undefined}
-                className="w-full"
-              />
-              <FieldError errorMsg={state?.errors?.urlSource} />
-            </Fieldset>
-          </div>
-
-          <Fieldset className="w-full">
-            <Label htmlFor={formKeys.note} className="text-base font-medium">
-              Note
-            </Label>
-            <Textarea
-              name={formKeys.note}
-              placeholder="Want to note something?"
-              defaultValue={state?.formState?.note ?? undefined}
-              className="min-h-[120px] w-full resize-none"
-            />
-            <FieldError errorMsg={state?.errors?.note} />
-          </Fieldset>
-
-          <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
-            <Button
-              className="w-full px-8 py-3 text-base font-medium shadow-lg sm:w-auto"
-              type="submit"
-              disabled={isPendingAction}
-              size="lg"
-            >
-              <Save className="mr-2 size-5" />
-              {isPendingAction ? "Saving review..." : "Save review"}
-            </Button>
-
-            {state?.status === "SUCCESS" && (
-              <p
-                aria-live="polite"
-                className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
-              >
-                Review saved successfully!
-              </p>
-            )}
-          </div>
-        </form>
+        <ReviewForm
+          initialValues={null}
+          productId={selectedProductId}
+          onSuccess={() => setSelectedProductId(null)}
+          showSuccessMessage={true}
+          layout="grid"
+        />
       </StepSection>
     </div>
   );

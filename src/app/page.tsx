@@ -1,6 +1,7 @@
 import { Box } from "@/components/box";
 import { IconRankovo } from "@/components/icons";
 import { NumberFormatted } from "@/components/number-formatted";
+import { ProductDescriptionRow } from "@/components/product-description-row";
 import { RankingDrawer } from "@/components/ranking-drawer";
 import { RankingPositionMarker } from "@/components/ranking-position-marker";
 import { RankingFilters } from "@/components/rankings-filters";
@@ -23,7 +24,6 @@ import {
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
 } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -356,26 +356,12 @@ function RankingCardRow({
         />
       </div>
 
-      <div className="flex flex-col overflow-hidden text-start">
-        <p className={cn("truncate text-lg", position === 1 && "font-bold")}>
-          {ranking?.productName ?? "-"}
-        </p>
-
-        <p className="text-secondary group-hover/ranking-card-row:text-secondary-fg">
-          {ranking?.placeName && (
-            <>
-              <span>{ranking.placeName}</span>
-
-              {ranking.city && (
-                <>
-                  <span className="ml-2">|</span>
-                  <span className="ml-2">{ranking.city}</span>
-                </>
-              )}
-            </>
-          )}
-        </p>
-      </div>
+      <ProductDescriptionRow
+        productName={ranking?.productName ?? null}
+        placeName={ranking?.placeName ?? null}
+        city={ranking?.city ?? null}
+        showBold={position === 1}
+      />
     </div>
   );
 }

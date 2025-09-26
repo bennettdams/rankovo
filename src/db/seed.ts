@@ -1739,6 +1739,75 @@ async function createReviewsReal() {
     productId: product.id,
     urlSource: "https://www.youtube.com/watch?v=CUBIVLhqxpA",
   });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Papa Johns",
+    city: null,
+  });
+
+  product = await createProduct({
+    name: "Pizzabrötchen Cheese Rolls",
+    category: "pizza",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-02-27"),
+    rating: 8.8,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=GGKdSTr-lww",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "L'Antica Pizzeria da Michele",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Pizza Margherita",
+    category: "pizza",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-12-22"),
+    rating: 9.1,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=fek3lr4Pnsc",
+  });
+
+  // ###############
+
+  place = await createPlace({
+    name: "Spezzagrano",
+    city: "Hamburg",
+  });
+
+  product = await createProduct({
+    name: "Pizza Margherita",
+    category: "pizza",
+    placeId: place.id,
+    note: null,
+  });
+
+  await createReview({
+    note: null,
+    reviewedAt: new Date("2024-12-22"),
+    rating: 9.3,
+    authorId: userIdHolle,
+    productId: product.id,
+    urlSource: "https://www.youtube.com/watch?v=fek3lr4Pnsc",
+  });
 }
 
 async function createProducts() {

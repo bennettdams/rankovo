@@ -352,7 +352,7 @@ async function reviews(page = 1, userIdFilter: string | null = null) {
     cacheKeys.reviews,
     ...(userIdFilter ? [cacheKeys.user(userIdFilter)] : []),
   );
-  console.debug("🟦 QUERY reviews");
+  console.debug(`🟦 QUERY reviews | User ID: ${userIdFilter}`);
 
   return await createReviewsQuery({
     page,
@@ -379,7 +379,7 @@ export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
 async function searchPlaces(placeName: string) {
   "use cache";
   cacheTag(cacheKeys.places);
-  console.debug("🟦 QUERY searchPlace", " place: ", placeName);
+  console.debug(`🟦 QUERY searchPlaces | Place: ${placeName}`);
 
   const filtersSQL: SQL[] = [];
   if (!!placeName && placeName.length >= minCharsSearch)
@@ -396,7 +396,7 @@ export type PlaceSearchQuery = Awaited<ReturnType<typeof searchPlaces>>[number];
 async function userForId(userId: string) {
   "use cache";
   cacheTag(cacheKeys.user(userId));
-  console.debug("🟦 QUERY userForId", " userId: ", userId);
+  console.debug(`🟦 QUERY userForId | User ID: ${userId}`);
 
   const userForQuery = await db
     .select()
@@ -413,7 +413,7 @@ async function userForId(userId: string) {
 async function rankingForProductId(productId: number) {
   "use cache";
   cacheTag(cacheKeys.rankings, cacheKeys.reviews, cacheKeys.ranking(productId));
-  console.debug("🟦 QUERY rankingForProductId");
+  console.debug(`🟦 QUERY rankingForProductId | Product ${productId}`);
 
   // Create minimal filters and pass the specific product ID
   const filters: FiltersRankings = {
