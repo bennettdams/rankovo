@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier . --write",
-    "tc": "tsc --pretty --noEmit",
+    "tsc": "tsc --pretty --noEmit",
     "check": "npm run lint && npm run tc",
     "check-updates": "npx npm-check-updates -u",
     "upgrade-nextjs": "npx @next/codemod@canary upgrade latest",

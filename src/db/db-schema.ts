@@ -85,7 +85,7 @@ export const schemaUpdateReview = createUpdateSchema(reviewsTable, {
   createdAt: true,
   updatedAt: true,
 });
-export type ReviewUpdate = z.infer<typeof schemaUpdateReview>;
+export type ReviewUpdateDb = z.infer<typeof schemaUpdateReview>;
 
 export const placesTable = pgTable("places", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

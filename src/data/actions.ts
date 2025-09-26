@@ -4,8 +4,8 @@ import type {
   FormStateCreatePlace,
   FormStateCreateProduct,
 } from "@/app/review/create/create-product-form.client";
-import type { FormStateCreateReview } from "@/app/review/create/create-review-form.client";
 import { type FormStateChangeUsername } from "@/app/welcome/form-username-change";
+import type { FormStateCreateReview } from "@/components/review-form.client";
 import {
   lower,
   type PlaceCreateDb,
@@ -15,7 +15,7 @@ import {
   type Review,
   type ReviewCreateDb,
   reviewsTable,
-  type ReviewUpdate,
+  type ReviewUpdateDb,
   schemaCreatePlace,
   schemaCreateProduct,
   schemaCreateReview,
@@ -154,7 +154,7 @@ export async function actionCreateReview(
 
 export async function actionUpdateReview(
   id: Review["id"],
-  reviewToUpdate: ReviewUpdate,
+  reviewToUpdate: ReviewUpdateDb,
 ) {
   console.debug("🟦 ACTION update review");
 
