@@ -23,7 +23,7 @@ export default async function PageUser({
         <div>
           <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
         </div>
-        <div className="mt-4 flex flex-row justify-between">
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div>
             <Label>Number of reviews</Label>
             <p className="text-xl">{reviews.length}</p>
