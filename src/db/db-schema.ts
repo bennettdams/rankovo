@@ -59,13 +59,14 @@ export type Review = typeof reviewsTable.$inferSelect;
 
 const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
 export const schemaRating = z
-  .number({ message: messageRating })
+  .number({ error: messageRating })
   .min(ratingLowest, messageRating)
   .max(ratingHighest, messageRating);
 
-const schemaUrl = z
-  .string()
-  .url({ message: "Please enter a valid URL (starts with https)" });
+const schemaUrl = z.url({
+  error: "Please enter a valid URL (starts with 'https')",
+  protocol: /^https$/,
+});
 
 export const schemaCreateReview = createInsertSchema(reviewsTable, {
   rating: schemaRating,
@@ -119,7 +120,7 @@ export const productsTable = pgTable(
 export const schemaCategory = z.enum(categories, {
   message: "Please pick a category",
 });
-const schemaProductName = z.string({ message: "Required" }).min(2).max(255);
+const schemaProductName = z.string({ error: "Required" }).min(2).max(255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,
@@ -208,8 +209,8 @@ export type UserCreate = typeof usersTable.$inferInsert;
 export const schemaUsername = z
   .string()
   .trim()
-  .min(2, { message: "Between 2 and 30 characters" })
-  .max(30, { message: "Between 2 and 30 characters" });
+  .min(2, { error: "Between 2 and 30 characters" })
+  .max(30, { error: "Between 2 and 30 characters" });
 
 export const schemaUpdateUsername = createUpdateSchema(usersTable, {
   name: schemaUsername,

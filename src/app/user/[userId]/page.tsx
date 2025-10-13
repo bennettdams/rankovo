@@ -11,8 +11,10 @@ export default async function PageUser({
 }) {
   const { userId } = await params;
 
-  const user = await queries.userForId(userId);
-  const reviews = await queries.reviews(1, userId);
+  const [user, reviews] = await Promise.all([
+    queries.userForId(userId),
+    queries.reviews(1, userId),
+  ]);
 
   return (
     <div className="pt-20">
@@ -23,7 +25,7 @@ export default async function PageUser({
         <div>
           <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
         </div>
-        <div className="mt-4 flex flex-row justify-between">
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div>
             <Label>Number of reviews</Label>
             <p className="text-xl">{reviews.length}</p>
