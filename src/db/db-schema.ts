@@ -64,7 +64,8 @@ export const schemaRating = z
   .max(ratingHighest, messageRating);
 
 const schemaUrl = z.url({
-  error: "Please enter a valid URL (starts with https)",
+  error: "Please enter a valid URL (starts with 'https')",
+  protocol: /^https$/,
 });
 
 export const schemaCreateReview = createInsertSchema(reviewsTable, {

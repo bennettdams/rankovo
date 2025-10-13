@@ -11,8 +11,10 @@ export default async function PageUser({
 }) {
   const { userId } = await params;
 
-  const user = await queries.userForId(userId);
-  const reviews = await queries.reviews(1, userId);
+  const [user, reviews] = await Promise.all([
+    queries.userForId(userId),
+    queries.reviews(1, userId),
+  ]);
 
   return (
     <div className="pt-20">
