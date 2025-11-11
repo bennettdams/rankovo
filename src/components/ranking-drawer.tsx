@@ -1,7 +1,6 @@
 import type { RankingWithReviewsQuery } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
@@ -19,6 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export function RankingDrawer({
   ratingAvg,
