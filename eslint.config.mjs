@@ -1,41 +1,51 @@
-import { fixupConfigRules } from "@eslint/compat";
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
-import reactCompiler from "eslint-plugin-react-compiler";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import eslint from "@eslint/js";
+import tsParser from "@typescript-eslint/parser";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import { defineConfig, globalIgnores } from "eslint/config";
+import tsEslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-// eslint-disable-next-line import/no-anonymous-default-export
-export default [
+const eslintConfig = defineConfig([
+  // Needed for "@typescript-eslint/no-unnecessary-condition"
   {
-    ignores: ["node_modules/**", ".next/**", "next-env.d.ts"],
-  },
-  ...fixupConfigRules(
-    compat.extends(
-      "next/core-web-vitals",
-      "next/typescript",
-      "plugin:react/recommended",
-      "plugin:react-hooks/recommended-legacy",
-      "prettier",
-    ),
-  ),
-  {
-    plugins: {
-      "react-compiler": reactCompiler,
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
+  },
 
+  ...nextVitals,
+  ...nextTs,
+  eslint.configs.recommended,
+  tsEslint.configs.recommended,
+  eslintConfigPrettier,
+
+  {
     rules: {
+      "@typescript-eslint/no-unnecessary-condition": "error",
       "@typescript-eslint/no-unused-vars": "warn",
-      "react-compiler/react-compiler": "error",
-      "react/react-in-jsx-scope": "off",
+
+      "no-console": [
+        "warn",
+        {
+          allow: ["info", "error", "debug"],
+        },
+      ],
     },
   },
-];
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "node_modules/**",
+    "global.d.ts",
+  ]),
+]);
+
+export default eslintConfig;

@@ -19,7 +19,7 @@ function logWithTimestamp(
 ): void {
   const timestamp = new Date().toISOString();
   const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
-  console.log(`${prefix} [${timestamp}] ${message}`);
+  console.info(`${prefix} [${timestamp}] ${message}`);
 }
 
 async function validateBackupFile(filePath: string): Promise<boolean> {

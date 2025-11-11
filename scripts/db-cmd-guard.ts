@@ -27,7 +27,7 @@ async function promptForConfirmation(): Promise<boolean> {
 function executeCommand(command: string, args: string[] = []): Promise<number> {
   return new Promise((resolve, reject) => {
     const fullCommand = `${command} ${args.join(" ")}`.trim();
-    console.log(`\n🚀 Executing: ${fullCommand}`);
+    console.info(`\n🚀 Executing: ${fullCommand}`);
 
     const child = spawn(fullCommand, {
       stdio: "inherit",
@@ -50,32 +50,32 @@ async function main() {
 
   if (!command) {
     console.error("❌ Error: Please provide a command to execute");
-    console.log("Usage: bun run db-wrapper <command> [args...]");
+    console.info("Usage: bun run db-wrapper <command> [args...]");
     process.exit(1);
   }
 
   const databaseURL = process.env.DATABASE_URL;
   if (!databaseURL) {
-    console.log("\n❌ No database URL detected.");
+    console.info("\n❌ No database URL detected.");
     process.exit(0);
   }
 
   const isProduction =
     databaseURL !== "postgresql://ben:password@localhost:5432/rankovo-dev";
 
-  console.log(`📝 Command: ${command}`);
+  console.info(`📝 Command: ${command}`);
 
   if (isProduction) {
-    console.log("\n🔴 PRODUCTION ENVIRONMENT DETECTED 🔴");
+    console.info("\n🔴 PRODUCTION ENVIRONMENT DETECTED 🔴");
 
     const confirmed = await promptForConfirmation();
 
     if (!confirmed) {
-      console.log("\n❌ Operation cancelled by user");
+      console.info("\n❌ Operation cancelled by user");
       process.exit(0);
     }
 
-    console.log("\n✅ Confirmed. Proceeding with command execution...");
+    console.info("\n✅ Confirmed. Proceeding with command execution...");
   }
 
   try {

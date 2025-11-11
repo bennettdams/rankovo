@@ -202,10 +202,12 @@ async function createReviewsReal() {
   }
 
   async function createReview(review: Omit<ReviewCreateDb, "isCurrent">) {
-    const reviewCreated = await db
-      .insert(reviewsTable)
-      .values({ ...review, isCurrent: true })
-      .returning();
+    const reviewCreated = (
+      await db
+        .insert(reviewsTable)
+        .values({ ...review, isCurrent: true })
+        .returning()
+    ).at(0);
 
     if (!reviewCreated) throw new Error("Review not created");
 

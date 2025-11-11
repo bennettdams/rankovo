@@ -1,7 +1,6 @@
 import type { RankingWithReviewsQuery } from "@/data/queries";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { DateTime } from "./date-time";
@@ -19,6 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export function RankingDrawer({
   ratingAvg,
@@ -78,12 +78,7 @@ export function RankingDrawer({
               </div>
 
               <div
-                // TODO remove null check when all reviews have a date
-                title={
-                  !lastReviewedAt
-                    ? undefined
-                    : `Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`
-                }
+                title={`Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`}
                 className="flex flex-col items-center gap-y-2 text-center md:pr-10"
               >
                 <p className="text-center text-3xl md:text-5xl">

@@ -122,12 +122,7 @@ function RankingsTableRow({
         </div>
         {/* Last cell should have some padding to give breathing room when scrolling horizontally */}
         <div className="pr-10">
-          {/* TODO remove null check when all reviews have a date */}
-          {!lastReviewedAt ? (
-            "-"
-          ) : (
-            <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
-          )}
+          <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
         </div>
       </Box>
     </RankingDrawer>

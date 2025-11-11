@@ -24,6 +24,17 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    // Added eslint and next config, because of Parsing error: was not found by the project service. Consider either including it in the tsconfig.json or including it in allowDefaultProject (see: https://github.com/typescript-eslint/typescript-eslint/issues/9753#issuecomment-2296449025)
+    "eslint.config.mjs",
+    "next.config.js",
+    "postcss.config.mjs",
+    ".next/dev/types/**/*.ts",
+    ".next\\dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
 }

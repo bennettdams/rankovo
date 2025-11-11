@@ -10,9 +10,8 @@ const nextConfig = {
       hmrRefreshes: true,
     },
   },
+  cacheComponents: true,
   experimental: {
-    ppr: true,
-    cacheComponents: true,
     authInterrupts: true,
   },
 };

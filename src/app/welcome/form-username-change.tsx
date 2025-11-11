@@ -72,9 +72,7 @@ export function FormUsernameChange() {
       <Fieldset>
         <Input
           name={formKeys.name}
-          defaultValue={
-            state?.formState?.name ?? userAuth.username ?? undefined
-          }
+          defaultValue={state?.formState.name ?? userAuth.username ?? undefined}
         />
         <FieldError errorMsg={state?.errors?.name} />
       </Fieldset>

@@ -37,7 +37,7 @@ import {
 } from "@/lib/auth-server";
 import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { cacheKeys, usernamesReserved } from "./static";
 
@@ -77,7 +77,7 @@ export async function actionCreatePlace(
   const placeCreated = placeCreatedRows[0];
   if (!placeCreated) throw new Error("No created place");
 
-  revalidateTag(cacheKeys.places);
+  updateTag(cacheKeys.places);
 
   return {
     status: "SUCCESS",
@@ -142,8 +142,8 @@ export async function actionCreateReview(
     });
   });
 
-  revalidateTag(cacheKeys.reviews);
-  revalidateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.reviews);
+  updateTag(cacheKeys.rankings);
 
   return {
     status: "SUCCESS",
@@ -181,8 +181,8 @@ export async function actionUpdateReview(
     .set({ ...reviewParsed, updatedAt: new Date() })
     .where(eq(reviewsTable.id, id));
 
-  revalidateTag(cacheKeys.reviews);
-  revalidateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.reviews);
+  updateTag(cacheKeys.rankings);
   return true;
 }
 
@@ -240,7 +240,7 @@ export async function actionCreateProduct(
   const productCreated = productCreatedRows[0];
   if (!productCreated) throw new Error("No created product");
 
-  revalidateTag(cacheKeys.products);
+  updateTag(cacheKeys.products);
 
   return {
     status: "SUCCESS",

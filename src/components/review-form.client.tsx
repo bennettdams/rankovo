@@ -98,7 +98,7 @@ export function ReviewForm({
   );
 
   const [ratingSlider, setRatingSlider] = useState<number | null>(
-    state?.formState?.rating ?? initialValues?.rating ?? null,
+    state?.formState.rating ?? initialValues?.rating ?? null,
   );
 
   return (
@@ -127,7 +127,7 @@ export function ReviewForm({
           <div className="flex flex-col items-center space-y-4">
             <div className="text-2xl font-semibold">
               {ratingSlider !== null ? (
-                <NumberFormatted num={ratingSlider ?? 0} min={1} max={1} />
+                <NumberFormatted num={ratingSlider} min={1} max={1} />
               ) : (
                 "—"
               )}
@@ -172,7 +172,7 @@ export function ReviewForm({
             name={formKeys.urlSource}
             placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             defaultValue={
-              state?.formState?.urlSource ??
+              state?.formState.urlSource ??
               initialValues?.urlSource ??
               undefined
             }
@@ -190,7 +190,7 @@ export function ReviewForm({
           name={formKeys.note}
           placeholder="Want to note something?"
           defaultValue={
-            state?.formState?.note ?? initialValues?.note ?? undefined
+            state?.formState.note ?? initialValues?.note ?? undefined
           }
           className="min-h-[120px] w-full resize-none"
         />
