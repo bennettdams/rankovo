@@ -41,10 +41,9 @@ export async function signOut() {
 }
 
 export function useUserAuth() {
-  const { data, error, isPending, isRefetching, refetch } =
-    authClient.useSession();
+  const { data, error, isPending, refetch } = authClient.useSession();
 
-  if (isPending || isRefetching) {
+  if (isPending) {
     return {
       state: "pending",
       id: null,
