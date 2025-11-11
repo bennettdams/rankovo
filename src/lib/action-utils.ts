@@ -59,7 +59,7 @@ export function withCallbacks<
     if (result.status === "SUCCESS") {
       if (result.data === null) {
         // FIXME How to make this a valid call for the given type?
-        (callbacks?.onSuccess as () => void)();
+        (callbacks?.onSuccess as (() => void) | undefined)?.();
       } else {
         callbacks?.onSuccess?.(result.data);
       }
