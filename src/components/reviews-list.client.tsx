@@ -61,7 +61,7 @@ export function EditReviewButtonWithSheet({
           </SheetHeader>
           <div className="flex flex-col gap-4 overflow-y-auto pr-2">
             <ProductDescriptionRow
-              productName={productName ?? null}
+              productName={productName}
               placeName={placeName ?? null}
               city={city ?? null}
               showBold={true}

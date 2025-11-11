@@ -17,7 +17,7 @@ function logWithTimestamp(
 ): void {
   const timestamp = new Date().toISOString();
   const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
-  console.log(`${prefix} [${timestamp}] ${message}`);
+  console.info(`${prefix} [${timestamp}] ${message}`);
 }
 
 async function runPgCommand(
@@ -196,18 +196,18 @@ async function main() {
       }
 
       backups.forEach((backup, index) => {
-        console.log(
+        console.info(
           `  ${index + 1}. ${backup.name} (${backup.size}, ${backup.date.toISOString()})`,
         );
       });
 
-      console.log("\nUsage:");
-      console.log("  bun run scripts/db-restore.ts <backup-file-path>");
-      console.log(
+      console.info("\nUsage:");
+      console.info("  bun run scripts/db-restore.ts <backup-file-path>");
+      console.info(
         "  bun run scripts/db-restore.ts latest  # restore the most recent backup",
       );
-      console.log("\nExample:");
-      console.log(`  bun run scripts/db-restore.ts "${backups[0]?.path}"`);
+      console.info("\nExample:");
+      console.info(`  bun run scripts/db-restore.ts "${backups[0]?.path}"`);
       process.exit(0);
     }
 

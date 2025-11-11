@@ -207,7 +207,7 @@ async function createReviewsReal() {
       .values({ ...review, isCurrent: true })
       .returning();
 
-    if (!reviewCreated) throw new Error("Review not created");
+    if (reviewCreated.length === 0) throw new Error("Review not created");
 
     return reviewCreated;
   }

@@ -22,7 +22,7 @@ import {
   sql,
   type SQL,
 } from "drizzle-orm";
-import { unstable_cacheTag as cacheTag } from "next/cache";
+import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { cacheKeys, categoriesActive, minCharsSearch } from "./static";
 

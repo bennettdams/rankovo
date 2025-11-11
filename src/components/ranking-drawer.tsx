@@ -78,12 +78,7 @@ export function RankingDrawer({
               </div>
 
               <div
-                // TODO remove null check when all reviews have a date
-                title={
-                  !lastReviewedAt
-                    ? undefined
-                    : `Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`
-                }
+                title={`Last reviewed at ${formatDateTime(lastReviewedAt, "YYYY-MM-DD hh:mm")}`}
                 className="flex flex-col items-center gap-y-2 text-center md:pr-10"
               >
                 <p className="text-center text-3xl md:text-5xl">
