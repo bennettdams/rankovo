@@ -55,17 +55,10 @@ async function FormWrapper({
   searchParams: Promise<unknown>;
 }) {
   const paramsParsed = schemaSearchParams.parse(await searchParams);
-  const productsForSearch =
-    !paramsParsed["product-name"] && !paramsParsed["place-name"]
-      ? []
-      : await queries.rankings({
-          categories: null,
-          cities: null,
-          critics: null,
-          "rating-min": null,
-          "rating-max": null,
-          q: paramsParsed["product-name"],
-        });
+
+  const productsForSearch = !paramsParsed["product-name"]
+    ? []
+    : await queries.searchProducts(paramsParsed["product-name"]);
 
   const placesForSearch = !paramsParsed["place-name"]
     ? []

@@ -3,7 +3,7 @@
 import { ReviewForm } from "@/components/review-form.client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProductCreatedByAction } from "@/data/actions";
-import type { PlaceSearchQuery, RankingQuery } from "@/data/queries";
+import type { PlaceSearchQuery, ProductSearchQuery } from "@/data/queries";
 import { cn } from "@/lib/utils";
 import { FilePlus, Search } from "lucide-react";
 import { useState } from "react";
@@ -25,7 +25,7 @@ export function CreateReviewForm({
   productsForSearch,
   placesForSearch,
 }: {
-  productsForSearch: RankingQuery[];
+  productsForSearch: ProductSearchQuery[];
   placesForSearch: PlaceSearchQuery[];
 }) {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(

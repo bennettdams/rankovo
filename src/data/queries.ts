@@ -128,7 +128,7 @@ export function subqueryRankings(
   const sqlFiltersCrossTable: (SQL | undefined)[] = [];
 
   if (specificProductId !== undefined) {
-    // SPECIFIC PRODUCT CASE: Only filter by the product ID, ignore all other filters
+    // SPECIFIC PRODUCT ID CASE: Only filter by the product ID, ignore all other filters
     sqlFiltersProducts.push(eq(productsTable.id, specificProductId));
     // All other filter arrays remain empty for specific product queries
   } else {
@@ -267,7 +267,9 @@ export function subqueryRankings(
       ratingAvg: qTopProducts.ratingAvg,
       lastReviewedAt: qTopProducts.lastReviewedAt,
       city: placesTable.city,
-      [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
+      [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
+        placeNameHack,
+      ),
       numOfReviews: qTopProducts.numOfReviews,
     })
     .from(qTopProducts)
@@ -393,6 +395,42 @@ async function searchPlaces(placeName: string) {
 
 export type PlaceSearchQuery = Awaited<ReturnType<typeof searchPlaces>>[number];
 
+async function searchProducts(searchQuery: string) {
+  "use cache";
+  cacheTag(cacheKeys.products);
+  console.debug(`🟦 QUERY searchProducts | Query: ${searchQuery}`);
+
+  const searchConditions = conditionsSearchProducts(searchQuery);
+
+  if (!searchConditions) {
+    return [];
+  }
+
+  const placeNameHack = "placeName";
+
+  return await db
+    .select({
+      productId: productsTable.id,
+      productName: productsTable.name,
+      productCategory: productsTable.category,
+      productNote: productsTable.note,
+      placeId: productsTable.placeId,
+      [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
+        placeNameHack,
+      ),
+      city: placesTable.city,
+    })
+    .from(productsTable)
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .where(and(...searchConditions))
+    .orderBy(asc(productsTable.name))
+    .limit(10);
+}
+
+export type ProductSearchQuery = Awaited<
+  ReturnType<typeof searchProducts>
+>[number];
+
 async function userForId(userId: string) {
   "use cache";
   cacheTag(cacheKeys.user(userId));
@@ -452,5 +490,6 @@ export const queries = {
   reviews,
   critics,
   searchPlaces,
+  searchProducts,
   userForId,
 };
