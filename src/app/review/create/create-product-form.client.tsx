@@ -221,7 +221,6 @@ export function CreateProductForm({
                   defaultValue={state?.formState.category ?? undefined}
                   options={categoriesActive}
                 />
-                <FieldError errorMsg={state?.errors?.category} />
               </Fieldset>
             </div>
           </div>
@@ -351,6 +350,10 @@ export function CreateProductForm({
             <Save className="mr-2 size-5" />
             {isPendingAction ? "Saving product..." : "Save product"}
           </Button>
+
+          {state?.errors?.category && (
+            <FieldError errorMsg={state.errors.category} />
+          )}
 
           {isPlaceSelectionNeeded && (
             <FieldError errorMsg="Either select/create a place or remove your place name search." />
