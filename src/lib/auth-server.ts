@@ -80,17 +80,23 @@ async function createTemporaryUsername(
 
 export type UserAuth = Awaited<ReturnType<typeof getUserAuthGated>>;
 
-export async function getUserAuthGated(headers: Headers) {
+export async function getUserAuth(headers: Headers) {
   const data = await auth.api.getSession({
     headers,
   });
 
-  if (!data?.user) {
+  return !data ? null : { id: data.user.id, username: data.user.name };
+}
+
+export async function getUserAuthGated(headers: Headers) {
+  const userAuth = await getUserAuth(headers);
+
+  if (!userAuth) {
     console.error("Unauthorized access attempt. Not authenticated.");
     unauthorized();
   }
 
-  return { id: data.user.id, username: data.user.name };
+  return userAuth;
 }
 
 export async function assertAuthenticated(headers: Headers) {
