@@ -96,7 +96,7 @@ export async function getUserAuthGated(headers: Headers) {
     unauthorized();
   }
 
-  return { id: userAuth.id, username: userAuth.username };
+  return userAuth;
 }
 
 export async function assertAuthenticated(headers: Headers) {
