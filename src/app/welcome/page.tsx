@@ -1,3 +1,4 @@
+import { routes } from "@/lib/navigation";
 import { FormUsernameChange } from "./form-username-change";
 
 export default async function PageWelcome() {
@@ -10,7 +11,7 @@ export default async function PageWelcome() {
       <p className="mt-10 text-2xl">Select your unique username:</p>
 
       <div className="mt-10 flex items-center justify-center">
-        <FormUsernameChange />
+        <FormUsernameChange redirectTo={routes.home} />
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ import {
   type FormConfig,
   type FormState,
 } from "@/lib/form-utils";
-import { routes } from "@/lib/navigation";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
@@ -47,7 +46,7 @@ async function changeUsername(_: unknown, formData: FormData) {
   return actionChangeUsername(formState, usernameParsed, formKeys.name);
 }
 
-export function FormUsernameChange() {
+export function FormUsernameChange({ redirectTo }: { redirectTo: string }) {
   const router = useRouter();
   const userAuth = useUserAuth();
 
@@ -57,7 +56,7 @@ export function FormUsernameChange() {
         console.debug("Username changed successfully");
 
         userAuth.refetch();
-        router.push(routes.home);
+        router.push(redirectTo);
       },
     }),
     null,

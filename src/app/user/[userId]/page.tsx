@@ -1,8 +1,12 @@
+import { FormUsernameChange } from "@/app/welcome/form-username-change";
 import { Box } from "@/components/box";
 import { DateTime } from "@/components/date-time";
 import { ReviewsList } from "@/components/reviews-list";
 import { Label } from "@/components/ui/label";
 import { queries } from "@/data/queries";
+import { getUserAuth } from "@/lib/auth-server";
+import { routes } from "@/lib/navigation";
+import { headers } from "next/headers";
 
 export default async function PageUser({
   params,
@@ -11,10 +15,13 @@ export default async function PageUser({
 }) {
   const { userId } = await params;
 
-  const [user, reviews] = await Promise.all([
+  const [user, reviews, userAuth] = await Promise.all([
     queries.userForId(userId),
     queries.reviews(1, userId),
+    getUserAuth(await headers()),
   ]);
+
+  const isOwnProfile = userAuth?.id === userId;
 
   return (
     <div className="pt-20">
@@ -43,6 +50,13 @@ export default async function PageUser({
             </p>
           </div>
         </div>
+
+        {isOwnProfile && (
+          <div className="mt-6 border-t pt-6">
+            <h2 className="mb-4 text-xl font-semibold">Change username</h2>
+            <FormUsernameChange redirectTo={routes.user(userId)} />
+          </div>
+        )}
       </Box>
 
       {/* <h1 className="mt-10 text-xl">Rankings</h1>
