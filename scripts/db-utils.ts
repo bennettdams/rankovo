@@ -1,0 +1,176 @@
+import { spawn } from "child_process";
+
+export function logWithTimestamp(
+  message: string,
+  level: "info" | "error" | "warn" = "info",
+): void {
+  const timestamp = new Date().toISOString();
+  const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
+  console.info(`${prefix} [${timestamp}] ${message}`);
+}
+
+export async function runPgCommand(
+  command: string,
+  args: string[],
+  description: string,
+  dbConfig: DbConfig,
+  timeoutMs?: number,
+): Promise<void> {
+  logWithTimestamp(`Starting: ${description}`);
+
+  return new Promise((resolve, reject) => {
+    const pgProcess = spawn(command, args, {
+      env: {
+        ...process.env,
+        PGPASSWORD: dbConfig.password,
+      },
+      stdio: ["inherit", "inherit", "pipe"],
+    });
+
+    let errorOutput = "";
+    let isTimeout = false;
+    let timeout: NodeJS.Timeout | undefined;
+
+    if (timeoutMs) {
+      timeout = setTimeout(() => {
+        isTimeout = true;
+        logWithTimestamp(
+          `Operation timed out after ${timeoutMs / 1000} seconds`,
+          "error",
+        );
+        pgProcess.kill("SIGTERM");
+        setTimeout(() => {
+          if (!pgProcess.killed) {
+            pgProcess.kill("SIGKILL");
+          }
+        }, 5000);
+        reject(
+          new Error(
+            `${description} timed out after ${timeoutMs / 1000} seconds`,
+          ),
+        );
+      }, timeoutMs);
+    }
+
+    let progressCounter = 0;
+    const progressChars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+    // Progress indicator - show spinner every 200ms
+    const progressInterval = setInterval(() => {
+      const spinner = progressChars[progressCounter % progressChars.length];
+      process.stdout.write(`\r${spinner} ${description} in progress...`);
+      progressCounter++;
+    }, 200);
+
+    const clearProgress = () => {
+      clearInterval(progressInterval);
+      process.stdout.write("\r"); // Clear the progress line
+    };
+
+    pgProcess.stderr.on("data", (data) => {
+      const output = data.toString();
+      // Capture all stderr output for potential error reporting
+      errorOutput += output;
+
+      if (output.includes("ERROR") || output.includes("FATAL")) {
+        clearProgress();
+        logWithTimestamp(`Error output: ${output.trim()}`, "error");
+      } else if (
+        output.includes("processing") ||
+        output.includes("completed")
+      ) {
+        clearProgress();
+        logWithTimestamp(output.trim());
+      }
+    });
+
+    pgProcess.on("close", (code) => {
+      clearProgress();
+      if (timeout) clearTimeout(timeout);
+
+      if (isTimeout) return;
+
+      if (code === 0) {
+        logWithTimestamp(`${description} completed successfully`);
+        resolve();
+      } else {
+        const errorMsg = `${description} failed with exit code ${code}`;
+        logWithTimestamp(errorMsg, "error");
+        if (errorOutput) {
+          logWithTimestamp(`Error details: ${errorOutput}`, "error");
+        }
+        reject(new Error(errorMsg));
+      }
+    });
+
+    pgProcess.on("error", (err) => {
+      clearProgress();
+      if (timeout) clearTimeout(timeout);
+
+      if (isTimeout) return;
+
+      const errorMsg = `Failed to start ${command}: ${err.message}`;
+      logWithTimestamp(errorMsg, "error");
+
+      if (err.message.includes("ENOENT")) {
+        logWithTimestamp(
+          "Make sure PostgreSQL client tools are installed (pg_dump, pg_restore, psql commands)",
+          "error",
+        );
+        logWithTimestamp("On macOS: brew install postgresql", "info");
+        logWithTimestamp(
+          "On Ubuntu/Debian: sudo apt-get install postgresql-client",
+          "info",
+        );
+      }
+
+      reject(new Error(errorMsg));
+    });
+  });
+}
+
+export interface DbConfig {
+  host: string;
+  port: string;
+  user: string;
+  name: string;
+  password: string;
+}
+
+/**
+ * Parse DATABASE_URL into separate components.
+ * Standardizes environment variable handling across scripts.
+ */
+export function getDbConfig(): DbConfig {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error(
+      "Missing required DATABASE_URL environment variable. " +
+        "Please set DATABASE_URL in your environment.",
+    );
+  }
+
+  try {
+    const url = new URL(databaseUrl);
+    return {
+      host: url.hostname,
+      port: url.port,
+      user: url.username,
+      name: url.pathname.slice(1), // Remove leading slash
+      password: url.password,
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to parse DATABASE_URL: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Detect if running against production database.
+ */
+export function isProductionDatabase(): boolean {
+  const databaseUrl = process.env.DATABASE_URL;
+  return databaseUrl !== "postgresql://ben:password@localhost:5432/rankovo-dev";
+}
