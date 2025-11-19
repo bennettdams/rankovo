@@ -2,7 +2,7 @@
 
 import { loadEnvConfig } from "@next/env";
 import { existsSync, readdirSync, statSync } from "fs";
-import { join } from "path";
+import { isAbsolute, join } from "path";
 import { BACKUP_DIR, createBackup } from "./db-backup";
 import {
   getDbConfig,
@@ -142,7 +142,7 @@ async function main() {
       process.exit(0);
     }
 
-    const actualBackupPath = backupFilePath.startsWith("/")
+    const actualBackupPath = isAbsolute(backupFilePath)
       ? backupFilePath
       : join(BACKUP_DIR, backupFilePath);
 
