@@ -3,34 +3,17 @@
 import { loadEnvConfig } from "@next/env";
 import { existsSync, mkdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
-import { createInterface } from "readline";
 import {
   type DbConfig,
   getDbConfig,
   isProductionDatabase,
   logWithTimestamp,
+  promptForConfirmation,
   runPgCommand,
 } from "./db-utils";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
-
-async function promptForConfirmation(
-  message: string,
-  expectedAnswer: string,
-): Promise<boolean> {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(message, (answer) => {
-      rl.close();
-      resolve(answer.trim() === expectedAnswer);
-    });
-  });
-}
 
 export const BACKUP_DIR = join(process.cwd(), "backups");
 

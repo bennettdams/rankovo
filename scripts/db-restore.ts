@@ -3,12 +3,12 @@
 import { loadEnvConfig } from "@next/env";
 import { existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
-import { createInterface } from "readline";
 import { BACKUP_DIR, createBackup } from "./db-backup";
 import {
   getDbConfig,
   isProductionDatabase,
   logWithTimestamp,
+  promptForConfirmation,
   runPgCommand,
 } from "./db-utils";
 
@@ -16,23 +16,6 @@ const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
 const RESTORE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-
-async function promptForConfirmation(
-  message: string,
-  expectedAnswer: string,
-): Promise<boolean> {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(message, (answer) => {
-      rl.close();
-      resolve(answer.trim() === expectedAnswer);
-    });
-  });
-}
 
 function listBackupFiles(): Array<{
   name: string;

@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { createInterface } from "readline";
 
 export function logWithTimestamp(
   message: string,
@@ -7,6 +8,23 @@ export function logWithTimestamp(
   const timestamp = new Date().toISOString();
   const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
   console.info(`${prefix} [${timestamp}] ${message}`);
+}
+
+export async function promptForConfirmation(
+  message: string,
+  expectedAnswer: string,
+): Promise<boolean> {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(message, (answer) => {
+      rl.close();
+      resolve(answer.trim() === expectedAnswer);
+    });
+  });
 }
 
 export async function runPgCommand(
