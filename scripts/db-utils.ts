@@ -171,17 +171,38 @@ export function getDbConfig(): DbConfig {
 
   try {
     const url = new URL(databaseUrl);
-    return {
+
+    const config = {
       host: url.hostname,
       port: url.port,
       user: url.username,
       name: url.pathname.slice(1), // Remove leading slash
       password: url.password,
     };
+
+    // Validate all required fields are present and non-empty
+    const missingFields: string[] = [];
+    if (!config.host) missingFields.push("host");
+    if (!config.port) missingFields.push("port");
+    if (!config.user) missingFields.push("user");
+    if (!config.name) missingFields.push("database name");
+    if (!config.password) missingFields.push("password");
+
+    if (missingFields.length > 0) {
+      throw new Error(
+        `DATABASE_URL is missing required fields: ${missingFields.join(", ")}. ` +
+          `Ensure your DATABASE_URL is in the format: postgresql://user:password@host:port/database`,
+      );
+    }
+
+    return config;
   } catch (error) {
-    throw new Error(
-      `Failed to parse DATABASE_URL: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    if (error instanceof TypeError && error.message.includes("Invalid URL")) {
+      throw new Error(
+        `DATABASE_URL is not a valid URL. Expected format: postgresql://user:password@host:port/database`,
+      );
+    }
+    throw error;
   }
 }
 
