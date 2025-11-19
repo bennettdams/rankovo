@@ -1,113 +1,21 @@
 #!/usr/bin/env bun
 
 import { loadEnvConfig } from "@next/env";
-import { spawn } from "child_process";
 import { existsSync, readdirSync, statSync } from "fs";
-import { join } from "path";
+import { isAbsolute, join } from "path";
+import { BACKUP_DIR, createBackup } from "./db-backup";
+import {
+  getDbConfig,
+  isProductionDatabase,
+  logWithTimestamp,
+  promptForConfirmation,
+  runPgCommand,
+} from "./db-utils";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
-const BACKUP_DIR = join(process.cwd(), "backups");
 const RESTORE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-
-function logWithTimestamp(
-  message: string,
-  level: "info" | "error" | "warn" = "info",
-): void {
-  const timestamp = new Date().toISOString();
-  const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
-  console.info(`${prefix} [${timestamp}] ${message}`);
-}
-
-async function runPgCommand(
-  command: string,
-  args: string[],
-  description: string,
-  timeoutMs: number = RESTORE_TIMEOUT_MS,
-): Promise<void> {
-  const dbPassword = process.env.DB_PASSWORD!;
-
-  logWithTimestamp(`Starting: ${description}`);
-
-  return new Promise((resolve, reject) => {
-    const pgProcess = spawn(command, args, {
-      env: {
-        ...process.env,
-        PGPASSWORD: dbPassword,
-      },
-      stdio: ["inherit", "inherit", "pipe"],
-    });
-
-    let errorOutput = "";
-    let isTimeout = false;
-
-    const timeout = setTimeout(() => {
-      isTimeout = true;
-      logWithTimestamp(
-        `Operation timed out after ${timeoutMs / 1000} seconds`,
-        "error",
-      );
-      pgProcess.kill("SIGTERM");
-      setTimeout(() => {
-        if (!pgProcess.killed) {
-          pgProcess.kill("SIGKILL");
-        }
-      }, 5000);
-      reject(
-        new Error(`${description} timed out after ${timeoutMs / 1000} seconds`),
-      );
-    }, timeoutMs);
-
-    pgProcess.stderr.on("data", (data) => {
-      const output = data.toString();
-      if (output.includes("ERROR") || output.includes("FATAL")) {
-        errorOutput += output;
-        logWithTimestamp(`Error output: ${output.trim()}`, "error");
-      } else {
-        if (output.includes("processing") || output.includes("completed")) {
-          logWithTimestamp(output.trim());
-        }
-      }
-    });
-
-    pgProcess.on("close", (code) => {
-      clearTimeout(timeout);
-
-      if (isTimeout) return;
-
-      if (code === 0) {
-        logWithTimestamp(`${description} completed successfully`);
-        resolve();
-      } else {
-        const errorMsg = `${description} failed with exit code ${code}`;
-        logWithTimestamp(errorMsg, "error");
-        if (errorOutput) {
-          logWithTimestamp(`Error details: ${errorOutput}`, "error");
-        }
-        reject(new Error(errorMsg));
-      }
-    });
-
-    pgProcess.on("error", (err) => {
-      clearTimeout(timeout);
-
-      if (isTimeout) return;
-
-      const errorMsg = `Failed to start ${command}: ${err.message}`;
-      logWithTimestamp(errorMsg, "error");
-
-      if (err.message.includes("ENOENT")) {
-        logWithTimestamp(
-          "Make sure PostgreSQL client tools are installed",
-          "error",
-        );
-      }
-
-      reject(new Error(errorMsg));
-    });
-  });
-}
 
 function listBackupFiles(): Array<{
   name: string;
@@ -140,34 +48,55 @@ function listBackupFiles(): Array<{
 }
 
 async function restoreDatabase(backupFilePath: string): Promise<void> {
-  const dbHost = process.env.DB_HOST;
-  const dbPort = process.env.DB_PORT;
-  const dbUser = process.env.DB_USER;
-  const dbName = process.env.DB_NAME;
-  const dbPassword = process.env.DB_PASSWORD;
-
-  if (!dbHost || !dbPort || !dbUser || !dbName || !dbPassword) {
-    throw new Error(
-      "Missing required database environment variables. Please set DB_HOST, DB_PORT, DB_USER, DB_NAME, and DB_PASSWORD.",
-    );
-  }
+  const dbConfig = getDbConfig();
 
   if (!existsSync(backupFilePath)) {
     throw new Error(`Backup file not found: ${backupFilePath}`);
   }
 
-  logWithTimestamp(`Target database: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
+  const hostPort = dbConfig.port
+    ? `${dbConfig.host}:${dbConfig.port}`
+    : dbConfig.host;
+  logWithTimestamp(
+    `Target database: ${dbConfig.user}@${hostPort}/${dbConfig.name}`,
+  );
   logWithTimestamp(`Restoring from: ${backupFilePath}`);
+
+  // Check if production and require confirmation
+  const isProd = isProductionDatabase(dbConfig);
+  if (isProd) {
+    logWithTimestamp("⚠️  PRODUCTION DATABASE DETECTED ⚠️", "warn");
+  }
+
+  // Always require confirmation for restore (it's destructive)
+  const expectedAnswer = isProd ? "yes-production" : "yes";
+  const confirmed = await promptForConfirmation(
+    `\n${isProd ? "🔴 PRODUCTION " : ""}Database restore will OVERWRITE all existing data!\nType "${expectedAnswer}" to confirm: `,
+    expectedAnswer,
+  );
+
+  if (!confirmed) {
+    logWithTimestamp("Restore cancelled by user", "warn");
+    process.exit(0);
+  }
+
+  // Create pre-restore backup as safety net
+  const preRestoreBackupPath = await createBackup(
+    "db-backup-pre-restore",
+    "Pre-restore safety backup",
+  );
+  logWithTimestamp(
+    `Safety backup created. You can revert using: bun run scripts/db-restore.ts "${preRestoreBackupPath}"`,
+  );
 
   const restoreArgs = [
     "--host",
-    dbHost,
-    "--port",
-    dbPort,
+    dbConfig.host,
+    ...(dbConfig.port ? ["--port", dbConfig.port] : []),
     "--username",
-    dbUser,
+    dbConfig.user,
     "--dbname",
-    dbName,
+    dbConfig.name,
     "--verbose",
     "--clean", // Drop existing objects before recreating
     "--no-owner", // Don't set ownership
@@ -177,12 +106,19 @@ async function restoreDatabase(backupFilePath: string): Promise<void> {
     backupFilePath,
   ];
 
-  await runPgCommand("pg_restore", restoreArgs, "Database restore");
+  await runPgCommand(
+    "pg_restore",
+    restoreArgs,
+    "Database restore",
+    dbConfig,
+    RESTORE_TIMEOUT_MS,
+  );
 
   logWithTimestamp("Database restore completed successfully! 🎉");
 }
 
 async function main() {
+  logWithTimestamp("🟦 Starting restore");
   try {
     const backupFilePath = process.argv[2];
 
@@ -203,30 +139,14 @@ async function main() {
 
       console.info("\nUsage:");
       console.info("  bun run scripts/db-restore.ts <backup-file-path>");
-      console.info(
-        "  bun run scripts/db-restore.ts latest  # restore the most recent backup",
-      );
       console.info("\nExample:");
       console.info(`  bun run scripts/db-restore.ts "${backups[0]?.path}"`);
       process.exit(0);
     }
 
-    let actualBackupPath: string;
-
-    if (backupFilePath === "latest") {
-      const backups = listBackupFiles();
-      if (backups.length === 0) {
-        logWithTimestamp("No backup files found", "error");
-        process.exit(1);
-      }
-      const latestBackup = backups[0]!; // Safe because we checked length above
-      actualBackupPath = latestBackup.path;
-      logWithTimestamp(`Using latest backup: ${latestBackup.name}`);
-    } else {
-      actualBackupPath = backupFilePath.startsWith("/")
-        ? backupFilePath
-        : join(BACKUP_DIR, backupFilePath);
-    }
+    const actualBackupPath = isAbsolute(backupFilePath)
+      ? backupFilePath
+      : join(BACKUP_DIR, backupFilePath);
 
     logWithTimestamp("Database restore utility starting");
     await restoreDatabase(actualBackupPath);
@@ -253,5 +173,8 @@ process.on("SIGTERM", () => {
   process.exit(1);
 });
 
-// Run the script
-main();
+// Run the script only when executed directly (not when imported)
+// @ts-expect-error - Bun-specific property
+if (import.meta.main) {
+  main();
+}

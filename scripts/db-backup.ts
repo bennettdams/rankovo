@@ -1,28 +1,31 @@
 #!/usr/bin/env bun
 
 import { loadEnvConfig } from "@next/env";
-import { spawn } from "child_process";
 import { existsSync, mkdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
+import {
+  type DbConfig,
+  getDbConfig,
+  isProductionDatabase,
+  logWithTimestamp,
+  promptForConfirmation,
+  runPgCommand,
+} from "./db-utils";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
-const BACKUP_DIR = join(process.cwd(), "backups");
-const TIMESTAMP = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-const BACKUP_FILENAME = `db-backup-${TIMESTAMP}.dump`;
-const BACKUP_PATH = join(BACKUP_DIR, BACKUP_FILENAME);
+export const BACKUP_DIR = join(process.cwd(), "backups");
 
-function logWithTimestamp(
-  message: string,
-  level: "info" | "error" | "warn" = "info",
-): void {
-  const timestamp = new Date().toISOString();
-  const prefix = level === "error" ? "❌" : level === "warn" ? "⚠️" : "ℹ️";
-  console.info(`${prefix} [${timestamp}] ${message}`);
+function generateBackupFilename(prefix: string = "db-backup"): string {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  return `${prefix}-${timestamp}.dump`;
 }
 
-async function validateBackupFile(filePath: string): Promise<boolean> {
+async function validateBackupFile(
+  filePath: string,
+  dbConfig: DbConfig,
+): Promise<boolean> {
   try {
     // Check if file exists and has reasonable size
     if (!existsSync(filePath)) {
@@ -39,7 +42,12 @@ async function validateBackupFile(filePath: string): Promise<boolean> {
     // Test if the backup file is valid using pg_restore --list
     const validateArgs = ["--list", filePath];
 
-    await runPgCommand("pg_restore", validateArgs, "Backup validation");
+    await runPgCommand(
+      "pg_restore",
+      validateArgs,
+      "Backup validation",
+      dbConfig,
+    );
     logWithTimestamp("Backup file validation successful");
     return true;
   } catch (error) {
@@ -48,102 +56,24 @@ async function validateBackupFile(filePath: string): Promise<boolean> {
   }
 }
 
-async function runPgCommand(
-  command: string,
-  args: string[],
-  description: string,
-): Promise<void> {
-  const dbPassword = process.env.DB_PASSWORD!;
-
-  logWithTimestamp(`Starting: ${description}`);
-
-  return new Promise((resolve, reject) => {
-    const pgProcess = spawn(command, args, {
-      env: {
-        ...process.env,
-        PGPASSWORD: dbPassword,
-      },
-      stdio: ["inherit", "inherit", "pipe"],
-    });
-
-    let errorOutput = "";
-    let progressCounter = 0;
-    const progressChars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-
-    // Progress indicator - show spinner every 2 seconds
-    const progressInterval = setInterval(() => {
-      const spinner = progressChars[progressCounter % progressChars.length];
-      process.stdout.write(`\r${spinner} ${description} in progress...`);
-      progressCounter++;
-    }, 200);
-
-    const clearProgress = () => {
-      clearInterval(progressInterval);
-      process.stdout.write("\r"); // Clear the progress line
-    };
-
-    pgProcess.stderr.on("data", (data) => {
-      const output = data.toString();
-      // pg_dump and pg_restore write verbose output to stderr, so we need to distinguish between errors and info
-      if (output.includes("ERROR") || output.includes("FATAL")) {
-        errorOutput += output;
-        clearProgress();
-        logWithTimestamp(`Error output: ${output.trim()}`, "error");
-      } else {
-        // Log verbose output at debug level (only show important parts)
-        if (output.includes("processing") || output.includes("completed")) {
-          clearProgress();
-          logWithTimestamp(output.trim());
-        }
-      }
-    });
-
-    pgProcess.on("close", (code) => {
-      clearProgress();
-
-      if (code === 0) {
-        logWithTimestamp(`${description} completed successfully`);
-        resolve();
-      } else {
-        const errorMsg = `${description} failed with exit code ${code}`;
-        logWithTimestamp(errorMsg, "error");
-        if (errorOutput) {
-          logWithTimestamp(`Error details: ${errorOutput}`, "error");
-        }
-        reject(new Error(errorMsg));
-      }
-    });
-
-    pgProcess.on("error", (err) => {
-      clearProgress();
-
-      const errorMsg = `Failed to start ${command}: ${err.message}`;
-      logWithTimestamp(errorMsg, "error");
-
-      if (err.message.includes("ENOENT")) {
-        logWithTimestamp(
-          "Make sure PostgreSQL client tools are installed (pg_dump, pg_restore, psql commands)",
-          "error",
-        );
-        logWithTimestamp("On macOS: brew install postgresql", "info");
-        logWithTimestamp(
-          "On Ubuntu/Debian: sudo apt-get install postgresql-client",
-          "info",
-        );
-      }
-
-      reject(new Error(errorMsg));
-    });
-  });
-}
-
-async function createBackup(): Promise<void> {
+/**
+ * Creates a database backup and returns the path to the backup file.
+ * @param filenamePrefix - Optional prefix for the backup filename (default: "db-backup")
+ * @param description - Optional description for logging (default: "Database backup")
+ * @returns Path to the created backup file
+ */
+export async function createBackup(
+  filenamePrefix: string = "db-backup",
+  description: string = "Database backup",
+): Promise<string> {
   const startTime = Date.now();
+  const backupFilename = generateBackupFilename(filenamePrefix);
+  const backupPath = join(BACKUP_DIR, backupFilename);
 
   try {
-    logWithTimestamp("Starting database backup process");
+    logWithTimestamp(`Starting ${description}`);
     logWithTimestamp(`Backup directory: ${BACKUP_DIR}`);
-    logWithTimestamp(`Backup file: ${BACKUP_FILENAME}`);
+    logWithTimestamp(`Backup file: ${backupFilename}`);
 
     // Ensure backup directory exists
     if (!existsSync(BACKUP_DIR)) {
@@ -151,31 +81,24 @@ async function createBackup(): Promise<void> {
       mkdirSync(BACKUP_DIR, { recursive: true });
     }
 
-    const dbHost = process.env.DB_HOST;
-    const dbPort = process.env.DB_PORT;
-    const dbUser = process.env.DB_USER;
-    const dbName = process.env.DB_NAME;
-    const dbPassword = process.env.DB_PASSWORD;
+    const dbConfig = getDbConfig();
 
-    if (!dbHost || !dbPort || !dbUser || !dbName || !dbPassword)
-      throw new Error(
-        "Missing required database environment variables. Please set DB_HOST, DB_PORT, DB_USER, DB_NAME, and DB_PASSWORD.",
-      );
-
+    const hostPort = dbConfig.port
+      ? `${dbConfig.host}:${dbConfig.port}`
+      : dbConfig.host;
     logWithTimestamp(
-      `Target database: ${dbUser}@${dbHost}:${dbPort}/${dbName}`,
+      `Target database: ${dbConfig.user}@${hostPort}/${dbConfig.name}`,
     );
 
     // Create the backup
     const backupArgs = [
       "--host",
-      dbHost,
-      "--port",
-      dbPort,
+      dbConfig.host,
+      ...(dbConfig.port ? ["--port", dbConfig.port] : []),
       "--username",
-      dbUser,
+      dbConfig.user,
       "--dbname",
-      dbName,
+      dbConfig.name,
       "--verbose",
       "--clean", // Include DROP statements
       "--no-owner", // Don't output commands to set ownership
@@ -184,13 +107,13 @@ async function createBackup(): Promise<void> {
       "--compress=9", // Maximum compression (1-9, 9 is best)
       "--lock-wait-timeout=30000", // Wait max 30 seconds for locks (prevents hanging)
       "--file",
-      BACKUP_PATH,
+      backupPath,
     ];
 
-    await runPgCommand("pg_dump", backupArgs, "Database backup");
+    await runPgCommand("pg_dump", backupArgs, description, dbConfig);
 
     // Validate the backup file
-    const isValid = await validateBackupFile(BACKUP_PATH);
+    const isValid = await validateBackupFile(backupPath, dbConfig);
     if (!isValid) {
       throw new Error(
         "Backup validation failed - the backup file may be corrupted",
@@ -198,32 +121,29 @@ async function createBackup(): Promise<void> {
     }
 
     const duration = Date.now() - startTime;
-    const stats = statSync(BACKUP_PATH);
+    const stats = statSync(backupPath);
     const sizeInMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-    logWithTimestamp("Backup completed successfully! 🎉");
-    logWithTimestamp(`Backup file: ${BACKUP_PATH}`);
+    logWithTimestamp(`${description} completed successfully! 🎉`);
+    logWithTimestamp(`Backup file: ${backupPath}`);
     logWithTimestamp(`File size: ${sizeInMB} MB`);
     logWithTimestamp(`Duration: ${(duration / 1000).toFixed(1)} seconds`);
 
-    logWithTimestamp("To restore this backup:");
-    logWithTimestamp(
-      `  pg_restore --host=HOST --port=PORT --username=USER --dbname=DB --clean --verbose "${BACKUP_PATH}"`,
-    );
+    return backupPath;
   } catch (error) {
     const duration = Date.now() - startTime;
     const errorMsg = error instanceof Error ? error.message : String(error);
 
     logWithTimestamp(
-      `Backup failed after ${(duration / 1000).toFixed(1)} seconds`,
+      `${description} failed after ${(duration / 1000).toFixed(1)} seconds`,
       "error",
     );
     logWithTimestamp(`Error: ${errorMsg}`, "error");
 
     // Clean up failed backup file if it exists
-    if (existsSync(BACKUP_PATH)) {
+    if (existsSync(backupPath)) {
       try {
-        unlinkSync(BACKUP_PATH);
+        unlinkSync(backupPath);
         logWithTimestamp("Cleaned up incomplete backup file");
       } catch (cleanupError) {
         logWithTimestamp(
@@ -238,12 +158,34 @@ async function createBackup(): Promise<void> {
 }
 
 async function main() {
+  logWithTimestamp("🟧 Starting backup");
   try {
     logWithTimestamp("Database backup utility starting");
 
-    await createBackup();
+    // Get and validate database config once
+    const dbConfig = getDbConfig();
+
+    // Check if production and require confirmation
+    const isProd = isProductionDatabase(dbConfig);
+    if (isProd) {
+      logWithTimestamp("⚠️  PRODUCTION DATABASE DETECTED ⚠️", "warn");
+
+      const confirmed = await promptForConfirmation(
+        '\n🔴 PRODUCTION Database backup will access production data!\nType "yes-production" to confirm: ',
+        "yes-production",
+      );
+
+      if (!confirmed) {
+        logWithTimestamp("Backup cancelled by user", "warn");
+        process.exit(0);
+      }
+    }
+
+    const backupPath = await createBackup();
 
     logWithTimestamp("Backup process completed successfully");
+    logWithTimestamp("To restore this backup:");
+    logWithTimestamp(`  bun run scripts/db-restore.ts "${backupPath}"`);
     process.exit(0);
   } catch (error) {
     logWithTimestamp("Backup process failed", "error");
@@ -278,5 +220,8 @@ process.on("unhandledRejection", (reason, promise) => {
   process.exit(1);
 });
 
-// Run the script
-main();
+// Run the script only when executed directly (not when imported)
+// @ts-expect-error - Bun-specific property
+if (import.meta.main) {
+  main();
+}

@@ -19,8 +19,8 @@
     "db:s": "bun scripts/db-cmd-guard.ts \"npx drizzle-kit studio --verbose\"",
     "db:seed": "bun scripts/db-cmd-guard.ts \"bun ./src/db/seed.ts\"",
     "db:auth-generate": "bun scripts/db-cmd-guard.ts \"npx @better-auth/cli generate --config ./src/lib/auth-server.ts\"",
-    "db:backup": "bun scripts/db-cmd-guard.ts \"bun scripts/db-backup.ts\"",
-    "db:restore": "bun scripts/db-cmd-guard.ts \"bun scripts/db-restore.ts\""
+    "db:backup": "bun scripts/db-backup.ts",
+    "db:restore": "bun scripts/db-restore.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

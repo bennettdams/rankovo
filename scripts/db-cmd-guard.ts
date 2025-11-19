@@ -2,27 +2,14 @@
 
 import { loadEnvConfig } from "@next/env";
 import { spawn } from "child_process";
-import { createInterface } from "readline";
+import {
+  getDbConfig,
+  isProductionDatabase,
+  promptForConfirmation,
+} from "./db-utils";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
-
-async function promptForConfirmation(): Promise<boolean> {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(
-      '⚠️  You are about to run a script against the PRODUCTION database!\nType "continue" to proceed: ',
-      (answer) => {
-        rl.close();
-        resolve(answer.trim().toLowerCase() === "continue");
-      },
-    );
-  });
-}
 
 function executeCommand(command: string, args: string[] = []): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -54,21 +41,29 @@ async function main() {
     process.exit(1);
   }
 
-  const databaseURL = process.env.DATABASE_URL;
-  if (!databaseURL) {
-    console.info("\n❌ No database URL detected.");
+  // Get and validate database config once
+  let dbConfig;
+  try {
+    dbConfig = getDbConfig();
+  } catch (error) {
+    console.info("\n❌ No valid database URL detected.");
+    if (error instanceof Error) {
+      console.info(error.message);
+    }
     process.exit(0);
   }
 
-  const isProduction =
-    databaseURL !== "postgresql://ben:password@localhost:5432/rankovo-dev";
+  const isProd = isProductionDatabase(dbConfig);
 
   console.info(`📝 Command: ${command}`);
 
-  if (isProduction) {
+  if (isProd) {
     console.info("\n🔴 PRODUCTION ENVIRONMENT DETECTED 🔴");
 
-    const confirmed = await promptForConfirmation();
+    const confirmed = await promptForConfirmation(
+      '\n⚠️  You are about to run a script against the PRODUCTION database!\nType "yes-production" to proceed: ',
+      "yes-production",
+    );
 
     if (!confirmed) {
       console.info("\n❌ Operation cancelled by user");
