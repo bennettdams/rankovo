@@ -149,7 +149,7 @@ export async function runPgCommand(
 
 export interface DbConfig {
   host: string;
-  port: string;
+  port: string | null;
   user: string;
   name: string;
   password: string;
@@ -174,16 +174,15 @@ export function getDbConfig(): DbConfig {
 
     const config = {
       host: url.hostname,
-      port: url.port,
+      port: url.port || null, // Port is optional
       user: url.username,
       name: url.pathname.slice(1), // Remove leading slash
       password: url.password,
     };
 
-    // Validate all required fields are present and non-empty
+    // Validate all required fields are present and non-empty (port is optional)
     const missingFields: string[] = [];
     if (!config.host) missingFields.push("host");
-    if (!config.port) missingFields.push("port");
     if (!config.user) missingFields.push("user");
     if (!config.name) missingFields.push("database name");
     if (!config.password) missingFields.push("password");
@@ -191,7 +190,7 @@ export function getDbConfig(): DbConfig {
     if (missingFields.length > 0) {
       throw new Error(
         `DATABASE_URL is missing required fields: ${missingFields.join(", ")}. ` +
-          `Ensure your DATABASE_URL is in the format: postgresql://user:password@host:port/database`,
+          `Ensure your DATABASE_URL is in the format: postgresql://user:password@host[:port]/database`,
       );
     }
 
@@ -208,8 +207,12 @@ export function getDbConfig(): DbConfig {
 
 /**
  * Detect if running against production database.
+ * Pass the validated DbConfig to avoid re-reading process.env.
  */
-export function isProductionDatabase(): boolean {
-  const databaseUrl = process.env.DATABASE_URL;
-  return databaseUrl !== "postgresql://ben:password@localhost:5432/rankovo-dev";
+export function isProductionDatabase(dbConfig: DbConfig): boolean {
+  // Reconstruct the connection string from validated config
+  const connectionString = `postgresql://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.name}`;
+  return (
+    connectionString !== "postgresql://ben:password@localhost:5432/rankovo-dev"
+  );
 }

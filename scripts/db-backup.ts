@@ -83,16 +83,18 @@ export async function createBackup(
 
     const dbConfig = getDbConfig();
 
+    const hostPort = dbConfig.port
+      ? `${dbConfig.host}:${dbConfig.port}`
+      : dbConfig.host;
     logWithTimestamp(
-      `Target database: ${dbConfig.user}@${dbConfig.host}:${dbConfig.port}/${dbConfig.name}`,
+      `Target database: ${dbConfig.user}@${hostPort}/${dbConfig.name}`,
     );
 
     // Create the backup
     const backupArgs = [
       "--host",
       dbConfig.host,
-      "--port",
-      dbConfig.port,
+      ...(dbConfig.port ? ["--port", dbConfig.port] : []),
       "--username",
       dbConfig.user,
       "--dbname",
@@ -160,8 +162,11 @@ async function main() {
   try {
     logWithTimestamp("Database backup utility starting");
 
+    // Get and validate database config once
+    const dbConfig = getDbConfig();
+
     // Check if production and require confirmation
-    const isProd = isProductionDatabase();
+    const isProd = isProductionDatabase(dbConfig);
     if (isProd) {
       logWithTimestamp("⚠️  PRODUCTION DATABASE DETECTED ⚠️", "warn");
 

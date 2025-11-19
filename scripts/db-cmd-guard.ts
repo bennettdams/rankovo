@@ -2,7 +2,11 @@
 
 import { loadEnvConfig } from "@next/env";
 import { spawn } from "child_process";
-import { isProductionDatabase, promptForConfirmation } from "./db-utils";
+import {
+  getDbConfig,
+  isProductionDatabase,
+  promptForConfirmation,
+} from "./db-utils";
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
@@ -37,13 +41,19 @@ async function main() {
     process.exit(1);
   }
 
-  const databaseURL = process.env.DATABASE_URL;
-  if (!databaseURL) {
-    console.info("\n❌ No database URL detected.");
+  // Get and validate database config once
+  let dbConfig;
+  try {
+    dbConfig = getDbConfig();
+  } catch (error) {
+    console.info("\n❌ No valid database URL detected.");
+    if (error instanceof Error) {
+      console.info(error.message);
+    }
     process.exit(0);
   }
 
-  const isProd = isProductionDatabase();
+  const isProd = isProductionDatabase(dbConfig);
 
   console.info(`📝 Command: ${command}`);
 

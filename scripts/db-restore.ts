@@ -54,13 +54,16 @@ async function restoreDatabase(backupFilePath: string): Promise<void> {
     throw new Error(`Backup file not found: ${backupFilePath}`);
   }
 
+  const hostPort = dbConfig.port
+    ? `${dbConfig.host}:${dbConfig.port}`
+    : dbConfig.host;
   logWithTimestamp(
-    `Target database: ${dbConfig.user}@${dbConfig.host}:${dbConfig.port}/${dbConfig.name}`,
+    `Target database: ${dbConfig.user}@${hostPort}/${dbConfig.name}`,
   );
   logWithTimestamp(`Restoring from: ${backupFilePath}`);
 
   // Check if production and require confirmation
-  const isProd = isProductionDatabase();
+  const isProd = isProductionDatabase(dbConfig);
   if (isProd) {
     logWithTimestamp("⚠️  PRODUCTION DATABASE DETECTED ⚠️", "warn");
   }
@@ -89,8 +92,7 @@ async function restoreDatabase(backupFilePath: string): Promise<void> {
   const restoreArgs = [
     "--host",
     dbConfig.host,
-    "--port",
-    dbConfig.port,
+    ...(dbConfig.port ? ["--port", dbConfig.port] : []),
     "--username",
     dbConfig.user,
     "--dbname",
