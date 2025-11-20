@@ -1,8 +1,12 @@
+import { assertAuthRole } from "@/data/static";
+import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 // client only because redirect after sign up (to "Welcome" page) via `newUserCallbackURL` uses relative path
 import "client-only";
+import type { auth } from "./auth-server";
 
 export const authClient = createAuthClient({
+  plugins: [inferAdditionalFields<typeof auth>()],
   fetchOptions: {
     onError: async (context) => {
       const { response } = context;
@@ -48,6 +52,7 @@ export function useUserAuth() {
       state: "pending",
       id: null,
       username: null,
+      role: null,
       refetch,
     } as const;
   } else if (error) {
@@ -56,6 +61,7 @@ export function useUserAuth() {
       state: "error",
       id: null,
       username: null,
+      role: null,
       refetch,
     } as const;
   } else if (!data) {
@@ -63,13 +69,18 @@ export function useUserAuth() {
       state: "no-data",
       id: null,
       username: null,
+      role: null,
       refetch,
     } as const;
   } else {
+    const role = data.user.role;
+    assertAuthRole(role);
+
     return {
       state: "authenticated",
       id: data.user.id,
       username: data.user.name,
+      role,
       refetch,
     } as const;
   }

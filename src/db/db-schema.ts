@@ -1,4 +1,11 @@
-import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
+import {
+  categories,
+  cities,
+  defaultRole,
+  ratingHighest,
+  ratingLowest,
+  roles,
+} from "@/data/static";
 import { sql, type SQL } from "drizzle-orm";
 import {
   type AnyPgColumn,
@@ -136,6 +143,7 @@ export type ProductCreateDb = z.infer<typeof schemaCreateProduct>;
 // #################### Auth schema generated
 // Changed:
 // - usersTable: add "users_name_unique_idx_custom" to "name" that includes a lower() function for case-insensitive uniqueness
+// - usersTable: add "role" field. This was done together with "additionalFields" in auth-server.ts
 // ####################
 export const usersTable = pgTable(
   "users",
@@ -150,6 +158,7 @@ export const usersTable = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+    role: varchar({ length: 50, enum: roles }).default(defaultRole).notNull(),
   },
   (table) => [
     uniqueIndex("users_name_unique_idx_custom").on(lower(table.name)),
@@ -214,11 +223,7 @@ export const schemaUsername = z
 
 export const schemaUpdateUsername = createUpdateSchema(usersTable, {
   name: schemaUsername,
-}).omit({
-  createdAt: true,
-  updatedAt: true,
-  email: true,
-  emailVerified: true,
-  image: true,
+}).pick({
+  name: true,
 });
 export type UserUpdate = z.infer<typeof schemaUpdateUsername>;
