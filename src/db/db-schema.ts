@@ -1,6 +1,7 @@
 import {
   categories,
   cities,
+  defaultRole,
   ratingHighest,
   ratingLowest,
   roles,
@@ -157,7 +158,7 @@ export const usersTable = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
-    role: varchar({ length: 50, enum: roles }).default("user").notNull(),
+    role: varchar({ length: 50, enum: roles }).default(defaultRole).notNull(),
   },
   (table) => [
     uniqueIndex("users_name_unique_idx_custom").on(lower(table.name)),
@@ -222,11 +223,7 @@ export const schemaUsername = z
 
 export const schemaUpdateUsername = createUpdateSchema(usersTable, {
   name: schemaUsername,
-}).omit({
-  createdAt: true,
-  updatedAt: true,
-  email: true,
-  emailVerified: true,
-  image: true,
+}).pick({
+  name: true,
 });
 export type UserUpdate = z.infer<typeof schemaUpdateUsername>;

@@ -46,12 +46,13 @@ export const cacheKeys = {
 export const roles = ["user", "admin"] as const;
 export type Role = (typeof roles)[number];
 export function assertAuthRole(role: unknown): asserts role is Role {
-  if (role !== "user" && role !== "admin") {
+  if (!roles.includes(role as Role)) {
     throw new Error(
       `Invalid role: ${role}. This indicates a data integrity issue.`,
     );
   }
 }
+export const defaultRole: Role = "user";
 
 export const cities = [
   // top by population

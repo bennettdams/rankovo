@@ -1,4 +1,4 @@
-import { assertAuthRole } from "@/data/static";
+import { assertAuthRole, defaultRole } from "@/data/static";
 import {
   accountsTable,
   sessionsTable,
@@ -40,7 +40,7 @@ export const auth = betterAuth({
       role: {
         type: "string",
         required: false,
-        defaultValue: "user",
+        defaultValue: defaultRole,
         // When input is set to false, the field will be excluded from user input, preventing users from passing a value for it.
         input: false,
       },
@@ -56,7 +56,7 @@ export const auth = betterAuth({
             data: {
               ...user,
               name: await createTemporaryUsername(user.name, 1),
-              role: "user", // Explicitly set default role
+              role: defaultRole, // Explicitly set default role
             },
           };
         },
