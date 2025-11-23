@@ -31,6 +31,7 @@ import type {
   ActionStateSuccess,
 } from "@/lib/action-utils";
 import {
+  assertAdmin,
   assertAuthenticated,
   assertUserForEntity,
   getUserAuthGated,
@@ -95,12 +96,42 @@ export async function actionCreateReview(
 ) {
   console.debug("🟦 ACTION create review");
 
-  // TODO instead we could send a dedicated form message to let the user know they need to be logged in
-  const userAuth = await getUserAuthGated(await headers());
+  const headersVar = await headers();
+  const userAuth = await getUserAuthGated(headersVar);
+
+  let authorId: string | null = null;
+
+  // Check if admin is trying to override author
+  const overwriteAuthorId = formState.overwriteAuthorId;
+
+  if (overwriteAuthorId === null) {
+    authorId = userAuth.id;
+  } else {
+    await assertAdmin(headersVar);
+
+    const res = schemaCreateReview
+      .pick({ authorId: true })
+      .safeParse({ authorId: overwriteAuthorId });
+
+    if (res.success) {
+      console.debug(
+        `Admin overriding author ID for review creation. New: ${res.data.authorId}`,
+      );
+      authorId = res.data.authorId;
+    } else {
+      return {
+        status: "ERROR",
+        formState,
+        errors: {
+          overwriteAuthorId: ["Invalid user ID"],
+        } as Partial<Record<keyof FormStateCreateReview, string[]>>,
+      } satisfies ActionStateError;
+    }
+  }
 
   const reviewToCreateFixed: ReviewCreateDb = {
     ...reviewToCreate,
-    authorId: userAuth.id,
+    authorId,
     isCurrent: true,
   };
 
@@ -119,14 +150,14 @@ export async function actionCreateReview(
   }
 
   await db.transaction(async (tx) => {
-    // Mark any existing review as not current
+    // Mark any existing review as not current for the target author
     await tx
       .update(reviewsTable)
       .set({ isCurrent: false })
       .where(
         and(
           eq(reviewsTable.productId, reviewParsed.productId),
-          eq(reviewsTable.authorId, userAuth.id),
+          eq(reviewsTable.authorId, authorId),
           eq(reviewsTable.isCurrent, true),
         ),
       );
@@ -134,7 +165,7 @@ export async function actionCreateReview(
     // Insert new review as current
     await tx.insert(reviewsTable).values({
       ...reviewParsed,
-      authorId: userAuth.id,
+      authorId,
       isCurrent: true,
       reviewedAt: new Date(),
       createdAt: new Date(),

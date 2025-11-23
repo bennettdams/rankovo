@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { actionCreateReview, type ReviewCreate } from "@/data/actions";
-import { ratingHighest, ratingLowest, ratingMiddle } from "@/data/static";
+import {
+  ratingHighest,
+  ratingLowest,
+  ratingMiddle,
+  type Role,
+  usernamesReserved,
+} from "@/data/static";
 import { schemaCreateReview } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
@@ -28,6 +34,7 @@ const formKeys = {
   rating: "rating",
   reviewedAt: "reviewedAt",
   urlSource: "urlSource",
+  overwriteAuthorId: "overwriteAuthorId",
 } satisfies Record<keyof typeof formConfig, string>;
 
 const formConfig = {
@@ -36,12 +43,22 @@ const formConfig = {
   rating: "number",
   urlSource: "string",
   reviewedAt: "date",
-} satisfies FormConfig<ReviewCreate>;
+  overwriteAuthorId: "string",
+} satisfies FormConfig<ReviewCreate & { overwriteAuthorId: string | null }>;
 
 export type FormStateCreateReview = FormState<typeof formConfig>;
 
 async function createReview(_: unknown, formData: FormData) {
-  const formState = prepareFormState(formConfig, formData);
+  const formStateRaw = prepareFormState(formConfig, formData);
+
+  const formState = {
+    ...formStateRaw,
+    // Transform empty string to null for overwriteAuthorId
+    overwriteAuthorId:
+      formStateRaw.overwriteAuthorId === ""
+        ? null
+        : formStateRaw.overwriteAuthorId,
+  };
 
   const {
     success,
@@ -68,6 +85,7 @@ export function ReviewForm({
   onSuccess,
   showSuccessMessage = true,
   layout,
+  userAuthRole,
 }: {
   productId: FormStateCreateReview["productId"];
   /** Initial form values for editing (optional) */
@@ -79,6 +97,7 @@ export function ReviewForm({
   onSuccess: () => void;
   showSuccessMessage: boolean;
   layout: "grid" | "stacked";
+  userAuthRole: Role | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -196,6 +215,38 @@ export function ReviewForm({
         />
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
+
+      {userAuthRole === "admin" && (
+        <Fieldset className="w-full">
+          <Label
+            htmlFor={formKeys.overwriteAuthorId}
+            className="text-base font-medium"
+          >
+            User ID Override (Admin)
+          </Label>
+          <Input
+            name={formKeys.overwriteAuthorId}
+            placeholder="Enter user ID to create review on their behalf"
+            defaultValue={state?.formState.overwriteAuthorId ?? undefined}
+            className="w-full"
+          />
+          <ul>
+            {usernamesReserved.map((reservedName) => (
+              <li
+                key={reservedName}
+                onClick={() => {
+                  navigator.clipboard.writeText(reservedName);
+                }}
+                className="text-sm text-secondary"
+              >
+                {reservedName}
+              </li>
+            ))}
+          </ul>
+          {/* @ts-expect-error - overwriteAuthorId is dynamically added to errors */}
+          <FieldError errorMsg={state?.errors?.overwriteAuthorId} />
+        </Fieldset>
+      )}
 
       <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
         <Button

@@ -13,7 +13,8 @@ export default async function PageUser({
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  const { userId } = await params;
+  const { userId: userIdRaw } = await params;
+  const userId = decodeURIComponent(userIdRaw);
 
   const [user, reviews, userAuth] = await Promise.all([
     queries.userForId(userId),

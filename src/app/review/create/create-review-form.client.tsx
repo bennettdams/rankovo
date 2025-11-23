@@ -4,9 +4,10 @@ import { ReviewForm } from "@/components/review-form.client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProductCreatedByAction } from "@/data/actions";
 import type { PlaceSearchQuery, ProductSearchQuery } from "@/data/queries";
+import { useUserAuth } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { FilePlus, Search } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { CreateProductForm } from "./create-product-form.client";
 import type { SearchParamsCreateReview } from "./page";
 import { ProductSearch } from "./product-search.client";
@@ -32,6 +33,8 @@ export function CreateReviewForm({
     null,
   );
   const [tabActive, setTabActive] = useState<string>(tabs.search);
+
+  const userAuth = useUserAuth();
 
   function handleProductCreation(productCreated: ProductCreatedByAction) {
     setSelectedProductId(productCreated.id);
@@ -64,15 +67,17 @@ export function CreateReviewForm({
           </TabsList>
 
           <TabsContent value="search" className="mt-0">
-            <ProductSearch
-              productsForSearch={productsForSearch}
-              selectedProductId={selectedProductId}
-              onProductSelect={(productIdSelected) =>
-                setSelectedProductId((prev) =>
-                  prev === productIdSelected ? null : productIdSelected,
-                )
-              }
-            />
+            <Suspense>
+              <ProductSearch
+                productsForSearch={productsForSearch}
+                selectedProductId={selectedProductId}
+                onProductSelect={(productIdSelected) =>
+                  setSelectedProductId((prev) =>
+                    prev === productIdSelected ? null : productIdSelected,
+                  )
+                }
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="create" className="mt-0">
@@ -96,6 +101,9 @@ export function CreateReviewForm({
           onSuccess={() => setSelectedProductId(null)}
           showSuccessMessage={true}
           layout="grid"
+          userAuthRole={
+            userAuth.state === "authenticated" ? userAuth.role : null
+          }
         />
       </StepSection>
     </div>

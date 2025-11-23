@@ -1,5 +1,6 @@
 "use client";
 
+import { useUserAuth } from "@/lib/auth-client";
 import { useState } from "react";
 import { ProductDescriptionRow } from "./product-description-row";
 import { ReviewForm } from "./review-form.client";
@@ -31,6 +32,7 @@ export function EditReviewButtonWithSheet({
   urlSource: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const userAuth = useUserAuth();
 
   return (
     <div
@@ -77,6 +79,9 @@ export function EditReviewButtonWithSheet({
               onSuccess={() => setOpen(false)}
               showSuccessMessage={false}
               layout="stacked"
+              userAuthRole={
+                userAuth.state === "authenticated" ? userAuth.role : null
+              }
             />
           </div>
         </SheetContent>

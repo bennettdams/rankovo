@@ -1978,37 +1978,37 @@ async function createCritics() {
 
 const usersCriticsSeed: (UserCreate & { url: string })[] = [
   {
-    id: "1-temp",
+    id: usernameHolle,
     name: usernameHolle,
     email: `${usernameHolle}@example.com`,
     url: "https://www.youtube.com/c/Holle21614",
   },
   {
-    id: "2-temp",
+    id: usernameJFG,
     name: usernameJFG,
     email: `${usernameJFG}@example.com`,
     url: "https://www.youtube.com/c/JunkFoodGuru",
   },
   {
-    id: "3-temp",
+    id: usernameFranklin,
     name: usernameFranklin,
     email: `${usernameFranklin}@example.com`,
     url: "https://www.youtube.com/@the.franklin",
   },
   {
-    id: "4-temp",
+    id: usernameReeze,
     name: usernameReeze,
     email: `${usernameReeze}@example.com`,
     url: "https://www.youtube.com/@Reeze",
   },
   {
-    id: "5-temp",
+    id: usernameSturmwaffel,
     name: usernameSturmwaffel,
     email: `${usernameSturmwaffel}@example.com`,
     url: "https://www.youtube.com/@SturmwaffelLP",
   },
   {
-    id: "6-temp",
+    id: usernameHenryGibert,
     name: usernameHenryGibert,
     email: `${usernameHenryGibert}@example.com`,
     url: "https://www.youtube.com/@henry.gibert",
