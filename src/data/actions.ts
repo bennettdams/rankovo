@@ -70,7 +70,7 @@ export async function actionCreatePlace(
     .values({
       ...placeParsed,
       createdAt: new Date(),
-      updatedAt: null,
+      updatedAt: new Date(),
     })
     .returning({ id: placesTable.id });
 
@@ -138,7 +138,7 @@ export async function actionCreateReview(
       isCurrent: true,
       reviewedAt: new Date(),
       createdAt: new Date(),
-      updatedAt: null,
+      updatedAt: new Date(),
     });
   });
 
@@ -220,7 +220,7 @@ export async function actionCreateProduct(
       .values({
         ...productParsed,
         createdAt: new Date(),
-        updatedAt: null,
+        updatedAt: new Date(),
       })
       .returning(),
   );

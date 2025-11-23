@@ -37,6 +37,8 @@ export const criticsTable = pgTable("critics", {
     .references(() => usersTable.id)
     .notNull(),
   url: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 export type Critic = typeof criticsTable.$inferSelect;
 
@@ -57,9 +59,9 @@ export const reviewsTable = pgTable("reviews", {
     withTimezone: true,
   }),
   isCurrent: boolean("is_current").default(false).notNull(),
-  urlSource: varchar({ length: 255 }),
+  urlSource: varchar("url_source", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type Review = typeof reviewsTable.$inferSelect;
@@ -100,7 +102,7 @@ export const placesTable = pgTable("places", {
   name: varchar({ length: 255 }).notNull(),
   city: varchar({ length: 255, enum: cities }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 export const schemaCreatePlace = createInsertSchema(placesTable)
   .required()
@@ -119,7 +121,7 @@ export const productsTable = pgTable(
     category: varchar({ length: 255, enum: categories }).notNull(),
     placeId: integer("place_id").references(() => placesTable.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [index("products_name_idx_custom").on(table.name)],
 );
