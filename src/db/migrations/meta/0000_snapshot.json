@@ -1,5 +1,5 @@
 {
-  "id": "f852f777-86ca-4d4d-81cf-cb3d2695af3d",
+  "id": "f91b1508-7f50-4c6f-90fc-a8a000c4019e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -142,6 +142,20 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -378,8 +392,8 @@
           "notNull": true,
           "default": false
         },
-        "urlSource": {
-          "name": "urlSource",
+        "url_source": {
+          "name": "url_source",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false

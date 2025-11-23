@@ -17,7 +17,9 @@ CREATE TABLE "accounts" (
 CREATE TABLE "critics" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "critics_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"user_id" text NOT NULL,
-	"url" varchar(255) NOT NULL
+	"url" varchar(255) NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "places" (
@@ -46,7 +48,7 @@ CREATE TABLE "reviews" (
 	"author_id" text NOT NULL,
 	"reviewed_at" timestamp (6) with time zone,
 	"is_current" boolean DEFAULT false NOT NULL,
-	"urlSource" varchar(255),
+	"url_source" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
