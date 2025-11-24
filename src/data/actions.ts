@@ -13,6 +13,7 @@ import {
   type ProductCreateDb,
   productsTable,
   type Review,
+  type ReviewCreate,
   type ReviewCreateDb,
   reviewsTable,
   type ReviewUpdateDb,
@@ -89,7 +90,6 @@ export async function actionCreatePlace(
   } satisfies ActionStateSuccess;
 }
 
-export type ReviewCreate = Omit<ReviewCreateDb, "authorId" | "isCurrent">;
 export async function actionCreateReview(
   formState: FormStateCreateReview,
   reviewToCreate: ReviewCreate,
@@ -99,47 +99,11 @@ export async function actionCreateReview(
   const headersVar = await headers();
   const userAuth = await getUserAuthGated(headersVar);
 
-  let authorId: string | null = null;
-
-  // Check if admin is trying to override author
-  const overwriteAuthorId = formState.overwriteAuthorId;
-
-  if (overwriteAuthorId === null) {
-    authorId = userAuth.id;
-  } else {
-    await assertAdmin(headersVar);
-
-    const res = schemaCreateReview
-      .pick({ authorId: true })
-      .safeParse({ authorId: overwriteAuthorId });
-
-    if (res.success) {
-      console.debug(
-        `Admin overriding author ID for review creation. New: ${res.data.authorId}`,
-      );
-      authorId = res.data.authorId;
-    } else {
-      return {
-        status: "ERROR",
-        formState,
-        errors: {
-          overwriteAuthorId: ["Invalid user ID"],
-        } as Partial<Record<keyof FormStateCreateReview, string[]>>,
-      } satisfies ActionStateError;
-    }
-  }
-
-  const reviewToCreateFixed: ReviewCreateDb = {
-    ...reviewToCreate,
-    authorId,
-    isCurrent: true,
-  };
-
   const {
     success,
-    error,
     data: reviewParsed,
-  } = schemaCreateReview.safeParse(reviewToCreateFixed);
+    error,
+  } = schemaCreateReview.safeParse(reviewToCreate);
 
   if (!success) {
     return {
@@ -149,6 +113,28 @@ export async function actionCreateReview(
     } satisfies ActionStateError;
   }
 
+  const { overwriteAuthorId, ...reviewFields } = reviewParsed;
+
+  // Check if admin is trying to override author
+  let authorId: string;
+
+  if (overwriteAuthorId === null) {
+    authorId = userAuth.id;
+  } else {
+    await assertAdmin(headersVar);
+    console.debug(
+      `Admin overriding author ID for review creation. New: ${overwriteAuthorId}`,
+    );
+    authorId = overwriteAuthorId;
+  }
+
+  // it is important to use the "DB" type here to avoid forgetting fields that were not part of the form
+  const reviewToCreateFixed: ReviewCreateDb = {
+    ...reviewFields,
+    authorId,
+    isCurrent: true,
+  };
+
   await db.transaction(async (tx) => {
     // Mark any existing review as not current for the target author
     await tx
@@ -156,7 +142,7 @@ export async function actionCreateReview(
       .set({ isCurrent: false })
       .where(
         and(
-          eq(reviewsTable.productId, reviewParsed.productId),
+          eq(reviewsTable.productId, reviewToCreateFixed.productId),
           eq(reviewsTable.authorId, authorId),
           eq(reviewsTable.isCurrent, true),
         ),
@@ -164,7 +150,7 @@ export async function actionCreateReview(
 
     // Insert new review as current
     await tx.insert(reviewsTable).values({
-      ...reviewParsed,
+      ...reviewToCreateFixed,
       authorId,
       isCurrent: true,
       reviewedAt: new Date(),
@@ -329,7 +315,7 @@ export async function actionChangeUsername(
   }
 
   const existingUser = await db
-    .select()
+    .select({ id: usersTable.id })
     .from(usersTable)
     // `lower` is used to make the username case-insensitive
     .where(eq(lower(usersTable.name), usernameNew.toLowerCase()));

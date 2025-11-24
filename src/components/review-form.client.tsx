@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { actionCreateReview, type ReviewCreate } from "@/data/actions";
+import { actionCreateReview } from "@/data/actions";
 import {
   ratingHighest,
   ratingLowest,
@@ -16,7 +16,7 @@ import {
   type Role,
   usernamesReserved,
 } from "@/data/static";
-import { schemaCreateReview } from "@/db/db-schema";
+import { type ReviewCreate, schemaCreateReview } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
 import {
   type FormConfig,
@@ -44,29 +44,18 @@ const formConfig = {
   urlSource: "string",
   reviewedAt: "date",
   overwriteAuthorId: "string",
-} satisfies FormConfig<ReviewCreate & { overwriteAuthorId: string | null }>;
+} satisfies FormConfig<ReviewCreate>;
 
 export type FormStateCreateReview = FormState<typeof formConfig>;
 
 async function createReview(_: unknown, formData: FormData) {
-  const formStateRaw = prepareFormState(formConfig, formData);
-
-  const formState = {
-    ...formStateRaw,
-    // Transform empty string to null for overwriteAuthorId
-    overwriteAuthorId:
-      formStateRaw.overwriteAuthorId === ""
-        ? null
-        : formStateRaw.overwriteAuthorId,
-  };
+  const formState = prepareFormState(formConfig, formData);
 
   const {
     success,
     error,
     data: reviewParsed,
-  } = schemaCreateReview
-    .omit({ authorId: true, isCurrent: true })
-    .safeParse(formState);
+  } = schemaCreateReview.safeParse(formState);
 
   if (!success) {
     return {
@@ -243,7 +232,6 @@ export function ReviewForm({
               </li>
             ))}
           </ul>
-          {/* @ts-expect-error - overwriteAuthorId is dynamically added to errors */}
           <FieldError errorMsg={state?.errors?.overwriteAuthorId} />
         </Fieldset>
       )}

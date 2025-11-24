@@ -388,7 +388,11 @@ async function searchPlaces(placeName: string) {
     filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
 
   return await db
-    .select()
+    .select({
+      id: placesTable.id,
+      name: placesTable.name,
+      city: placesTable.city,
+    })
     .from(placesTable)
     .where(and(...filtersSQL));
 }
@@ -437,7 +441,12 @@ async function userForId(userId: string) {
   console.debug(`🟦 QUERY userForId | User ID: ${userId}`);
 
   const userForQuery = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      name: usersTable.name,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+    })
     .from(usersTable)
     .where(eq(usersTable.id, userId));
 
@@ -447,6 +456,7 @@ async function userForId(userId: string) {
 
   return userForQuery[0];
 }
+export type UserForId = Awaited<ReturnType<typeof userForId>>;
 
 async function rankingForProductId(productId: number) {
   "use cache";

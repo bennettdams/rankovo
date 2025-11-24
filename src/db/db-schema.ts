@@ -77,7 +77,7 @@ const schemaUrl = z.url({
   protocol: /^https$/,
 });
 
-export const schemaCreateReview = createInsertSchema(reviewsTable, {
+const schemaCreateReviewDb = createInsertSchema(reviewsTable, {
   rating: schemaRating,
   urlSource: schemaUrl.nullable(),
 })
@@ -86,7 +86,19 @@ export const schemaCreateReview = createInsertSchema(reviewsTable, {
     createdAt: true,
     updatedAt: true,
   });
-export type ReviewCreateDb = z.infer<typeof schemaCreateReview>;
+export type ReviewCreateDb = z.infer<typeof schemaCreateReviewDb>;
+
+const schemaAuthorId = schemaCreateReviewDb.pick({ authorId: true }).shape
+  .authorId;
+
+export const schemaCreateReview = schemaCreateReviewDb
+  // we will always set these fields in the server action, never let the client set it
+  .omit({
+    authorId: true,
+    isCurrent: true,
+  })
+  .extend({ overwriteAuthorId: schemaAuthorId.nullable() });
+export type ReviewCreate = z.infer<typeof schemaCreateReview>;
 
 export const schemaUpdateReview = createUpdateSchema(reviewsTable, {
   rating: schemaRating,
