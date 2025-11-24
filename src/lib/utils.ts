@@ -9,6 +9,12 @@ export function isServer() {
   return typeof window === "undefined";
 }
 
+/**
+ * Prettifies intersected types.
+ * For why `& {}` is useful: https://x.com/alistaiir/status/1922683745871548610
+ */
+export type Prettify<T> = { [K in keyof T]: T[K] } & {};
+
 type Entries<T> = {
   [K in keyof T]: [K, T[K]];
 }[keyof T][];

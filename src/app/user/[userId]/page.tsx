@@ -3,17 +3,37 @@ import { Box } from "@/components/box";
 import { DateTime } from "@/components/date-time";
 import { ReviewsList } from "@/components/reviews-list";
 import { Label } from "@/components/ui/label";
-import { queries } from "@/data/queries";
+import { queries, type UserForId } from "@/data/queries";
 import { getUserAuth } from "@/lib/auth-server";
 import { routes } from "@/lib/navigation";
 import { headers } from "next/headers";
+import { Suspense } from "react";
 
 export default async function PageUser({
   params,
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  const { userId } = await params;
+  return (
+    <div className="pt-20">
+      <Suspense
+        fallback={
+          <UserPageHeader user={null} numOfReviews={null} isOwnProfile={null} />
+        }
+      >
+        <PageUserInternal params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function PageUserInternal({
+  params,
+}: {
+  params: Promise<{ userId: string }>;
+}) {
+  const { userId: userIdRaw } = await params;
+  const userId = decodeURIComponent(userIdRaw);
 
   const [user, reviews, userAuth] = await Promise.all([
     queries.userForId(userId),
@@ -24,40 +44,12 @@ export default async function PageUser({
   const isOwnProfile = userAuth?.id === userId;
 
   return (
-    <div className="pt-20">
-      <Box
-        variant="lg"
-        className="mx-auto flex max-w-xl flex-col justify-between"
-      >
-        <div>
-          <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
-        </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div>
-            <Label>Number of reviews</Label>
-            <p className="text-xl">{reviews.length}</p>
-          </div>
-          <div>
-            <Label>Created account at</Label>
-            <p className="text-xl">
-              <DateTime date={user.createdAt} format="YYYY-MM-DD" />
-            </p>
-          </div>
-          <div>
-            <Label>Last updated at</Label>
-            <p className="text-xl">
-              <DateTime date={user.updatedAt} format="YYYY-MM-DD" />
-            </p>
-          </div>
-        </div>
-
-        {isOwnProfile && (
-          <div className="mt-6 border-t pt-6">
-            <h2 className="mb-4 text-xl font-semibold">Change username</h2>
-            <FormUsernameChange redirectTo={routes.user(userId)} />
-          </div>
-        )}
-      </Box>
+    <>
+      <UserPageHeader
+        user={user}
+        numOfReviews={reviews.length}
+        isOwnProfile={isOwnProfile}
+      />
 
       {/* <h1 className="mt-10 text-xl">Rankings</h1>
       <div className="basis-full overflow-y-hidden md:basis-2/3">
@@ -70,6 +62,64 @@ export default async function PageUser({
       <div>
         <ReviewsList reviews={reviews} />
       </div>
-    </div>
+    </>
+  );
+}
+
+function UserPageHeader({
+  user,
+  numOfReviews,
+  isOwnProfile,
+}: {
+  user: UserForId | null;
+  numOfReviews: number | null;
+  isOwnProfile: boolean | null;
+}) {
+  return (
+    <Box
+      variant="lg"
+      className="mx-auto flex max-w-xl flex-col justify-between"
+    >
+      <div>
+        <h1 className="text-2xl font-bold text-primary">{user?.name ?? "-"}</h1>
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div>
+          <Label>Number of reviews</Label>
+          <p className="text-xl">
+            {numOfReviews === null ? "-" : numOfReviews}
+          </p>
+        </div>
+        <div>
+          <Label>Created account at</Label>
+          <p className="text-xl">
+            {user === null ? (
+              "-"
+            ) : (
+              <DateTime date={user.createdAt} format="YYYY-MM-DD" />
+            )}
+          </p>
+        </div>
+        <div>
+          <Label>Last updated at</Label>
+          <p className="text-xl">
+            {user === null ? (
+              "-"
+            ) : (
+              <DateTime date={user.updatedAt} format="YYYY-MM-DD" />
+            )}
+          </p>
+        </div>
+      </div>
+
+      {isOwnProfile === null || user === null
+        ? null
+        : isOwnProfile && (
+            <div className="mt-6 border-t pt-6">
+              <h2 className="mb-4 text-xl font-semibold">Change username</h2>
+              <FormUsernameChange redirectTo={routes.user(user.id)} />
+            </div>
+          )}
+    </Box>
   );
 }
