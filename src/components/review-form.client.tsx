@@ -68,14 +68,7 @@ async function createReview(_: unknown, formData: FormData) {
   return actionCreateReview(formState, reviewParsed);
 }
 
-export function ReviewForm({
-  productId,
-  initialValues,
-  onSuccess,
-  showSuccessMessage = true,
-  layout,
-  userAuthRole,
-}: {
+type ReviewFormProps = {
   productId: FormStateCreateReview["productId"];
   /** Initial form values for editing (optional) */
   initialValues: {
@@ -83,11 +76,51 @@ export function ReviewForm({
     note: FormStateCreateReview["note"];
     urlSource: FormStateCreateReview["urlSource"];
   } | null;
-  onSuccess: () => void;
+  onSuccess: (successAt: string) => void;
   showSuccessMessage: boolean;
   layout: "grid" | "stacked";
   userAuthRole: Role | null;
-}) {
+};
+
+export function ReviewForm({
+  productId,
+  initialValues,
+  onSuccess,
+  showSuccessMessage = true,
+  layout,
+  userAuthRole,
+}: ReviewFormProps) {
+  const [successAt, setSuccessAt] = useState<string | null>(null);
+  return (
+    <ReviewFormInternal
+      key={successAt}
+      productId={productId}
+      initialValues={initialValues}
+      onSuccess={(successAt) => {
+        setSuccessAt(successAt);
+        onSuccess(successAt);
+      }}
+      onError={() => setSuccessAt(null)}
+      showSuccessMessage={
+        // We honor the props if they want to hide it, otherwise use the successAt state.
+        // Without this, the success message would never show because the "state" of the server action is also reset.
+        showSuccessMessage === false ? false : successAt !== null
+      }
+      layout={layout}
+      userAuthRole={userAuthRole}
+    />
+  );
+}
+
+function ReviewFormInternal({
+  productId,
+  initialValues,
+  onSuccess,
+  onError,
+  showSuccessMessage = true,
+  layout,
+  userAuthRole,
+}: ReviewFormProps & { onError: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -99,8 +132,9 @@ export function ReviewForm({
         // reset search params
         router.push(pathname, { scroll: false });
 
-        onSuccess();
+        onSuccess(new Date().toISOString());
       },
+      onError,
     }),
     null,
   );
@@ -247,7 +281,7 @@ export function ReviewForm({
           {isPendingAction ? `Saving...` : "Save review"}
         </Button>
 
-        {showSuccessMessage && state?.status === "SUCCESS" && (
+        {showSuccessMessage && (
           <p
             aria-live="polite"
             className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
