@@ -86,25 +86,27 @@ export function ReviewForm({
   productId,
   initialValues,
   onSuccess,
-  showSuccessMessage = true,
+  showSuccessMessage: showSuccessMessageExternal = true,
   layout,
   userAuthRole,
 }: ReviewFormProps) {
-  const [successAt, setSuccessAt] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
+  const [showSuccessMessage, setShowSuccess] = useState(false);
   return (
     <ReviewFormInternal
-      key={successAt}
+      key={formKey}
       productId={productId}
       initialValues={initialValues}
       onSuccess={(successAt) => {
-        setSuccessAt(successAt);
+        setFormKey((prev) => prev + 1);
+        setShowSuccess(true);
         onSuccess(successAt);
       }}
-      onError={() => setSuccessAt(null)}
+      onError={() => setShowSuccess(false)}
       showSuccessMessage={
-        // We honor the props if they want to hide it, otherwise use the successAt state.
+        // We honor the props if they want to hide it, otherwise use the showSuccess state.
         // Without this, the success message would never show because the "state" of the server action is also reset.
-        showSuccessMessage === false ? false : successAt !== null
+        showSuccessMessageExternal === false ? false : showSuccessMessage
       }
       layout={layout}
       userAuthRole={userAuthRole}
