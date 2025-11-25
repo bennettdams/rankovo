@@ -77,7 +77,7 @@ type ReviewFormProps = {
     urlSource: FormStateCreateReview["urlSource"];
   } | null;
   onSuccess: (successAt: string) => void;
-  showSuccessMessage: boolean;
+  showSuccessMessage?: boolean;
   layout: "grid" | "stacked";
   userAuthRole: Role | null;
 };
