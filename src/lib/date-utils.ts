@@ -1,8 +1,16 @@
 type Locale = "en" | "de";
 
-/** e.g en, en-US, fr, fr-FR, es-ES, .. */
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-const languageLocal = (navigator.language ?? "de") as Locale;
+/** We assume a German audience for now. */
+export const languageDefault: Locale = "de";
+
+/**
+ * e.g en, en-US, fr, fr-FR, es-ES, ..
+ * We check navigator first to get the user's language preference.
+ * If not available (e.g. in Node.js), we fall back to the default language.
+ */
+const languageLocal = ((typeof navigator !== "undefined"
+  ? navigator.language
+  : null) ?? languageDefault) as Locale;
 
 const dateTimeFormatters = {
   "hh:mm": formatDateToHourAndMinute,

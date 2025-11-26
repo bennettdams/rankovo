@@ -1,12 +1,14 @@
 "use client";
-import { DateTimeFormat, formatDateTime } from "@/lib/date-utils";
+import {
+  type DateTimeFormat,
+  formatDateTime,
+  languageDefault,
+} from "@/lib/date-utils";
 import { useSyncExternalStore } from "react";
 
 function emptySubscribe() {
   return () => {};
 }
-
-const localeServerDefault = "de";
 
 /**
  * Component to render formatted dates. Avoids hydration mismatches.
@@ -21,7 +23,7 @@ export function DateTime({
   const dateFormatted = useSyncExternalStore(
     emptySubscribe,
     () => formatDateTime(dateExternal, format),
-    () => formatDateTime(dateExternal, format, localeServerDefault),
+    () => formatDateTime(dateExternal, format, languageDefault),
   );
 
   return <time dateTime={dateExternal.toISOString()}>{dateFormatted}</time>;
