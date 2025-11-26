@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Rankovo | Privacy Policy",
+};
+
 export default function PagePrivacyPolicy() {
   return (
     <div className="container mx-auto w-10/12 space-y-10 pt-24 text-lg lg:w-6/12">

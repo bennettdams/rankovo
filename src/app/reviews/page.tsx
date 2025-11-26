@@ -1,7 +1,12 @@
 import { ReviewsList } from "@/components/reviews-list";
 import { SkeletonList } from "@/components/skeletons";
 import { queries } from "@/data/queries";
+import type { Metadata } from "next";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Rankovo | Reviews",
+};
 
 export default async function PageReviews() {
   const reviews = await queries.reviews();

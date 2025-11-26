@@ -1,9 +1,14 @@
 import { queries } from "@/data/queries";
 import { schemaSearchParamSingle } from "@/lib/schemas";
 import { NotepadText } from "lucide-react";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { z } from "zod";
 import { CreateReviewForm } from "./create-review-form.client";
+
+export const metadata: Metadata = {
+  title: "Rankovo | Create Review",
+};
 
 const schemaSearchParams = z.object({
   "product-name": schemaSearchParamSingle(z.string().min(1), "string"),

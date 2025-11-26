@@ -6,8 +6,13 @@ import { Label } from "@/components/ui/label";
 import { queries, type UserForId } from "@/data/queries";
 import { getUserAuth } from "@/lib/auth-server";
 import { routes } from "@/lib/navigation";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Rankovo | User",
+};
 
 export default async function PageUser({
   params,
