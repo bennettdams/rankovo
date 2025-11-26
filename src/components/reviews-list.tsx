@@ -52,12 +52,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
 
             {/* fixed width because the date will only be evaluated on the client */}
             <div className="w-52">
-              Updated{" "}
-              {!review.updatedAt ? (
-                "-"
-              ) : (
-                <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
-              )}
+              Updated <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
             </div>
 
             <EditReviewButtonWithSheet

@@ -1,33 +1,28 @@
 "use client";
 import { DateTimeFormat, formatDateTime } from "@/lib/date-utils";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+function emptySubscribe() {
+  return () => {};
+}
+
+const localeServerDefault = "de";
 
 /**
- * Client component to render date-time. Avoids hydration mismatches.
+ * Component to render formatted dates. Avoids hydration mismatches.
  */
 export function DateTime({
-  date,
+  date: dateExternal,
   format,
 }: {
   date: Date;
   format: DateTimeFormat;
 }) {
-  // initialize with null to prevent server-render mismatches
-  const [dateTransformed, setDateTransformed] = useState<{
-    dateFormatted: string;
-    dateTime: string;
-  } | null>(null);
-
-  useEffect(() => {
-    setDateTransformed({
-      dateFormatted: formatDateTime(date, format),
-      dateTime: formatDateTime(date, "UTC YYYY-MM-DD"),
-    });
-  }, [date, format]);
-
-  return (
-    <time dateTime={dateTransformed?.dateTime}>
-      {dateTransformed?.dateFormatted}
-    </time>
+  const dateFormatted = useSyncExternalStore(
+    emptySubscribe,
+    () => formatDateTime(dateExternal, format),
+    () => formatDateTime(dateExternal, format, localeServerDefault),
   );
+
+  return <time dateTime={dateExternal.toISOString()}>{dateFormatted}</time>;
 }

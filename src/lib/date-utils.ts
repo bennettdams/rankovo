@@ -1,6 +1,8 @@
-import { isServer } from "./utils";
+type Locale = "en" | "de";
 
-const defaultLanguage: string = isServer() ? "en" : navigator.language;
+/** e.g en, en-US, fr, fr-FR, es-ES, .. */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+const languageLocal = (navigator.language ?? "de") as Locale;
 
 const dateTimeFormatters = {
   "hh:mm": formatDateToHourAndMinute,
@@ -19,16 +21,23 @@ export type DateTimeFormat = keyof typeof dateTimeFormatters;
 /**
  * Global function to format date-time.
  */
-export function formatDateTime(date: Date, format: DateTimeFormat) {
-  return dateTimeFormatters[format](date);
+export function formatDateTime(
+  date: Date,
+  format: DateTimeFormat,
+  locale: Locale = languageLocal,
+) {
+  return dateTimeFormatters[format](date, locale);
 }
 
 /**
  * @example
  * 15:34
  */
-function formatDateToHourAndMinute(date: Date): string {
-  return date.toLocaleTimeString(defaultLanguage, {
+function formatDateToHourAndMinute(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return date.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -39,8 +48,11 @@ function formatDateToHourAndMinute(date: Date): string {
  * @example
  * 15:34:12
  */
-function formatDateToHourAndMinuteAndSecond(date: Date): string {
-  return date.toLocaleTimeString(defaultLanguage, {
+function formatDateToHourAndMinuteAndSecond(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return date.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
@@ -52,8 +64,11 @@ function formatDateToHourAndMinuteAndSecond(date: Date): string {
  * @example
  * 05/22
  */
-function formatDateToMonthAndDay(date: Date): string {
-  return date.toLocaleDateString(defaultLanguage, {
+function formatDateToMonthAndDay(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return date.toLocaleDateString(locale, {
     month: "2-digit",
     day: "2-digit",
   });
@@ -63,8 +78,11 @@ function formatDateToMonthAndDay(date: Date): string {
  * @example
  * 24.12.2021
  */
-function formatDateToYearAndMonthAndDay(date: Date): string {
-  return date.toLocaleDateString(defaultLanguage, {
+function formatDateToYearAndMonthAndDay(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -75,17 +93,24 @@ function formatDateToYearAndMonthAndDay(date: Date): string {
  * @example
  * 25-11 15:34
  */
-function formatDateToMonthAndDayAndHourAndMinute(date: Date): string {
-  return `${formatDateToMonthAndDay(date)} ${formatDateToHourAndMinute(date)}`;
+function formatDateToMonthAndDayAndHourAndMinute(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return `${formatDateToMonthAndDay(date, locale)} ${formatDateToHourAndMinute(date, locale)}`;
 }
 
 /**
  * @example
  * 25-11 15:34:12
  */
-function formatDateToMonthAndDayAndHourAndMinuteAndSecond(date: Date): string {
-  return `${formatDateToMonthAndDay(date)} ${formatDateToHourAndMinuteAndSecond(
+function formatDateToMonthAndDayAndHourAndMinuteAndSecond(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return `${formatDateToMonthAndDay(date, locale)} ${formatDateToHourAndMinuteAndSecond(
     date,
+    locale,
   )}`;
 }
 
@@ -93,9 +118,13 @@ function formatDateToMonthAndDayAndHourAndMinuteAndSecond(date: Date): string {
  * @example
  * 06/30/2022 18:22
  */
-function formatDateToYearAndMonthAndDayAndHourAndMinute(date: Date): string {
-  return `${formatDateToYearAndMonthAndDay(date)} ${formatDateToHourAndMinute(
+function formatDateToYearAndMonthAndDayAndHourAndMinute(
+  date: Date,
+  locale: Locale = languageLocal,
+): string {
+  return `${formatDateToYearAndMonthAndDay(date, locale)} ${formatDateToHourAndMinute(
     date,
+    locale,
   )}`;
 }
 
