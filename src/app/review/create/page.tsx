@@ -61,18 +61,9 @@ async function FormWrapper({
 }) {
   const paramsParsed = schemaSearchParams.parse(await searchParams);
 
-  // Build search query from both product name and place name filters
-  const searchQueryParts: string[] = [];
-  if (paramsParsed["product-name"]) {
-    searchQueryParts.push(paramsParsed["product-name"]);
-  }
-  if (paramsParsed["place-name"]) {
-    searchQueryParts.push(paramsParsed["place-name"]);
-  }
-  const searchQuery = searchQueryParts.join(" ");
-
-  const productsForSearch =
-    searchQuery.length === 0 ? [] : await queries.searchProducts(searchQuery);
+  const productsForSearch = !paramsParsed["product-name"]
+    ? []
+    : await queries.searchProducts(paramsParsed["product-name"]);
 
   const placesForSearch = !paramsParsed["place-name"]
     ? []
