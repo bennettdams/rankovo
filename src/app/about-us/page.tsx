@@ -1,5 +1,10 @@
 import { Box } from "@/components/box";
 import { FileText, Mail, MessageCircle, User } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Rankovo | About Us",
+};
 
 export default function PageAboutUs() {
   return (

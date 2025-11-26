@@ -142,9 +142,8 @@ export function ProductSearch({
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="text-lg font-medium text-fg">
-                {productsForSearch.length > 0
-                  ? `Found ${productsForSearch.length} product${productsForSearch.length === 1 ? "" : "s"}`
-                  : "No products found"}
+                {productsForSearch.length > 0 &&
+                  `Found ${productsForSearch.length} product${productsForSearch.length === 1 ? "" : "s"}`}
               </h3>
             </div>
 
