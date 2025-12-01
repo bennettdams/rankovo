@@ -76,7 +76,7 @@ function UserPageHeader({
   return (
     <Box
       variant="lg"
-      className="mx-auto flex max-w-xl flex-col justify-between"
+      className="mx-auto flex max-w-3xl flex-col justify-between"
     >
       <div>
         <h1 className="text-2xl font-bold text-primary">{user?.name ?? "-"}</h1>
