@@ -16,9 +16,9 @@ export default function Error({
   }, [error]);
 
   return (
-    <ErrorCard title="Something went wrong">
+    <ErrorCard title="Etwas ist schief gelaufen">
       <div>
-        <Button onClick={() => reset()}>Try again</Button>
+        <Button onClick={() => reset()}>Erneut versuchen</Button>
       </div>
     </ErrorCard>
   );

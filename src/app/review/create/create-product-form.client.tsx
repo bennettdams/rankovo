@@ -36,6 +36,7 @@ import {
   type FormState,
   prepareFormState,
 } from "@/lib/form-utils";
+import { t } from "@/lib/i18n";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
@@ -168,7 +169,7 @@ export function CreateProductForm({
     <div className="space-y-8">
       <form action={formAction} className="space-y-6" noValidate>
         {/* Basic Product Info */}
-        <SubSection title="Product Details">
+        <SubSection title="Produktdetails">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start">
             {/* Left section: Product name and Note */}
             <div className="space-y-4">
@@ -177,7 +178,7 @@ export function CreateProductForm({
                   htmlFor={formKeys.name}
                   className="text-sm font-medium text-dark-gray"
                 >
-                  Product name
+                  Produktname
                 </Label>
                 <Input
                   name={formKeys.name}
@@ -195,11 +196,11 @@ export function CreateProductForm({
                   htmlFor={formKeys.note}
                   className="text-sm font-medium text-dark-gray"
                 >
-                  Note (optional)
+                  Notiz (optional)
                 </Label>
                 <Input
                   name={formKeys.note}
-                  placeholder="Want to note something?"
+                  placeholder="Merkmale, Besonderheiten, .."
                   defaultValue={state?.formState.note ?? undefined}
                   className="mt-1"
                 />
@@ -214,12 +215,15 @@ export function CreateProductForm({
                   htmlFor={formKeys.category}
                   className="text-sm font-medium text-dark-gray"
                 >
-                  Category
+                  Kategorie
                 </Label>
                 <SelectionFormField
                   name={formKeys.category}
                   defaultValue={state?.formState.category ?? undefined}
-                  options={categoriesActive}
+                  options={categoriesActive.map((category) => ({
+                    value: category,
+                    label: t[category],
+                  }))}
                 />
               </Fieldset>
             </div>
@@ -227,7 +231,7 @@ export function CreateProductForm({
         </SubSection>
 
         {/* Place Selection */}
-        <SubSection title="Select a place (optional)">
+        <SubSection title="Restaurant auswählen (optional)">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Place Search and Selection */}
             <div className="space-y-6">
@@ -236,12 +240,12 @@ export function CreateProductForm({
                   htmlFor="search-place-name"
                   className="text-sm font-medium text-dark-gray"
                 >
-                  Place name
+                  Restaurantname
                 </Label>
                 <Input
                   name="search-place-name"
                   type="text"
-                  placeholder="e.g. Five Guys"
+                  placeholder="z. B. Five Guys"
                   value={filters["place-name"] ?? ""}
                   onChange={(e) => {
                     setSelectedPlaceId(null);
@@ -261,18 +265,18 @@ export function CreateProductForm({
 
               <div>
                 <h4 className="mb-3 text-sm font-medium text-dark-gray">
-                  Similar places:
+                  Ähnliche Restaurants
                 </h4>
                 <SelectionCardList className="space-y-3">
                   {!filters["place-name"] ? (
                     <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
                       <InfoMessage>
-                        Enter a place name to see suggestions
+                        Gib einen Restaurantnamen ein, um Vorschläge zu sehen
                       </InfoMessage>
                     </div>
                   ) : placesForSearch.length === 0 ? (
                     <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
-                      <InfoMessage>No places found</InfoMessage>
+                      <InfoMessage>Keine Restaurants gefunden</InfoMessage>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -311,9 +315,9 @@ export function CreateProductForm({
                 >
                   <PlusIcon className="size-4 flex-shrink-0" />
                   <span>
-                    Place not found?
+                    Restaurant nicht gefunden?
                     <span className="ml-1 font-semibold">
-                      Create one instead
+                      Erstelle stattdessen einen
                     </span>
                   </span>
                 </Button>
@@ -323,7 +327,7 @@ export function CreateProductForm({
             {/* Map */}
             <div className="flex flex-col">
               <h4 className="mb-3 text-sm font-medium text-dark-gray">
-                Location preview
+                Vorschau des Standorts
               </h4>
               <div className="grid h-40 w-full overflow-hidden md:h-96">
                 {!!placeForMap && placeForMap.city ? (
@@ -348,7 +352,9 @@ export function CreateProductForm({
             size="lg"
           >
             <Save className="mr-2 size-5" />
-            {isPendingAction ? "Saving product..." : "Save product"}
+            {isPendingAction
+              ? "Produkt wird gespeichert..."
+              : "Produkt speichern"}
           </Button>
 
           {state?.errors?.category && (
@@ -356,7 +362,7 @@ export function CreateProductForm({
           )}
 
           {isPlaceSelectionNeeded && (
-            <FieldError errorMsg="Either select/create a place or remove your place name search." />
+            <FieldError errorMsg="Wähle ein Restaurant aus/erstelle eins oder entferne deine Restaurantnamenssuche." />
           )}
 
           {state?.status === "SUCCESS" && (
@@ -364,7 +370,7 @@ export function CreateProductForm({
               aria-live="polite"
               className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
             >
-              Product created successfully!
+              Produkt erfolgreich erstellt!
             </p>
           )}
         </div>
@@ -477,7 +483,9 @@ function DrawerCreatePlace({
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader className="flex-shrink-0">
-          <DrawerTitle className="font-normal">Create a new place</DrawerTitle>
+          <DrawerTitle className="font-normal">
+            Neues Restaurant erstellen
+          </DrawerTitle>
         </DrawerHeader>
 
         <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden md:mt-10">
@@ -489,12 +497,14 @@ function DrawerCreatePlace({
                 noValidate
               >
                 <Fieldset>
-                  <Label htmlFor={formKeysCreatePlace.name}>Place name</Label>
+                  <Label htmlFor={formKeysCreatePlace.name}>
+                    Restaurantname
+                  </Label>
                   <Input
                     className={formInputWidth}
                     name={formKeysCreatePlace.name}
                     type="text"
-                    placeholder="e.g. Five Guys"
+                    placeholder="z. B. Five Guys"
                     value={placeName ?? ""}
                     onChange={(e) => onChangePlaceName(e.target.value)}
                   />
@@ -502,7 +512,7 @@ function DrawerCreatePlace({
                 </Fieldset>
 
                 <Fieldset>
-                  <Label htmlFor={formKeysCreatePlace.city}>City</Label>
+                  <Label htmlFor={formKeysCreatePlace.city}>Stadt</Label>
                   <Input
                     name={formKeysCreatePlace.city}
                     type="hidden"
@@ -520,7 +530,10 @@ function DrawerCreatePlace({
                   type="submit"
                   disabled={isPendingAction}
                 >
-                  <Save /> {isPendingAction ? "Saving place..." : "Save place"}
+                  <Save />{" "}
+                  {isPendingAction
+                    ? "Restaurant wird gespeichert..."
+                    : "Restaurant speichern"}
                 </Button>
               </form>
 
@@ -539,7 +552,7 @@ function DrawerCreatePlace({
 
         <DrawerFooter className="flex-shrink-0">
           <DrawerClose asChild>
-            <Button variant="secondary">Close</Button>
+            <Button variant="secondary">Schließen</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

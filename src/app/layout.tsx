@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "flex min-h-screen flex-col bg-gradient-to-br from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
+          "flex min-h-screen flex-col bg-gradient-to-r from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
           fontSans.variable,
           fontSerif.variable,
         )}
@@ -42,7 +42,7 @@ export default function RootLayout({
 
         <footer className="py-8 text-center">
           <p className="text-sm">
-            <span>© 2025 Rankovo &mdash; Built by </span>
+            <span>© 2025 Rankovo &mdash; Entwickelt von </span>
 
             <a
               href="https://x.com/bennettdams"

@@ -66,7 +66,7 @@ export function RankingsSearchBase(props: RankingsSearchBaseProps) {
           name="filter-search"
           type="text"
           className="h-14 rounded-xl border-none bg-white text-center text-lg leading-none shadow-sm placeholder:text-center focus:placeholder:text-white focus-visible:ring-primary md:text-2xl md:placeholder:text-2xl"
-          placeholder='e.g. "Döner in Hamburg"'
+          placeholder='z.B. "Döner in Hamburg"'
           value={config.searchQuery ?? ""}
           onChange={config.handleChange}
           onKeyDown={config.handleKeyDown}
@@ -89,11 +89,11 @@ export function RankingsSearchBase(props: RankingsSearchBaseProps) {
       {!!config.searchQuery && config.searchQuery.length < minCharsSearch ? (
         <FieldError
           className="mt-1.5"
-          errorMsg={`At least ${minCharsSearch} characters`}
+          errorMsg={`Mindestens ${minCharsSearch} Zeichen`}
         />
       ) : (
         <p className="mt-1.5">
-          Search by product name, restaurant name or category
+          Suche nach Produktname, Restaurantname oder Kategorie
         </p>
       )}
     </div>

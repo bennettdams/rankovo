@@ -22,7 +22,7 @@ export async function RankingsList({
     <div>
       <div className="grid grid-rows-10 gap-x-3 gap-y-2 overflow-x-scroll">
         {rankings.length === 0 ? (
-          <InfoMessage>No rankings for your filters.</InfoMessage>
+          <InfoMessage>Keine Bewertungen für deine Filter</InfoMessage>
         ) : (
           rankings.map((ranking, index) => (
             <RankingsTableRow
@@ -43,7 +43,7 @@ export async function RankingsList({
       </div>
 
       <p className="mt-1 text-right text-sm">
-        Last update: <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
+        Letztes Update: <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
       </p>
     </div>
   );

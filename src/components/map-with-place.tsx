@@ -17,7 +17,7 @@ export function MapWithPlace({
     <div className="relative h-64 w-full overflow-hidden rounded-3xl bg-light-gray">
       {!isLoaded && (
         <div className="absolute inset-0 rounded-3xl bg-light-gray">
-          <div className="sr-only">Loading map...</div>
+          <div className="sr-only">Lade Karte...</div>
         </div>
       )}
       <iframe

@@ -49,16 +49,17 @@ export function EditReviewButtonWithSheet({
               e.stopPropagation();
             }}
           >
-            Edit
+            Bearbeiten
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="flex flex-col gap-6">
           <SheetHeader>
-            <SheetTitle>Edit Review</SheetTitle>
+            <SheetTitle>Bewertung bearbeiten</SheetTitle>
             <SheetDescription>
-              Update your review for{" "}
-              <span className="font-semibold">{productName}</span>. This will
-              create a new current review and keep the old one in history.
+              Aktualisiere deine Bewertung für{" "}
+              <span className="font-semibold">{productName}</span>. Dies
+              erstellt eine neue aktuelle Bewertung und behält die alte in der
+              Historie.
             </SheetDescription>
           </SheetHeader>
           <div className="flex flex-col gap-4 overflow-y-auto pr-2">

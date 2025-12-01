@@ -19,7 +19,7 @@ function SignInButton() {
   return (
     <Button onClick={() => signIn()} className="bg-secondary text-secondary-fg">
       <CircleUser />
-      <p>Sign in</p>
+      <p>Anmelden</p>
     </Button>
   );
 }
@@ -40,7 +40,9 @@ export function UserMenu() {
         </Button>
       ) : userAuth.state === "error" ? (
         <>
-          <p className="text-error">Error signing in, please try again</p>
+          <p className="text-error">
+            Fehler beim Anmelden, bitte versuche es erneut
+          </p>
           <SignInButton />
         </>
       ) : userAuth.state === "no-data" ? (
@@ -59,7 +61,7 @@ export function UserMenu() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
             <DropdownMenuItem>
-              <Link href={routes.user(userAuth.id)}>My Profile</Link>
+              <Link href={routes.user(userAuth.id)}>Mein Profil</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
@@ -67,7 +69,7 @@ export function UserMenu() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Button onClick={() => signOut()}>Sign out</Button>
+              <Button onClick={() => signOut()}>Abmelden</Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -79,11 +81,13 @@ export function UserMenu() {
 export function UserMenuForMobile() {
   const userAuth = useUserAuth();
 
-  if (userAuth.state === "pending") return <div>Loading user..</div>;
+  if (userAuth.state === "pending") return <div>Nutzer wird geladen..</div>;
   if (userAuth.state === "error")
     return (
       <>
-        <p className="text-error">Error signing in, please try again</p>
+        <p className="text-error">
+          Fehler beim Anmelden, bitte versuche es erneut
+        </p>
         <SignInButton />
       </>
     );
@@ -95,11 +99,11 @@ export function UserMenuForMobile() {
 
       <SheetClose asChild>
         <Link href={routes.user(userAuth.id)} className="hover:text-primary">
-          My Profile
+          Mein Profil
         </Link>
       </SheetClose>
 
-      <Button onClick={() => signOut()}>Sign out</Button>
+      <Button onClick={() => signOut()}>Abmelden</Button>
     </>
   );
 }
@@ -121,7 +125,7 @@ export function CreateReviewButtonLink({
             className="justify-self-end transition-colors hover:text-primary"
           >
             <Button>
-              <NotepadText /> Create review
+              <NotepadText /> Bewertung erstellen
             </Button>
           </Link>
         </SheetClose>
@@ -134,21 +138,23 @@ export function CreateReviewButtonLink({
         className="justify-self-end transition-colors hover:text-primary"
       >
         <Button>
-          <NotepadText /> Create review
+          <NotepadText /> Bewertung erstellen
         </Button>
       </Link>
     );
   }
 
   return (
-    <Tooltip content={<p>You need to be signed in to create a review.</p>}>
+    <Tooltip
+      content={<p>Du musst angemeldet sein, um eine Bewertung zu erstellen.</p>}
+    >
       <div className="justify-self-end">
         <Button
           disabled
           className="cursor-not-allowed disabled:opacity-100"
           onClick={(e) => e.preventDefault()}
         >
-          <NotepadText /> Create review
+          <NotepadText /> Bewertung erstellen
         </Button>
       </div>
     </Tooltip>

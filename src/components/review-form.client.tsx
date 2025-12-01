@@ -165,7 +165,7 @@ function ReviewFormInternal({
       >
         <Fieldset className="w-full">
           <Label htmlFor={formKeys.rating} className="text-base font-medium">
-            Rating
+            Bewertung
           </Label>
 
           <div className="flex flex-col items-center space-y-4">
@@ -210,11 +210,11 @@ function ReviewFormInternal({
 
         <Fieldset className="w-full">
           <Label htmlFor={formKeys.urlSource} className="text-base font-medium">
-            URL source
+            URL-Quelle
           </Label>
           <Input
             name={formKeys.urlSource}
-            placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            placeholder="z.B. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             defaultValue={
               state?.formState.urlSource ??
               initialValues?.urlSource ??
@@ -228,11 +228,11 @@ function ReviewFormInternal({
 
       <Fieldset className="w-full">
         <Label htmlFor={formKeys.note} className="text-base font-medium">
-          Note
+          Notiz
         </Label>
         <Textarea
           name={formKeys.note}
-          placeholder="Want to note something?"
+          placeholder="Besonderheiten, Anmerkungen, .."
           defaultValue={
             state?.formState.note ?? initialValues?.note ?? undefined
           }
@@ -280,7 +280,7 @@ function ReviewFormInternal({
           size="lg"
         >
           <Save className="mr-2 size-5" />
-          {isPendingAction ? `Saving...` : "Save review"}
+          {isPendingAction ? `Wird gespeichert...` : "Bewertung speichern"}
         </Button>
 
         {showSuccessMessage && (
@@ -288,7 +288,7 @@ function ReviewFormInternal({
             aria-live="polite"
             className="rounded-lg bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-200"
           >
-            Review saved successfully!
+            Bewertung erfolgreich gespeichert!
           </p>
         )}
 
@@ -296,7 +296,7 @@ function ReviewFormInternal({
           errorMsg={
             !state?.errors?.productId
               ? undefined
-              : "Please select a product above"
+              : "Bitte wähle oben ein Produkt aus"
           }
         />
       </div>

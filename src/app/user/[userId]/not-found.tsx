@@ -7,10 +7,10 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="mt-10">
-      <ErrorCard title="User not found" variant="notFound">
+      <ErrorCard title="Nutzer nicht gefunden" variant="notFound">
         <Link href={routes.home}>
           <Button>
-            <House /> Return to Home page
+            <House /> Zurück zur Startseite
           </Button>
         </Link>
       </ErrorCard>

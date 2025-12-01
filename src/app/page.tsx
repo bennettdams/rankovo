@@ -20,6 +20,7 @@ import {
 } from "@/data/queries";
 import { cities, ratingHighest, type Category } from "@/data/static";
 import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
+import { t } from "@/lib/i18n";
 import {
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
@@ -75,7 +76,7 @@ export default async function PageHome({
     <div className="px-4 md:px-0 md:pt-12">
       <HeroSection />
 
-      <SectionHeader>The Very Best</SectionHeader>
+      <SectionHeader>Die Allerbesten</SectionHeader>
 
       <TopByCategories
         rankingsBurgersPromise={rankingsBurgersPromise}
@@ -83,7 +84,7 @@ export default async function PageHome({
         rankingsPizzasPromise={rankingsPizzasPromise}
       />
 
-      <SectionHeader>The Best Food in Town</SectionHeader>
+      <SectionHeader>Filter nach deinem Geschmack</SectionHeader>
 
       <Suspense fallback={<RankingsSearchShell />}>
         <RankingSearch filters={filters} />
@@ -105,23 +106,24 @@ export default async function PageHome({
 
       <div className="mx-auto mt-14 w-full max-w-5xl px-8">
         <h2 className="mb-10 text-center text-5xl text-secondary">
-          What is Rankovo?
+          Was ist Rankovo?
         </h2>
         <p className="mt-2 text-lg">
-          Rankovo helps you find the best products in your area.
+          Rankovo hilft dir, die besten Produkte in deiner Gegend zu finden.
         </p>
         <p className="mt-2 text-lg">
-          We collect and analyze reviews from various sources to provide you
-          with the most accurate and up-to-date rankings.
+          Wir sammeln und analysieren Bewertungen aus verschiedenen Quellen, um
+          dir die genaueste und aktuellste Rangliste zu bieten.
         </p>
         <p className="mt-2 text-lg">
-          Rankings are calculated based on real user reviews and expert
-          opinions. Everyone can create a review!
+          Die Rangliste wird basierend auf echten Nutzerbewertungen und
+          Expertenmeinungen berechnet. Jeder kann eine Bewertung abgeben!
         </p>
         <p className="mt-2 text-lg">
-          Filter rankings by categories, cities, critics, and ratings to find
-          exactly what you&apos;re looking for. Whether this is the best
-          cheeseburger in town or the new döner place, Rankovo has it all.
+          Filtere die Rangliste nach Kategorien, Städten, Kritikern und
+          Bewertungen, um genau das zu finden, was du suchst. Egal ob der beste
+          Cheeseburger in der Stadt oder der neue Döner-Laden, Rankovo hat
+          alles.
         </p>
       </div>
     </div>
@@ -139,8 +141,8 @@ function HeroSection() {
         </h1>
 
         <p className="mx-auto line-clamp-2 max-w-[600px] text-xl text-fg md:text-2xl">
-          <span className="block md:inline">No surprises.</span>
-          <span className="block md:ml-2 md:inline">Just the best.</span>
+          <span className="block md:inline">Keine Überraschungen.</span>
+          <span className="block md:ml-2 md:inline">Nur das Beste.</span>
         </p>
 
         <StarsForRating rating={ratingHighest} />
@@ -217,7 +219,7 @@ function TopByCategoryCard({
       <div className="relative h-48 overflow-hidden">
         <Image
           src={categoriesForTop[category]}
-          alt="Category image"
+          alt="Kategoriebild"
           width={300}
           height={200}
           priority
@@ -225,7 +227,7 @@ function TopByCategoryCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <h3 className="absolute bottom-4 left-4 text-2xl font-bold capitalize text-white">
-          {category}
+          {t[category]}
         </h3>
       </div>
 

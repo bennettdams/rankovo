@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
@@ -30,7 +31,7 @@ export function Navbar() {
             href={routes.rankings}
             className="transition-colors hover:text-primary"
           >
-            Rankings
+            Rangliste
           </Link>
 
           {/* <Link
@@ -44,7 +45,7 @@ export function Navbar() {
             href={routes.aboutUs}
             className="transition-colors hover:text-primary"
           >
-            About Us
+            {t["about-us"]}
           </Link>
         </div>
 
@@ -95,14 +96,14 @@ function MobileMenu() {
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="shrink-0 md:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle navigation menu</span>
+          <span className="sr-only">Navigationsmenü umschalten</span>
         </Button>
       </SheetTrigger>
 
       <SheetContent side="left">
         <SheetHeader className="sr-only">
-          <SheetTitle>Menu</SheetTitle>
-          <SheetDescription>Main menu</SheetDescription>
+          <SheetTitle>Menü</SheetTitle>
+          <SheetDescription>Hauptmenü</SheetDescription>
         </SheetHeader>
         <nav className="grid gap-6 text-lg font-medium">
           <Link
@@ -116,17 +117,17 @@ function MobileMenu() {
           </Link>
           <SheetClose asChild>
             <Link href={routes.rankings} className="hover:text-primary">
-              Rankings
+              Rangliste
             </Link>
           </SheetClose>
-          <SheetClose asChild>
+          {/* <SheetClose asChild>
             <Link href={routes.reviews} className="hover:text-primary">
-              Reviews
+              Bewertungen
             </Link>
-          </SheetClose>
+          </SheetClose> */}
           <SheetClose asChild>
             <Link href={routes.aboutUs} className="hover:text-primary">
-              About Us
+              {t["about-us"]}
             </Link>
           </SheetClose>
 

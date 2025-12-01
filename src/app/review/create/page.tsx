@@ -7,7 +7,7 @@ import { z } from "zod";
 import { CreateReviewForm } from "./create-review-form.client";
 
 export const metadata: Metadata = {
-  title: "Rankovo | Create Review",
+  title: "Rankovo | Bewertung abgeben",
 };
 
 const schemaSearchParams = z.object({
@@ -31,10 +31,11 @@ export default async function PageReviewCreate({
               <NotepadText className="size-10 text-white" />
             </div>
             <span className="text-5xl font-bold text-primary">
-              Create a review
+              Eine Bewertung abgeben
             </span>
             <p className="mt-4 text-lg text-secondary">
-              Share your experience and help others discover great products
+              Teile deine Erfahrung und hilf anderen, großartige Produkte zu
+              entdecken
             </p>
           </h1>
         </div>
