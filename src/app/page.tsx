@@ -20,6 +20,7 @@ import {
 } from "@/data/queries";
 import { cities, ratingHighest, type Category } from "@/data/static";
 import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
+import { t } from "@/lib/i18n";
 import {
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
@@ -226,7 +227,7 @@ function TopByCategoryCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <h3 className="absolute bottom-4 left-4 text-2xl font-bold capitalize text-white">
-          {category}
+          {t[category]}
         </h3>
       </div>
 
