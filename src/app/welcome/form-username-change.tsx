@@ -77,12 +77,12 @@ export function FormUsernameChange({ redirectTo }: { redirectTo: string }) {
       </Fieldset>
 
       <Button className="w-min" type="submit" disabled={isPendingAction}>
-        <Save /> {isPendingAction ? "Saving..." : "Save"}
+        <Save /> {isPendingAction ? "Wird gespeichert..." : "Speichern"}
       </Button>
 
       {state?.status === "SUCCESS" && (
         <p aria-live="polite" className="text-xl text-green-700">
-          Username updated successfully!
+          Nutzername erfolgreich aktualisiert!
         </p>
       )}
 

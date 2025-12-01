@@ -1,4 +1,5 @@
 import { Category } from "@/data/static";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CategoryIcon } from "./category-icon";
 
@@ -22,7 +23,7 @@ export function CategoryBadge({
       )}
     >
       <CategoryIcon category={category} size="sm" />
-      <span className="pl-1">{category}</span>
+      <span className="pl-1">{t[category]}</span>
     </div>
   );
 }

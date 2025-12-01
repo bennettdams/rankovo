@@ -4,17 +4,17 @@ import { cn } from "@/lib/utils";
 import { type ReactNode, useEffect, useState } from "react";
 
 const products = [
-  "Cheeseburger",
-  "Döner",
-  "Salami Pizza",
-  "Fried Chicken",
-  "Chicken Burger",
-  "Pizza Tonno",
+  { name: "Cheeseburger", prefix: "den besten" },
+  { name: "Döner", prefix: "den besten" },
+  { name: "Salami Pizza", prefix: "die beste" },
+  { name: "Fried Chicken", prefix: "das beste" },
+  { name: "Chickenburger", prefix: "den besten" },
+  { name: "Pizza Tonno", prefix: "die beste" },
 ];
 const cities = [
   "Hamburg",
   "Berlin",
-  "Munich",
+  "München",
   "Köln",
   "Frankfurt",
   "Düsseldorf",
@@ -40,13 +40,15 @@ export function HeaderQuestion() {
 
   return (
     <div className="flex flex-col items-center gap-y-2 text-2xl">
-      <div>Find the best</div>
+      <div>
+        Finde <span>{products[productIdx]?.prefix}</span>
+      </div>
       <div className="text-center text-3xl">
         <SentenceTopic isAnimating={isAnimating}>
-          {products[productIdx]}
+          {products[productIdx]?.name}
         </SentenceTopic>
       </div>
-      <div>near</div>
+      <div>in der Nähe von</div>
       <div className="text-center text-3xl">
         <SentenceTopic isAnimating={isAnimating}>
           {cities[cityIdx]}

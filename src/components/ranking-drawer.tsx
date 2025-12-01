@@ -94,7 +94,7 @@ export function RankingDrawer({
                 <div>
                   <span className="font-bold">{numOfReviews}</span>
                   <span className="ml-1.5">
-                    {numOfReviews === 1 ? "review" : "reviews"}
+                    {numOfReviews === 1 ? "Bewertung" : "Bewertungen"}
                   </span>
                 </div>
               </div>
@@ -107,8 +107,8 @@ export function RankingDrawer({
           className="mt-6 flex min-h-0 flex-1 flex-col md:hidden"
         >
           <TabsList className="w-min">
-            <TabsTrigger value="tab-reviews">Reviews</TabsTrigger>
-            <TabsTrigger value="tab-map">Map</TabsTrigger>
+            <TabsTrigger value="tab-reviews">Bewertungen</TabsTrigger>
+            <TabsTrigger value="tab-map">Karte</TabsTrigger>
           </TabsList>
 
           <TabsContent value="tab-reviews" className="flex-1 overflow-y-auto">
@@ -131,7 +131,7 @@ export function RankingDrawer({
 
         <DrawerFooter className="flex items-end">
           <DrawerClose asChild>
-            <Button variant="secondary">Close</Button>
+            <Button variant="secondary">Schließen</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -146,7 +146,7 @@ function LastReviewsList({
 }) {
   return (
     <>
-      <p className="font-bold">Last 20 reviews</p>
+      <p className="font-bold">Letzte 20 Bewertungen</p>
 
       <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll text-left">
         {reviews.map((review) => (

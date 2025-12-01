@@ -11,7 +11,7 @@ import { headers } from "next/headers";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Rankovo | User",
+  title: "Rankovo | Profil",
 };
 
 export default async function PageUser({
@@ -56,14 +56,7 @@ async function PageUserInternal({
         isOwnProfile={isOwnProfile}
       />
 
-      {/* <h1 className="mt-10 text-xl">Rankings</h1>
-      <div className="basis-full overflow-y-hidden md:basis-2/3">
-        <Suspense fallback={<RankingsListSkeleton />}>
-          <RankingsList filters={{}} />
-        </Suspense>
-      </div> */}
-
-      <h1 className="mt-10 text-xl">All reviews</h1>
+      <h1 className="mt-10 text-xl">Alle Bewertungen</h1>
       <div>
         <ReviewsList reviews={reviews} />
       </div>
@@ -90,13 +83,13 @@ function UserPageHeader({
       </div>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>
-          <Label>Number of reviews</Label>
+          <Label>Anzahl der Bewertungen</Label>
           <p className="text-xl">
             {numOfReviews === null ? "-" : numOfReviews}
           </p>
         </div>
         <div>
-          <Label>Created account at</Label>
+          <Label>Account erstellt am</Label>
           <p className="text-xl">
             {user === null ? (
               "-"
@@ -106,7 +99,7 @@ function UserPageHeader({
           </p>
         </div>
         <div>
-          <Label>Last updated at</Label>
+          <Label>Zuletzt aktualisiert am</Label>
           <p className="text-xl">
             {user === null ? (
               "-"
@@ -121,7 +114,7 @@ function UserPageHeader({
         ? null
         : isOwnProfile && (
             <div className="mt-6 border-t pt-6">
-              <h2 className="mb-4 text-xl font-semibold">Change username</h2>
+              <h2 className="mb-4 text-xl font-semibold">Nutzernamen ändern</h2>
               <FormUsernameChange redirectTo={routes.user(user.id)} />
             </div>
           )}

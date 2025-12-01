@@ -46,8 +46,8 @@ export function CreateReviewForm({
       {/* Step 1: Product Selection Card */}
       <StepSection
         stepNumber={1}
-        title="Select a product"
-        description="Choose from existing products or create a new one"
+        title="Produkt auswählen"
+        description="Wähle aus bestehenden Produkten oder erstelle ein neues"
       >
         <Tabs
           value={tabActive}
@@ -56,13 +56,13 @@ export function CreateReviewForm({
           <TabsList className="mb-6 w-full sm:mb-8 sm:w-auto sm:max-w-md">
             <TabsTrigger value="search" className="flex items-center gap-2">
               <Search className="size-4" />
-              <span className="hidden sm:inline">Search existing</span>
-              <span className="sm:hidden">Search</span>
+              <span className="hidden sm:inline">Bestehende suchen</span>
+              <span className="sm:hidden">Suchen</span>
             </TabsTrigger>
             <TabsTrigger value="create" className="flex items-center gap-2">
               <FilePlus className="size-4" />
-              <span className="hidden sm:inline">Create new</span>
-              <span className="sm:hidden">Create</span>
+              <span className="hidden sm:inline">Neu erstellen</span>
+              <span className="sm:hidden">Erstellen</span>
             </TabsTrigger>
           </TabsList>
 
@@ -92,8 +92,8 @@ export function CreateReviewForm({
       {/* Step 2: Review Details Card */}
       <StepSection
         stepNumber={2}
-        title="Add your verdict"
-        description="Rate the product and share your thoughts"
+        title="Deine Bewertung abgeben"
+        description="Bewerte das Produkt und teile deine Gedanken mit"
       >
         <ReviewForm
           initialValues={null}

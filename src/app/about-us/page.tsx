@@ -1,9 +1,10 @@
 import { Box } from "@/components/box";
+import { t } from "@/lib/i18n";
 import { FileText, Mail, MessageCircle, User } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Rankovo | About Us",
+  title: `Rankovo | ${t["about-us"]}`,
 };
 
 export default function PageAboutUs() {
@@ -12,16 +13,18 @@ export default function PageAboutUs() {
       <div className="container mx-auto max-w-4xl px-6 pb-20 pt-16">
         {/* Hero Section */}
         <div className="mb-16 text-center">
-          <h1 className="mb-4 text-5xl font-bold text-primary">Get In Touch</h1>
+          <h1 className="mb-4 text-5xl font-bold text-primary">
+            Kontakt aufnehmen
+          </h1>
           <p className="mx-auto max-w-2xl text-xl leading-relaxed">
-            I would love to hear your ideas or answer your questions!
+            Ich freue mich über Ideen oder Fragen!
           </p>
         </div>
 
         {/* Contact Methods Section */}
         <div className="mb-20">
           <h2 className="mb-8 text-center text-2xl font-semibold text-fg">
-            Choose Your Preferred Way to Connect
+            Wo wollen wir schnacken?
           </h2>
 
           <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
@@ -37,10 +40,10 @@ export default function PageAboutUs() {
                 </div>
 
                 <h3 className="mb-2 text-lg font-semibold text-secondary">
-                  Email
+                  E-Mail
                 </h3>
                 <p className="mb-4 text-sm">
-                  Send me a direct message for detailed discussions
+                  Sende mir eine direkte Nachricht für ausführliche Diskussionen
                 </p>
 
                 <a
@@ -80,7 +83,7 @@ export default function PageAboutUs() {
                   X (Twitter)
                 </h3>
                 <p className="text-fg/70 mb-4 text-sm">
-                  Follow me for updates and quick conversations
+                  Folge mir für Updates und schnelle Gespräche
                 </p>
 
                 <a
@@ -119,10 +122,12 @@ export default function PageAboutUs() {
               </div>
             </div>
 
-            <h3 className="mb-3 text-xl font-semibold text-primary">About</h3>
+            <h3 className="mb-3 text-xl font-semibold text-primary">
+              Über mich
+            </h3>
             <p className="leading-relaxed">
-              This website is created and maintained by one person who just
-              likes to build things.
+              Diese Website wird von einer Person erstellt und gepflegt, die
+              einfach gerne Dinge baut.
             </p>
           </Box>
 
@@ -134,16 +139,18 @@ export default function PageAboutUs() {
               </div>
             </div>
 
-            <h3 className="mb-3 text-xl font-semibold text-primary">Legal</h3>
+            <h3 className="mb-3 text-xl font-semibold text-primary">
+              Rechtliches
+            </h3>
             <p className="text-fg/80 leading-relaxed">
-              Your privacy matters. Read our{" "}
+              <span>Deine Privatsphäre ist wichtig. Lies unsere </span>
               <a
                 href="/privacy-policy"
                 className="decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
               >
-                Privacy Policy
-              </a>{" "}
-              to learn how we protect your data.
+                Datenschutzrichtlinie
+              </a>
+              <span>, um zu erfahren, wie wir deine Daten schützen.</span>
             </p>
           </Box>
         </div>

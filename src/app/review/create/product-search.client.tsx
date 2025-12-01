@@ -82,12 +82,12 @@ export function ProductSearch({
               htmlFor="filter-product-name"
               className="text-sm font-medium text-fg"
             >
-              Filter by product name
+              Nach Produktname filtern
             </Label>
             <Input
               name="filter-product-name"
               type="text"
-              placeholder="e.g. Cheeseburger"
+              placeholder="z. B. Cheeseburger"
               value={filters["product-name"] ?? ""}
               onChange={(e) =>
                 changeFilters({ "product-name": e.target.value })
@@ -98,14 +98,14 @@ export function ProductSearch({
               errorMsg={
                 !!filters["product-name"] &&
                 filters["product-name"].length < minCharsSearch
-                  ? `At least ${minCharsSearch} characters`
+                  ? `Mindestens ${minCharsSearch} Zeichen`
                   : undefined
               }
             />
           </Fieldset>
 
           <div className="hidden items-center justify-center px-4 py-2 text-dark-gray md:flex">
-            <span className="text-sm font-medium">AND</span>
+            <span className="text-sm font-medium">UND</span>
           </div>
 
           <Fieldset className="w-full min-w-0 flex-1">
@@ -113,12 +113,12 @@ export function ProductSearch({
               htmlFor="filter-place-name"
               className="text-sm font-medium text-fg"
             >
-              Filter by place name
+              Nach Restaurantname filtern
             </Label>
             <Input
               name="filter-place-name"
               type="text"
-              placeholder="e.g. Five Guys"
+              placeholder="z. B. Five Guys"
               value={filters["place-name"] ?? ""}
               onChange={(e) => changeFilters({ "place-name": e.target.value })}
               className="mt-1 w-full"
@@ -127,7 +127,7 @@ export function ProductSearch({
               errorMsg={
                 !!filters["place-name"] &&
                 filters["place-name"].length < minCharsSearch
-                  ? `At least ${minCharsSearch} characters`
+                  ? `Mindestens ${minCharsSearch} Zeichen`
                   : undefined
               }
             />
@@ -143,9 +143,9 @@ export function ProductSearch({
             <div className="flex flex-wrap items-center gap-3">
               {productsForSearch.length > 0 && (
                 <h3 className="text-lg font-medium text-fg">
-                  {`Found ${productsForSearch.length} product${
-                    productsForSearch.length === 1 ? "" : "s"
-                  }`}
+                  {`${productsForSearch.length} Produkt${
+                    productsForSearch.length === 1 ? "" : "e"
+                  } gefunden`}
                 </h3>
               )}
             </div>
@@ -154,16 +154,16 @@ export function ProductSearch({
             {(filters["product-name"] || filters["place-name"]) && (
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="whitespace-nowrap text-dark-gray">
-                  Filtering by:
+                  Gefiltert nach:
                 </span>
                 {filters["product-name"] && (
                   <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
-                    Product: &ldquo;{filters["product-name"]}&rdquo;
+                    Produkt: &ldquo;{filters["product-name"]}&rdquo;
                   </span>
                 )}
                 {filters["place-name"] && (
                   <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
-                    Place: &ldquo;{filters["place-name"]}&rdquo;
+                    Restaurant: &ldquo;{filters["place-name"]}&rdquo;
                   </span>
                 )}
               </div>
@@ -175,7 +175,7 @@ export function ProductSearch({
           {hasNoSearch ? (
             <div className="flex h-48 items-center justify-center rounded-xl bg-light-gray">
               <InfoMessage>
-                Enter a product or place name to start searching
+                Gib einen Produktnamen oder Restaurantnamen ein, um zu suchen
               </InfoMessage>
             </div>
           ) : (
@@ -197,44 +197,32 @@ export function ProductSearch({
                     />
                   </svg>
                   <InfoMessage>
-                    No products found matching your search criteria
+                    Keine Produkte für deine Suchkriterien gefunden
                   </InfoMessage>
                   <p className="mt-2 text-sm text-dark-gray">
-                    Try adjusting your search terms or check the spelling
+                    Versuche, deine Suchbegriffe anzupassen oder überprüfe die
+                    Schreibweise
                   </p>
                 </div>
               </div>
             ) : (
-              <>
-                {/* Responsive Grid with improved breakpoints */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {productsForSearch.map((product) => (
-                    <ProductCard
-                      key={product.productId}
-                      isSelectedProduct={
-                        product.productId === selectedProductId
-                      }
-                      onClick={() => handleProductCardClick(product.productId)}
-                      name={product.productName}
-                      category={product.productCategory}
-                      note={product.productNote}
-                      placeName={product.placeName}
-                      city={product.city}
-                      ratingAvg={null}
-                      numOfReviews={null}
-                    />
-                  ))}
-                </div>
-
-                {/* Future: Add "Show More" or pagination here when you limit results */}
-                {productsForSearch.length >= 10 && (
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-dark-gray">
-                      Showing all {productsForSearch.length} results
-                    </p>
-                  </div>
-                )}
-              </>
+              // Responsive Grid with improved breakpoints
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {productsForSearch.map((product) => (
+                  <ProductCard
+                    key={product.productId}
+                    isSelectedProduct={product.productId === selectedProductId}
+                    onClick={() => handleProductCardClick(product.productId)}
+                    name={product.productName}
+                    category={product.productCategory}
+                    note={product.productNote}
+                    placeName={product.placeName}
+                    city={product.city}
+                    ratingAvg={null}
+                    numOfReviews={null}
+                  />
+                ))}
+              </div>
             ))
           )}
         </SelectionCardList>
@@ -313,7 +301,7 @@ function ProductCard({
         {/* Footer: Rating - always at bottom */}
         <div className="mt-auto flex-shrink-0 pt-2">
           {!ratingAvg ? (
-            <span className="text-sm">No rating yet</span>
+            <span className="text-sm">Noch keine Bewertungen</span>
           ) : (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
@@ -324,7 +312,7 @@ function ProductCard({
                 </div>
               </div>
               <span className="text-sm">
-                ({numOfReviews} review{numOfReviews === 1 ? "" : "s"})
+                ({numOfReviews} Bewertung{numOfReviews === 1 ? "" : "en"})
               </span>
             </div>
           )}

@@ -42,18 +42,20 @@ export function SelectionFormField({
   defaultValue,
 }: {
   name: string;
-  options: string[] | ReadonlyArray<string>;
+  options:
+    | { value: string; label: string }[]
+    | ReadonlyArray<{ value: string; label: string }>;
   defaultValue?: string;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => (
-        <label key={option}>
+        <label key={option.value}>
           <input
             type="radio"
             name={name}
-            value={option}
-            defaultChecked={defaultValue === option}
+            value={option.value}
+            defaultChecked={defaultValue === option.value}
             className="peer hidden"
           />
           <div
@@ -62,7 +64,7 @@ export function SelectionFormField({
               filterButtonStyles.activeViaPeer,
             )}
           >
-            <span className="capitalize">{option}</span>
+            <span className="capitalize">{option.label}</span>
           </div>
         </label>
       ))}
