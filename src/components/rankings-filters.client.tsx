@@ -136,11 +136,11 @@ function RankingsFiltersClientInternal({
               variant="outline"
               size="sm"
             >
-              <FilterX /> <span>Clear</span>
+              <FilterX /> <span>Löschen</span>
             </Button>
           )}
         </div>
-        <h2 className="w-full text-center text-2xl text-secondary">Filters</h2>
+        <h2 className="w-full text-center text-2xl text-secondary">Filter</h2>
         <div className="flex items-center pl-2">
           {isPending && (
             <LoadingSpinner className="flex size-5 items-center fill-tertiary" />
@@ -148,7 +148,7 @@ function RankingsFiltersClientInternal({
         </div>
       </div>
 
-      <FilterRow label="Categories">
+      <FilterRow label="Kategorien">
         <div className="col-start-2 row-start-2">
           <CategoriesSelection
             onClick={(category) =>
@@ -161,7 +161,7 @@ function RankingsFiltersClientInternal({
         </div>
       </FilterRow>
 
-      <FilterRow label="Critics">
+      <FilterRow label="Kritiker">
         <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
           {critics.map((critic) => {
             const isActive =
@@ -183,7 +183,7 @@ function RankingsFiltersClientInternal({
               >
                 <div className="w-12 p-0">
                   <Image
-                    alt="Critic image"
+                    alt="Kritikerbild"
                     className="rounded-full object-cover"
                     height="48"
                     src="/image-placeholder.svg"
@@ -198,7 +198,7 @@ function RankingsFiltersClientInternal({
         </div>
       </FilterRow>
 
-      <FilterRow label="Cities">
+      <FilterRow label="Städte">
         <div className="col-start-2 row-start-2">
           <CitiesSelection
             citiesActive={filters.cities}
@@ -211,12 +211,12 @@ function RankingsFiltersClientInternal({
         </div>
       </FilterRow>
 
-      <FilterRow label="Rating">
+      <FilterRow label="Bewertung">
         <div className="flex flex-col items-center justify-start">
           <span className="text-3xl">
             {ratingMinUncommited || ratingMaxUncommited
               ? `${ratingMinToShow} - ${ratingMaxToShow}`
-              : "All"}
+              : "Alle"}
           </span>
 
           <div className="mt-2">

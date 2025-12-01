@@ -66,14 +66,14 @@ export const reviewsTable = pgTable("reviews", {
 
 export type Review = typeof reviewsTable.$inferSelect;
 
-const messageRating = `Please pick between ${ratingLowest} and ${ratingHighest}`;
+const messageRating = `Bitte wähle zwischen ${ratingLowest} und ${ratingHighest}`;
 export const schemaRating = z
   .number({ error: messageRating })
   .min(ratingLowest, messageRating)
   .max(ratingHighest, messageRating);
 
 const schemaUrl = z.url({
-  error: "Please enter a valid URL (starts with 'https')",
+  error: "Bitte gib eine gültige URL ein (beginnt mit 'https')",
   protocol: /^https$/,
 });
 
@@ -139,9 +139,12 @@ export const productsTable = pgTable(
 );
 
 export const schemaCategory = z.enum(categories, {
-  message: "Please pick a category",
+  message: "Bitte wähle eine Kategorie aus",
 });
-const schemaProductName = z.string({ error: "Required" }).min(2).max(255);
+const schemaProductName = z
+  .string({ error: "Kann nicht leer sein" })
+  .min(2)
+  .max(255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,

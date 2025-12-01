@@ -96,7 +96,7 @@ export function StarsForRating({
     <div
       // reverse order for CSS peer selectors (hover) to work from left to right
       className="group/stars flex flex-row-reverse justify-center space-x-0.5"
-      title={`Rating: ${rating}`}
+      title={`Bewertung: ${rating}`}
     >
       <StarForRating
         onMouseDown={handleClick(5)}

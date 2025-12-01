@@ -4,9 +4,9 @@ import { type ZodPipe, type ZodType, z } from "zod";
 export type ZodTypeUnknown = ZodType<unknown, any>;
 
 export const schemaNonEmptyString = z
-  .string("Expected a string")
+  .string("Text erwartet")
   .trim()
-  .min(1, "Cannot be empty");
+  .min(1, "Kann nicht leer sein");
 
 /**
  * Function overloads, so the return type can be inferred based on the variant parameter.

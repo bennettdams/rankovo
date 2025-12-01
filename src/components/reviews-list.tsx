@@ -12,7 +12,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
   if (reviews.length === 0) {
     return (
       <div className="mt-4">
-        <InfoMessage>No reviews found</InfoMessage>
+        <InfoMessage>Keine Bewertungen gefunden</InfoMessage>
       </div>
     );
   }
@@ -28,8 +28,8 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
             <div>{review.productName}</div>
             <NumberFormatted num={review.rating} min={2} max={2} />
             <StarsForRating rating={review.rating} />
-            <div title="You can create multiple reviews for the same product, but only the newest one will be used for the average rating calculation.">
-              {review.isCurrent ? "Newest" : "Outdated"}
+            <div title="Du kannst mehrere Bewertungen für das gleiche Produkt erstellen, aber nur die neueste wird für die durchschnittliche Bewertung verwendet.">
+              {review.isCurrent ? "Neueste" : "Veraltet"}
             </div>
             <div>{review.username}</div>
             <div>{review.note}</div>
@@ -41,7 +41,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
 
             {/* fixed width because the date will only be evaluated on the client */}
             <div className="w-52">
-              Reviewed at{" "}
+              Bewertet am{" "}
               {/* TODO remove null check when all reviews have a date */}
               {!review.reviewedAt ? (
                 "-"
@@ -52,7 +52,8 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
 
             {/* fixed width because the date will only be evaluated on the client */}
             <div className="w-52">
-              Updated <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
+              Aktualisiert{" "}
+              <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
             </div>
 
             <EditReviewButtonWithSheet
