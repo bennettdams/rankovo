@@ -272,7 +272,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Hähnchen",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -288,7 +288,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Steak",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -465,7 +465,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Kalb",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -683,7 +683,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Bio Döner Steak",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -706,7 +706,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner (Signature Brot)",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -722,7 +722,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner (Sylter Fladenbrot)",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1158,7 +1158,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Kalb",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1309,7 +1309,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Kalb",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1627,7 +1627,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Hähnchen",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1650,7 +1650,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Gemüsedöner",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1666,7 +1666,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Dürüm Steak",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1728,7 +1728,7 @@ async function createReviewsReal() {
 
   product = await createProduct({
     name: "Döner Kalb",
-    category: "kebab",
+    category: "doener",
     placeId: place.id,
     note: null,
   });
@@ -1838,7 +1838,7 @@ async function createProducts() {
     },
     {
       name: "Gemüsedöner",
-      category: "kebab",
+      category: "doener",
       note: Math.random() > 0.5 ? null : "Some product note",
       placeId: Math.random() > 0.8 ? null : pickRandomFromArray(places).id,
     },

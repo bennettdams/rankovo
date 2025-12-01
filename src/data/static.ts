@@ -6,7 +6,7 @@ export const categories = [
   "dessert",
   "drinks",
   "grill & barbecue",
-  "kebab",
+  "doener",
   "noodles",
   "pizza",
   "salad",
@@ -22,7 +22,7 @@ export type Category = (typeof categories)[number];
 export const categoriesActive = [
   "burger",
   "chicken",
-  "kebab",
+  "doener",
   "pizza",
   "sandwich",
 ] as const satisfies Category[];
