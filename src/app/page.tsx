@@ -62,9 +62,9 @@ export default async function PageHome({
     ...defaultFilters,
     categories: ["burger"],
   });
-  const rankingsKebabsPromise = queries.rankingsWithReviews({
+  const rankingsDoenersPromise = queries.rankingsWithReviews({
     ...defaultFilters,
-    categories: ["kebab"],
+    categories: ["doener"],
   });
   const rankingsPizzasPromise = queries.rankingsWithReviews({
     ...defaultFilters,
@@ -79,7 +79,7 @@ export default async function PageHome({
 
       <TopByCategories
         rankingsBurgersPromise={rankingsBurgersPromise}
-        rankingsKebabsPromise={rankingsKebabsPromise}
+        rankingsDoenersPromise={rankingsDoenersPromise}
         rankingsPizzasPromise={rankingsPizzasPromise}
       />
 
@@ -121,7 +121,7 @@ export default async function PageHome({
         <p className="mt-2 text-lg">
           Filter rankings by categories, cities, critics, and ratings to find
           exactly what you&apos;re looking for. Whether this is the best
-          cheeseburger in town or the new kebab place, Rankovo has it all.
+          cheeseburger in town or the new döner place, Rankovo has it all.
         </p>
       </div>
     </div>
@@ -155,16 +155,16 @@ function HeroSection() {
 
 async function TopByCategories({
   rankingsBurgersPromise,
-  rankingsKebabsPromise,
+  rankingsDoenersPromise,
   rankingsPizzasPromise,
 }: {
   rankingsBurgersPromise: QueryRankingWithReviews;
-  rankingsKebabsPromise: QueryRankingWithReviews;
+  rankingsDoenersPromise: QueryRankingWithReviews;
   rankingsPizzasPromise: QueryRankingWithReviews;
 }) {
-  const [rankingsBurgers, rankingsKebabs, rankingsPizzas] = await Promise.all([
+  const [rankingsBurgers, rankingsDoeners, rankingsPizzas] = await Promise.all([
     rankingsBurgersPromise,
-    rankingsKebabsPromise,
+    rankingsDoenersPromise,
     rankingsPizzasPromise,
   ]);
 
@@ -178,8 +178,8 @@ async function TopByCategories({
       </div>
       <div className="min-w-[300px] flex-shrink-0 md:min-w-0">
         <TopByCategoryCard
-          category="kebab"
-          rankings={rankingsKebabs.rankings}
+          category="doener"
+          rankings={rankingsDoeners.rankings}
         />
       </div>
       <div className="min-w-[300px] flex-shrink-0 md:min-w-0">
@@ -195,7 +195,7 @@ async function TopByCategories({
 const categoriesForTop = {
   burger: "/category-card-burger.png",
   pizza: "/category-card-pizza.png",
-  kebab: "/category-card-kebab.png",
+  doener: "/category-card-doener.png",
 } as const satisfies Partial<Record<Category, string>>;
 type CategoryForTop = keyof typeof categoriesForTop;
 

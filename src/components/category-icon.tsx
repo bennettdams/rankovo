@@ -50,7 +50,7 @@ export function CategoryIcon({
       return <MartiniIcon className={cn(iconStyles, sizes[size])} />;
     case "grill & barbecue":
       return <HamIcon className={cn(iconStyles, sizes[size])} />;
-    case "kebab":
+    case "doener":
       return <BeanIcon className={cn(iconStyles, sizes[size])} />;
     case "noodles":
       return <ShellIcon className={cn(iconStyles, sizes[size])} />;
