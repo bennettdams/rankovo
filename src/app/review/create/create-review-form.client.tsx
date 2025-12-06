@@ -132,7 +132,7 @@ function StepSection({
     >
       <div className="bg-gradient-to-r from-[#eb8c21]/40 to-[#6c3e6e]/40 px-4 py-6 sm:px-8">
         <h2 className="flex items-center text-2xl font-semibold text-secondary">
-          <span className="mr-4 flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xl font-bold text-white shadow-lg">
+          <span className="mr-4 flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-3xl font-bold text-white shadow-lg">
             {stepNumber}
           </span>
           <div>

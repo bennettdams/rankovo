@@ -25,7 +25,7 @@ export default async function PageReviewCreate({
     <div className="min-h-screen">
       {/* Header Section */}
       <div className="overflow-hidden pb-12 pt-16">
-        <div className="mx-auto max-w-4xl px-4">
+        <div className="mx-auto max-w-4xl animate-appear px-4">
           <h1 className="flex flex-col items-center text-center">
             <div className="mb-6 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-[#6c3e6e]/40 shadow-lg">
               <NotepadText className="size-10 text-white" />

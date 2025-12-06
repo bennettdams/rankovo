@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 const boxStyles = {
-  sm: "rounded-md p-3 shadow-md",
-  md: "rounded-md p-6 shadow-lg",
-  lg: "rounded-lg p-8 shadow-lg",
-  xl: "rounded-3xl p-8 shadow-lg",
+  sm: "rounded-md p-3 shadow-md hover:shadow-lg",
+  md: "rounded-md p-6 shadow-lg hover:shadow-xl",
+  lg: "rounded-lg p-8 shadow-lg hover:shadow-xl",
+  xl: "rounded-3xl p-8 shadow-lg hover:shadow-xl",
 } as const;
 
 export function Box({
@@ -19,7 +19,7 @@ export function Box({
   return (
     <div
       className={cn(
-        "border border-white/30 bg-bg shadow-black/5",
+        "bg-white/60 shadow-black/10 backdrop-blur-sm transition-shadow",
         boxStyles[variant],
         className,
       )}

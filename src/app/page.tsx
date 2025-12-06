@@ -25,6 +25,7 @@ import {
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
 } from "@/lib/schemas";
+import { MapPin, Medal, Search, Trophy } from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -76,7 +77,7 @@ export default async function PageHome({
     <div className="px-4 md:px-0 md:pt-12">
       <HeroSection />
 
-      <SectionHeader>Die Allerbesten</SectionHeader>
+      <SectionHeader>Die Champions</SectionHeader>
 
       <TopByCategories
         rankingsBurgersPromise={rankingsBurgersPromise}
@@ -104,51 +105,36 @@ export default async function PageHome({
         </div>
       </div>
 
-      <div className="mx-auto mt-14 w-full max-w-5xl px-8">
-        <h2 className="mb-10 text-center text-5xl text-secondary">
-          Was ist Rankovo?
-        </h2>
-        <p className="mt-2 text-lg">
-          Rankovo hilft dir, die besten Produkte in deiner Gegend zu finden.
-        </p>
-        <p className="mt-2 text-lg">
-          Wir sammeln und analysieren Bewertungen aus verschiedenen Quellen, um
-          dir die genaueste und aktuellste Rangliste zu bieten.
-        </p>
-        <p className="mt-2 text-lg">
-          Die Rangliste wird basierend auf echten Nutzerbewertungen und
-          Expertenmeinungen berechnet. Jeder kann eine Bewertung abgeben!
-        </p>
-        <p className="mt-2 text-lg">
-          Filtere die Rangliste nach Kategorien, Städten, Kritikern und
-          Bewertungen, um genau das zu finden, was du suchst. Egal ob der beste
-          Cheeseburger in der Stadt oder der neue Döner-Laden, Rankovo hat
-          alles.
-        </p>
-      </div>
+      <AboutSection />
     </div>
   );
 }
 
 function HeroSection() {
   return (
-    <section className="w-full pb-4 md:pb-8">
-      <div className="flex flex-col items-center space-y-4 px-4 text-center md:px-6">
-        <IconRankovo className="h-12 w-12" />
+    <section className="flex w-full flex-col gap-y-6 overflow-hidden rounded-3xl pb-8 pt-12 md:pb-16 md:pt-20">
+      <div className="flex flex-col items-center space-y-6 px-4 text-center md:px-6">
+        <IconRankovo className="h-16 w-16" />
 
-        <h1 className="animate-appear text-4xl font-extrabold tracking-tight text-fg md:text-5xl lg:text-6xl">
-          <span className="block text-primary">Rankovo</span>
+        <h1 className="animate-appear text-5xl font-extrabold tracking-tight text-fg md:text-6xl lg:text-7xl">
+          <span className="block bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">
+            Rankovo
+          </span>
         </h1>
 
-        <p className="mx-auto line-clamp-2 max-w-[600px] text-xl text-fg md:text-2xl">
-          <span className="block md:inline">Keine Überraschungen.</span>
-          <span className="block md:ml-2 md:inline">Nur das Beste.</span>
-        </p>
+        <div className="mx-auto w-min rounded-full bg-white/50 px-4 py-2 shadow-sm backdrop-blur-sm">
+          <StarsForRating rating={ratingHighest} />
+        </div>
 
-        <StarsForRating rating={ratingHighest} />
+        <p className="mx-auto max-w-[600px] text-xl font-medium text-fg md:text-2xl">
+          <span className="block md:inline">Keine Überraschungen.</span>
+          <span className="block md:ml-2 md:inline">
+            Nur das <span className="italic text-primary">Allerbeste</span>.
+          </span>
+        </p>
       </div>
 
-      <div className="mt-16">
+      <div className="mx-auto w-80">
         <HeaderQuestion />
       </div>
     </section>
@@ -215,7 +201,7 @@ function TopByCategoryCard({
   const rankingFive = rankings[4];
 
   return (
-    <Box variant="xl" className="overflow-hidden p-0">
+    <Box variant="xl" className="group overflow-hidden p-0">
       <div className="relative h-48 overflow-hidden">
         <Image
           src={categoriesForTop[category]}
@@ -223,10 +209,10 @@ function TopByCategoryCard({
           width={300}
           height={200}
           priority
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-        <h3 className="absolute bottom-4 left-4 text-2xl font-bold capitalize text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <h3 className="absolute bottom-4 left-4 text-3xl font-extrabold capitalize tracking-tight text-white drop-shadow-md">
           {t[category]}
         </h3>
       </div>
@@ -378,5 +364,66 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
       </div>
       <span className="mt-2 block h-1 w-52 rounded-full bg-gradient-to-r from-primary to-secondary opacity-80" />
     </div>
+  );
+}
+
+function AboutSection() {
+  return (
+    <div className="mx-auto mt-24 w-full max-w-6xl px-4 pb-20">
+      <div className="mb-16 text-center">
+        <h2 className="text-3xl font-bold text-secondary md:text-5xl">
+          Was ist Rankovo?
+        </h2>
+        <p className="mt-4 text-xl text-fg">
+          Dein Kompass für den guten Geschmack.
+        </p>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <FeatureCard
+          icon={<Trophy className="h-8 w-8 text-primary" />}
+          title="Die Besten der Besten"
+          description="Finde die besten Gerichte in ihrer Kategorie. Keine Mittelmäßigkeit, nur Highlights."
+        />
+        <FeatureCard
+          icon={<Search className="h-8 w-8 text-secondary" />}
+          title="Transparente Analyse"
+          description="Wir sammeln Bewertungen aus verschiedenen Quellen für ein objektives Ergebnis."
+        />
+        <FeatureCard
+          icon={<Medal className="h-8 w-8 text-tertiary" />}
+          title="Experten & Community"
+          description="Ein Mix aus echten Nutzerbewertungen und geprüften Expertenmeinungen."
+        />
+        <FeatureCard
+          icon={<MapPin className="h-8 w-8 text-error" />}
+          title="Lokal & Relevant"
+          description="Finde das beste Gericht direkt in deiner Nachbarschaft."
+        />
+      </div>
+    </div>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Box
+      variant="xl"
+      className="group flex flex-col items-center p-6 text-center transition-all hover:-translate-y-1"
+    >
+      <div className="mb-4 p-4 transition-transform group-hover:scale-110">
+        {icon}
+      </div>
+      <h3 className="mb-2 text-lg font-bold text-fg">{title}</h3>
+      <p className="text-fg">{description}</p>
+    </Box>
   );
 }

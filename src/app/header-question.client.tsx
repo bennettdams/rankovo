@@ -1,5 +1,6 @@
 "use client";
 
+import { Box } from "@/components/box";
 import { cn } from "@/lib/utils";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -39,7 +40,10 @@ export function HeaderQuestion() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-y-2 text-2xl">
+    <Box
+      variant="xl"
+      className="flex flex-col items-center gap-y-2 p-4 text-left text-2xl"
+    >
       <div>
         Finde <span>{products[productIdx]?.prefix}</span>
       </div>
@@ -54,7 +58,7 @@ export function HeaderQuestion() {
           {cities[cityIdx]}
         </SentenceTopic>
       </div>
-    </div>
+    </Box>
   );
 }
 
