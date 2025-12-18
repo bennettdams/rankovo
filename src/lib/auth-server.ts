@@ -1,4 +1,4 @@
-import { assertAuthRole, defaultRole } from "@/data/static";
+import { assertAuthRole, defaultRole, roles } from "@/data/static";
 import {
   accountsTable,
   sessionsTable,
@@ -6,8 +6,8 @@ import {
   verificationsTable,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
@@ -28,17 +28,9 @@ export const auth = betterAuth({
   }),
   user: {
     additionalFields: {
-      // Better Auth's additionalFields only supports basic types: "string", "number", "boolean"
-      // It does not support TypeScript union types or enums natively.
-      // From the docs: "Additional fields are supported, however full type inference for these fields isn't yet supported. Improved type support is planned."
-      // See: https://www.better-auth.com/docs/concepts/database#extending-core-schema
-      //
-      // Workaround to ensure type safety for "role" field:
-      // 1. Use type: "string" here (Better Auth requirement)
-      // 2. Use varchar({ enum: roles }) in Drizzle schema (database-level constraint)
-      // 3. Use assertAuthRole() type guard (runtime validation + TypeScript narrowing)
       role: {
-        type: "string",
+        // convert readonly array to regular array
+        type: [...roles],
         required: false,
         defaultValue: defaultRole,
         // When input is set to false, the field will be excluded from user input, preventing users from passing a value for it.

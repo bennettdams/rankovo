@@ -7,6 +7,11 @@ import type { auth } from "./auth-server";
 
 export const authClient = createAuthClient({
   plugins: [inferAdditionalFields<typeof auth>()],
+  sessionOptions: {
+    refetchInterval: 0,
+    refetchOnWindowFocus: false,
+    refetchWhenOffline: false,
+  },
   fetchOptions: {
     onError: async (context) => {
       const { response } = context;

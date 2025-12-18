@@ -8,6 +8,13 @@
       "when": 1763860750137,
       "tag": "0000_cool_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766027760183,
+      "tag": "0001_sharp_ikaris",
+      "breakpoints": true
     }
   ]
 }
