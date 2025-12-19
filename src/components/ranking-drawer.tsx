@@ -60,7 +60,7 @@ export function RankingDrawer({
 
                   {city && (
                     <>
-                      <span className="ml-2 text-secondary">|</span>
+                      <span className="ml-2 text-secondary">•</span>
                       <span className="ml-2 text-secondary">{city}</span>
                     </>
                   )}
@@ -151,36 +151,48 @@ function LastReviewsList({
       <div className="grid max-h-full auto-rows-min gap-x-4 overflow-y-scroll text-left">
         {reviews.map((review) => (
           <div
-            className="col-span-12 grid h-6 grid-cols-subgrid items-center"
+            className="col-span-12 flex min-w-0 flex-col gap-y-1 border-b border-gray py-3 last:border-b-0 md:grid md:grid-cols-subgrid md:gap-y-0 md:py-2"
             key={review.id}
           >
-            <NumberFormatted num={review.rating} min={2} max={2} />
+            {/* First row on mobile: number + stars and username */}
+            <div className="flex items-center gap-2 md:contents">
+              <NumberFormatted num={review.rating} min={2} max={2} />
 
-            <div className="flex items-center justify-start">
-              <StarsForRating size="small" rating={review.rating} />
+              <div className="flex items-center justify-start">
+                <StarsForRating size="small" rating={review.rating} />
+              </div>
+
+              <Link
+                className="whitespace-nowrap hover:text-primary hover:underline"
+                href={routes.user(review.authorId)}
+              >
+                {review.username}
+              </Link>
             </div>
 
-            <Link
-              className="whitespace-nowrap hover:text-primary hover:underline"
-              href={routes.user(review.authorId)}
-            >
-              {review.username}
-            </Link>
+            {/* Second row on mobile: note (if exists) */}
+            {review.note && (
+              <p
+                className="truncate text-sm md:pl-6 md:text-base"
+                title={review.note}
+              >
+                {review.note}
+              </p>
+            )}
 
-            <p className="pl-6 text-left">
-              {/* TODO remove null check when all reviews have a date */}
-              {!review.reviewedAt ? (
-                "-"
-              ) : (
-                <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
-              )}
-            </p>
+            {/* Third row on mobile: reviewed at and URL source */}
+            <div className="flex items-center gap-3 text-sm text-dark-gray md:contents md:text-base">
+              <p className="md:pl-6 md:text-left">
+                {/* TODO remove null check when all reviews have a date */}
+                {!review.reviewedAt ? (
+                  "-"
+                ) : (
+                  <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+                )}
+              </p>
 
-            <p className="truncate pl-6" title={review.note ?? undefined}>
-              {review.note}
-            </p>
-
-            {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
+              {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
+            </div>
           </div>
         ))}
       </div>

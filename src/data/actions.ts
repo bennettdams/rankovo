@@ -298,7 +298,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: { [formKeyName]: ["Please select a new name"] },
+      errors: { [formKeyName]: ["Bitte wähle einen neuen Namen"] },
     } satisfies ActionStateError;
   }
 
@@ -310,7 +310,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: { [formKeyName]: ["Username already taken"] },
+      errors: { [formKeyName]: ["Benutzername bereits vergeben"] },
     } satisfies ActionStateError;
   }
 
@@ -324,7 +324,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: { [formKeyName]: ["Username already taken"] },
+      errors: { [formKeyName]: ["Benutzername bereits vergeben"] },
     } satisfies ActionStateError;
   }
 
@@ -340,7 +340,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: { [formKeyName]: ["Username already taken"] },
+      errors: { [formKeyName]: ["Benutzername bereits vergeben"] },
     } satisfies ActionStateError;
   }
 

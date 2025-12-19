@@ -11,7 +11,7 @@ export function RankingPositionMarker({
   return (
     <div
       className={cn(
-        "mx-2 grid size-12 place-items-center rounded-full text-fg",
+        "grid size-12 place-items-center rounded-full text-fg",
         position <= 3 && "shadow-lg",
         position > 3 && "border-2 border-gray",
         position === 1 &&

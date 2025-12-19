@@ -126,7 +126,7 @@ function StepSection({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5",
+        "overflow-hidden rounded-2xl bg-bg shadow-lg ring-1 ring-black/5",
         className,
       )}
     >

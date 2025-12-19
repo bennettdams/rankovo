@@ -1,7 +1,6 @@
 import type { FiltersRankings } from "@/app/page";
 import { queries, type RankingWithReviewsQuery } from "@/data/queries";
 import { Box } from "./box";
-import { CategoryBadge } from "./category-badge";
 import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
@@ -20,7 +19,7 @@ export async function RankingsList({
 
   return (
     <div>
-      <div className="grid grid-rows-10 gap-x-3 gap-y-2 overflow-x-scroll">
+      <div className="flex flex-col gap-2">
         {rankings.length === 0 ? (
           <InfoMessage>Keine Bewertungen für deine Filter</InfoMessage>
         ) : (
@@ -42,8 +41,11 @@ export async function RankingsList({
         )}
       </div>
 
-      <p className="mt-1 text-right text-sm">
-        Letztes Update: <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
+      <p className="mt-1 text-right text-sm text-dark-gray">
+        <span>Letztes Update: </span>
+        <span>
+          <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
+        </span>
       </p>
     </div>
   );
@@ -84,45 +86,107 @@ function RankingsTableRow({
       numOfReviews={numOfReviews}
       reviews={reviews}
     >
-      <Box className="group/ranking-row col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center rounded-md p-0 transition-colors hover:bg-secondary hover:text-secondary-fg">
-        <div className="sticky left-0 z-10 bg-white transition-colors group-hover/ranking-row:bg-secondary group-hover/ranking-row:text-secondary-fg">
-          <RankingPositionMarker position={position} />
+      <Box
+        variant="lg"
+        className="group/ranking-row cursor-pointer p-3 transition-colors hover:bg-secondary hover:text-secondary-fg lg:p-3"
+      >
+        {/* Mobile: Multi-line card layout */}
+        <div className="flex flex-col gap-3 lg:hidden">
+          {/* Row 1: Position + Icon + Product Name */}
+          <div className="flex items-center gap-2">
+            <RankingPositionMarker position={position} />
+            <p
+              className="line-clamp-2 flex-1 font-medium leading-tight"
+              title={productName}
+            >
+              {productName}
+            </p>
+            <div className="flex-shrink-0">
+              <CategoryIcon category={productCategory} />
+            </div>
+          </div>
+
+          {/* Row 2: Rating + Stars + Reviews + Product Note */}
+          <div className="flex items-center gap-2">
+            <NumberFormatted
+              className="font-semibold"
+              num={ratingAvg}
+              min={1}
+              max={2}
+            />
+            <StarsForRating rating={ratingAvg} size="small" />
+            <span className="text-sm text-tertiary">({numOfReviews})</span>
+            {productNote && (
+              <>
+                <span className="text-tertiary">•</span>
+                <span
+                  className="flex-1 truncate text-sm text-tertiary"
+                  title={productNote}
+                >
+                  {productNote}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Row 3: Place + City */}
+          <div className="flex flex-wrap items-center gap-x-2 text-sm">
+            <span className="font-medium text-secondary group-hover/ranking-row:text-secondary-fg">
+              {placeName}
+            </span>
+            {city && (
+              <>
+                <span className="text-tertiary">•</span>
+                <span>{city}</span>
+              </>
+            )}
+          </div>
         </div>
-        <div className="w-12 p-0">
-          <CategoryIcon category={productCategory} />
-        </div>
-        <div className="min-w-48" title={productName}>
-          <p className="line-clamp-2 font-medium">{productName}</p>
-        </div>
-        <div>
-          <NumberFormatted
-            className="text-right"
-            num={ratingAvg}
-            min={1}
-            max={2}
-          />
-        </div>
-        <div className="flex flex-row items-center gap-x-1.5">
-          <StarsForRating rating={ratingAvg} size="small" />
-          <span className="text-sm text-tertiary">({numOfReviews})</span>
-        </div>
-        <div>
-          <span className="w-full text-nowrap text-secondary group-hover/ranking-row:text-secondary-fg">
-            {placeName}
-          </span>
-        </div>
-        <div>
-          <span className="w-full text-nowrap">{city}</span>
-        </div>
-        <div className="font-medium">
-          <CategoryBadge category={productCategory} />
-        </div>
-        <div className="min-w-32" title={productNote ?? undefined}>
-          <p className="line-clamp-2 font-medium">{productNote}</p>
-        </div>
-        {/* Last cell should have some padding to give breathing room when scrolling horizontally */}
-        <div className="pr-10">
-          <DateTime date={lastReviewedAt} format="YYYY-MM-DD" />
+
+        {/* Desktop: Horizontal row layout */}
+        <div className="hidden items-center gap-4 lg:flex">
+          {/* Position */}
+          <div className="flex-shrink-0">
+            <RankingPositionMarker position={position} />
+          </div>
+
+          {/* Icon */}
+          <div className="flex-shrink-0">
+            <CategoryIcon category={productCategory} />
+          </div>
+
+          {/* Product Name */}
+          <div className="min-w-0 flex-1" title={productName}>
+            <p className="truncate font-medium">{productName}</p>
+          </div>
+
+          {/* Rating Number */}
+          <div className="w-10">
+            <NumberFormatted
+              className="font-semibold"
+              num={ratingAvg}
+              min={1}
+              max={2}
+            />
+          </div>
+
+          {/* Stars + Review Count */}
+          <div className="flex flex-shrink-0 items-center gap-1.5">
+            <StarsForRating rating={ratingAvg} size="small" />
+            <span className="text-sm text-tertiary">({numOfReviews})</span>
+          </div>
+
+          {/* Place Name */}
+          <div className="min-w-0 flex-shrink-0" style={{ flexBasis: "140px" }}>
+            <span className="truncate text-secondary group-hover/ranking-row:text-secondary-fg">
+              {placeName}
+            </span>
+          </div>
+
+          {/* City */}
+          <div className="flex-shrink-0" style={{ flexBasis: "100px" }}>
+            <span>{city}</span>
+          </div>
         </div>
       </Box>
     </RankingDrawer>

@@ -14,7 +14,7 @@ import {
   pickRandomFromArray,
   pickRandomValueFromObject,
 } from "@/lib/utils";
-import { asc, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import {
   criticsTable,
   type PlaceCreateDb,
@@ -173,7 +173,22 @@ async function createReviewsBulk() {
           : null,
     };
 
-    await db.insert(reviewsTable).values(review);
+    await db.transaction(async (tx) => {
+      // Mark any existing review as not current for the target author
+      await tx
+        .update(reviewsTable)
+        .set({ isCurrent: false })
+        .where(
+          and(
+            eq(reviewsTable.productId, review.productId),
+            eq(reviewsTable.authorId, review.authorId),
+            eq(reviewsTable.isCurrent, true),
+          ),
+        );
+
+      await tx.insert(reviewsTable).values(review);
+    });
+
     await new Promise((resolve) => setTimeout(resolve, 3));
   }
 }
@@ -2025,6 +2040,15 @@ async function createUsers() {
       email: user.email,
     })),
   );
+
+  Array.from({ length: 20 }).forEach(async (_, index) => {
+    const userId = `user${index + 1}`;
+    await db.insert(usersTable).values({
+      id: userId,
+      name: `User ${index + 1}`,
+      email: `user${index + 1}@example.com`,
+    });
+  });
 }
 
 main();
