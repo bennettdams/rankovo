@@ -41,7 +41,7 @@ import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
 } from "@/lib/url-state";
-import { PlusIcon, Save } from "lucide-react";
+import { MapPin, PlusIcon, ReceiptText, Save } from "lucide-react";
 import {
   type Dispatch,
   type SetStateAction,
@@ -97,14 +97,19 @@ async function createProduct(_: unknown, formData: FormData) {
 
 function SubSection({
   title,
+  icon: Icon,
   children,
 }: {
   title: string;
+  icon?: React.ComponentType<{ className?: string }>;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl bg-light-gray p-6">
-      <h3 className="mb-4 text-lg font-medium text-fg">{title}</h3>
+    <div className="rounded-xl p-6">
+      <h3 className="mb-4 flex items-center gap-2 text-lg font-medium text-fg">
+        {Icon && <Icon className="size-5 text-primary" />}
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -169,7 +174,7 @@ export function CreateProductForm({
     <div className="space-y-8">
       <form action={formAction} className="space-y-6" noValidate>
         {/* Basic Product Info */}
-        <SubSection title="Produktdetails">
+        <SubSection title="Produktdetails" icon={ReceiptText}>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start">
             {/* Left section: Product name and Note */}
             <div className="space-y-4">
@@ -231,7 +236,7 @@ export function CreateProductForm({
         </SubSection>
 
         {/* Place Selection */}
-        <SubSection title="Restaurant auswählen (optional)">
+        <SubSection title="Restaurant auswählen (optional)" icon={MapPin}>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Place Search and Selection */}
             <div className="space-y-6">
@@ -269,13 +274,13 @@ export function CreateProductForm({
                 </h4>
                 <SelectionCardList className="space-y-3">
                   {!filters["place-name"] ? (
-                    <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
+                    <div className="flex h-32 items-center justify-center rounded-lg text-dark-gray">
                       <InfoMessage>
                         Gib einen Restaurantnamen ein, um Vorschläge zu sehen
                       </InfoMessage>
                     </div>
                   ) : placesForSearch.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center rounded-lg bg-light-gray text-dark-gray">
+                    <div className="flex h-32 items-center justify-center rounded-lg text-dark-gray">
                       <InfoMessage>Keine Restaurants gefunden</InfoMessage>
                     </div>
                   ) : (

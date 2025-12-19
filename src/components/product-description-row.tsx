@@ -24,7 +24,7 @@ export function ProductDescriptionRow({
 
             {city && (
               <>
-                <span className="ml-2">|</span>
+                <span className="ml-2">•</span>
                 <span className="ml-2">{city}</span>
               </>
             )}

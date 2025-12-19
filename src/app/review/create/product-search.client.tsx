@@ -75,7 +75,7 @@ export function ProductSearch({
   return (
     <div className="w-full space-y-6 overflow-hidden">
       {/* Search Filters */}
-      <div className="overflow-hidden rounded-xl bg-light-gray p-4 sm:p-6">
+      <div className="overflow-hidden rounded-xl py-4 sm:py-6">
         <div className="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:gap-6">
           <Fieldset className="w-full min-w-0 flex-1">
             <Label
@@ -173,7 +173,7 @@ export function ProductSearch({
 
         <SelectionCardList className="min-h-[200px]">
           {hasNoSearch ? (
-            <div className="flex h-48 items-center justify-center rounded-xl bg-light-gray">
+            <div className="flex h-48 items-center justify-center rounded-xl">
               <InfoMessage>
                 Gib einen Produktnamen oder Restaurantnamen ein, um zu suchen
               </InfoMessage>
@@ -181,7 +181,7 @@ export function ProductSearch({
           ) : (
             hasValidSearch &&
             (productsForSearch.length === 0 ? (
-              <div className="flex h-48 items-center justify-center rounded-xl bg-light-gray">
+              <div className="flex h-48 items-center justify-center rounded-xl">
                 <div className="text-center">
                   <svg
                     className="mx-auto mb-4 size-16 text-dark-gray opacity-40"
