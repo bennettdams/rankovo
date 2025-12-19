@@ -43,9 +43,7 @@ export async function RankingsList({
 
       <p className="mt-1 text-right text-sm text-dark-gray">
         <span>Letztes Update: </span>
-        <span>
-          <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
-        </span>
+        <DateTime date={queriedAt} format="YYYY-MM-DD hh:mm" />
       </p>
     </div>
   );
@@ -156,14 +154,16 @@ function RankingsTableRow({
           </div>
 
           {/* Product Name */}
-          <div className="min-w-0 flex-1" title={productName}>
-            <p className="truncate font-medium">{productName}</p>
+          <div className="min-w-0 flex-1 basis-40" title={productName}>
+            <p className="line-clamp-2 text-ellipsis font-medium">
+              {productName}
+            </p>
           </div>
 
           {/* Rating Number */}
-          <div className="w-10">
+          <div className="basis-10">
             <NumberFormatted
-              className="font-semibold"
+              className="text-2xl"
               num={ratingAvg}
               min={1}
               max={2}
@@ -177,8 +177,8 @@ function RankingsTableRow({
           </div>
 
           {/* Place Name */}
-          <div className="min-w-0 flex-shrink-0" style={{ flexBasis: "140px" }}>
-            <span className="truncate text-secondary group-hover/ranking-row:text-secondary-fg">
+          <div className="min-w-0 flex-shrink-0 basis-36">
+            <span className="line-clamp-2 text-secondary group-hover/ranking-row:text-secondary-fg">
               {placeName}
             </span>
           </div>
