@@ -86,7 +86,7 @@ function RankingsTableRow({
     >
       <Box
         variant="lg"
-        className="group/ranking-row cursor-pointer p-3 transition-colors hover:bg-secondary hover:text-secondary-fg lg:p-3"
+        className="group/ranking-row cursor-pointer p-3 transition-colors hover:bg-secondary hover:text-secondary-fg"
       >
         {/* Mobile: Multi-line card layout */}
         <div className="flex flex-col gap-3 lg:hidden">
@@ -184,7 +184,7 @@ function RankingsTableRow({
           </div>
 
           {/* City */}
-          <div className="flex-shrink-0" style={{ flexBasis: "100px" }}>
+          <div className="flex-shrink-0 basis-24">
             <span>{city}</span>
           </div>
         </div>
