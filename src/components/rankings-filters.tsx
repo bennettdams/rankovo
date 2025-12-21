@@ -2,7 +2,8 @@ import type { FiltersRankings } from "@/app/page";
 import type { CriticQuery } from "@/data/queries";
 import { RankingsFiltersClient } from "./rankings-filters.client";
 
-export async function RankingFilters({
+/** Server component that awaits filter data */
+export async function RankingsFilters({
   filters: filtersPromise,
   critics: criticsPromise,
 }: {
