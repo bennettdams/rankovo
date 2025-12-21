@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 // Image metadata
 export const alt = "Rankovo";
@@ -10,6 +12,11 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function Image() {
+  // Font loading, process.cwd() is Next.js project directory
+  const fontGeist = await readFile(
+    join(process.cwd(), "src/app/fonts/GeistVF.woff"),
+  );
+
   return new ImageResponse(
     <div
       style={{
@@ -71,6 +78,14 @@ export default async function Image() {
       // For convenience, we can re-use the exported opengraph-image
       // size config to also set the ImageResponse's width and height.
       ...size,
+      fonts: [
+        {
+          name: "Geist",
+          data: fontGeist,
+          style: "normal",
+          weight: 700,
+        },
+      ],
     },
   );
 }
