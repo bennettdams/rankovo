@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useOptimistic, useState, useTransition } from "react";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
+import { FilterButton } from "./filter-button";
 import { LoadingSpinner } from "./loading-spinner";
 import { SliderDual } from "./slider";
 import { StarsForRating } from "./stars-for-rating";
@@ -50,6 +51,7 @@ export function RankingsFiltersSkeleton() {
         critics: null,
         "rating-min": null,
         "rating-max": null,
+        "reviews-min": null,
         q: null,
       }}
       critics={[]}
@@ -99,6 +101,9 @@ function RankingsFiltersClientInternal({
   const [ratingMaxUncommited, setRatingMaxUncommited] = useState(
     filtersExternal["rating-max"],
   );
+  const [reviewsMinUncommited, setReviewsMinUncommited] = useState(
+    filtersExternal["reviews-min"],
+  );
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
 
@@ -115,6 +120,7 @@ function RankingsFiltersClientInternal({
   function clearFilters() {
     setRatingMinUncommited(null);
     setRatingMaxUncommited(null);
+    setReviewsMinUncommited(null);
 
     startTransition(() => {
       setOptimisticFilters({
@@ -123,6 +129,7 @@ function RankingsFiltersClientInternal({
         critics: null,
         "rating-min": null,
         "rating-max": null,
+        "reviews-min": null,
         q: null,
       });
 
@@ -135,7 +142,7 @@ function RankingsFiltersClientInternal({
   );
 
   return (
-    <div className="flex flex-col gap-y-10">
+    <div className="flex flex-col gap-y-6 md:gap-y-10">
       <div className="grid grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]">
         <div>
           {hasFilters && (
@@ -166,43 +173,6 @@ function RankingsFiltersClientInternal({
             }
             categoriesSelected={filters.categories}
           />
-        </div>
-      </FilterRow>
-
-      <FilterRow label="Kritiker">
-        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
-          {critics.map((critic) => {
-            const isActive =
-              filters.critics === null
-                ? true
-                : filters.critics.includes(critic.name);
-            return (
-              <div
-                key={critic.id}
-                className={cn(
-                  "flex h-10 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
-                  isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
-                )}
-                onMouseDown={() =>
-                  changeFilters({
-                    critics: updateArray(filters.critics, critic.name),
-                  })
-                }
-              >
-                <div className="w-10 p-0">
-                  <Image
-                    alt="Kritikerbild"
-                    className="rounded-full object-cover"
-                    height="40"
-                    src="/image-placeholder.svg"
-                    width="40"
-                  />
-                </div>
-
-                <span className="pl-1.5 pr-2.5">{critic.name}</span>
-              </div>
-            );
-          })}
         </div>
       </FilterRow>
 
@@ -261,6 +231,69 @@ function RankingsFiltersClientInternal({
                 });
               }}
             />
+          </div>
+        </div>
+      </FilterRow>
+
+      <FilterRow label="Kritiker">
+        <div className="col-start-2 row-start-2 flex flex-wrap gap-2">
+          {critics.map((critic) => {
+            const isActive =
+              filters.critics === null
+                ? true
+                : filters.critics.includes(critic.name);
+            return (
+              <div
+                key={critic.id}
+                className={cn(
+                  "flex h-10 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
+                )}
+                onMouseDown={() =>
+                  changeFilters({
+                    critics: updateArray(filters.critics, critic.name),
+                  })
+                }
+              >
+                <div className="w-10 p-0">
+                  <Image
+                    alt="Kritikerbild"
+                    className="rounded-full object-cover"
+                    height="40"
+                    src="/image-placeholder.svg"
+                    width="40"
+                  />
+                </div>
+
+                <span className="pl-1.5 pr-2.5">{critic.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      </FilterRow>
+
+      <FilterRow label="Mindestanzahl Bewertungen">
+        <div className="flex flex-col items-center justify-start">
+          <span className="text-3xl">
+            {reviewsMinUncommited ? `≥ ${reviewsMinUncommited}` : "Alle"}
+          </span>
+
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {[null, 2, 5, 10, 20].map((value) => {
+              const isActive = reviewsMinUncommited === value;
+              return (
+                <FilterButton
+                  key={value ?? "all"}
+                  isActive={isActive}
+                  onMouseDown={() => {
+                    setReviewsMinUncommited(value);
+                    changeFilters({ "reviews-min": value });
+                  }}
+                >
+                  {value === null ? "Alle" : `≥ ${value}`}
+                </FilterButton>
+              );
+            })}
           </div>
         </div>
       </FilterRow>
@@ -332,7 +365,7 @@ export function RankingsFiltersMobile({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="max-h-[85vh] px-0">
+      <DrawerContent className="h-[80vh] px-0">
         <DrawerHeader>
           <DrawerTitle className="sr-only">Filter</DrawerTitle>
         </DrawerHeader>

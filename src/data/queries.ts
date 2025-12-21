@@ -73,7 +73,7 @@ export function conditionsSearchProducts(searchQuery: string) {
 async function rankingsWithReviews(filters: FiltersRankings) {
   "use cache";
   cacheTag(cacheKeys.rankings, cacheKeys.reviews);
-  console.debug("🟦 QUERY rankingsWithReviews");
+  console.debug("🟦 QUERY rankingsWithReviews", JSON.stringify(filters));
 
   const qRankings = subqueryRankings(filters);
 
@@ -210,6 +210,8 @@ export function subqueryRankings(
       .where(and(eq(reviewsTable.isCurrent, true), ...sqlFiltersReviews)),
   );
 
+  const sqlNumOfReviews = sql<number>`max(${qReviewsWithAnalytics.totalReviews})`;
+
   /** Calculate product ratings from the limited review set */
   const qProductRatings = db.$with("queryProductRatings").as(
     db
@@ -221,13 +223,16 @@ export function subqueryRankings(
         lastReviewedAt: sql<Date>`max(${qReviewsWithAnalytics.reviewedAt})`
           .mapWith(qReviewsWithAnalytics.reviewedAt)
           .as("lastReviewedAt"),
-        numOfReviews: sql<number>`max(${qReviewsWithAnalytics.totalReviews})`
-          .mapWith(Number)
-          .as("numOfReviews"),
+        numOfReviews: sqlNumOfReviews.mapWith(Number).as("numOfReviews"),
       })
       .from(qReviewsWithAnalytics)
       .where(lte(qReviewsWithAnalytics.rowNumber, numOfReviewsForAverage))
-      .groupBy(qReviewsWithAnalytics.productId),
+      .groupBy(qReviewsWithAnalytics.productId)
+      .having(
+        filters["reviews-min"] === null
+          ? undefined
+          : gte(sqlNumOfReviews, filters["reviews-min"]),
+      ),
   );
 
   /** Get top products by rating - limit to 1 if specific product, 10 otherwise */
@@ -470,6 +475,7 @@ async function rankingForProductId(productId: number) {
     critics: null,
     "rating-min": null,
     "rating-max": null,
+    "reviews-min": null,
     q: null,
   };
 
