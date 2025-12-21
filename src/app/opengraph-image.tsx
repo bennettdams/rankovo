@@ -83,7 +83,7 @@ export default async function Image() {
           name: "Geist",
           data: fontGeist,
           style: "normal",
-          weight: 600,
+          weight: 700,
         },
       ],
     },
