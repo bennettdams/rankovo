@@ -1,6 +1,4 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 
 // Image metadata
 export const alt = "Rankovo";
@@ -10,13 +8,35 @@ export const size = {
 };
 
 export const contentType = "image/png";
+const fontWeight = 700;
 
-export default async function Image() {
-  // Font loading, process.cwd() is Next.js project directory
-  const fontGeist = await readFile(
-    join(process.cwd(), "src/app/fonts/GeistVF.woff"),
+async function loadGoogleFont() {
+  const url = `https://fonts.googleapis.com/css2?family=Geist:wght@${fontWeight}`;
+
+  const css = await (await fetch(url)).text();
+
+  const resource = css.match(
+    /src: url\((.+)\) format\('(opentype|truetype)'\)/,
   );
 
+  if (resource) {
+    const url = resource[1];
+    if (!url) throw new Error("Failed to load font data, no URL found");
+
+    if (!url.startsWith("https://"))
+      throw new Error("Failed to load font data, invalid font URL: " + url);
+
+    const response = await fetch(url);
+
+    if (response.status == 200) {
+      return await response.arrayBuffer();
+    }
+  }
+
+  throw new Error("Failed to load font data");
+}
+
+export default async function Image() {
   return new ImageResponse(
     <div
       style={{
@@ -54,7 +74,7 @@ export default async function Image() {
           color: "transparent",
           fontSize: 80,
           letterSpacing: -2,
-          fontWeight: 700,
+          fontWeight,
         }}
       >
         Rankovo
@@ -67,7 +87,7 @@ export default async function Image() {
           color: "transparent",
           fontSize: 50,
           letterSpacing: -2,
-          fontWeight: 700,
+          fontWeight,
         }}
       >
         Die besten Gerichte in deiner Nähe
@@ -81,9 +101,9 @@ export default async function Image() {
       fonts: [
         {
           name: "Geist",
-          data: fontGeist,
+          data: await loadGoogleFont(),
           style: "normal",
-          weight: 700,
+          weight: fontWeight,
         },
       ],
     },
