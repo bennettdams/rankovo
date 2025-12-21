@@ -4,7 +4,7 @@ import { NumberFormatted } from "@/components/number-formatted";
 import { ProductDescriptionRow } from "@/components/product-description-row";
 import { RankingDrawer } from "@/components/ranking-drawer";
 import { RankingPositionMarker } from "@/components/ranking-position-marker";
-import { RankingFilters } from "@/components/rankings-filters";
+import { RankingsFilters } from "@/components/rankings-filters";
 import { RankingsFiltersSkeleton } from "@/components/rankings-filters.client";
 import { RankingsList } from "@/components/rankings-list";
 import {
@@ -30,6 +30,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { z } from "zod";
 import { HeaderQuestion } from "./header-question.client";
+import { RankingsSectionClient } from "./rankings-section.client";
 
 const schemaParamsRankings = z.object({
   categories: schemaSearchParamMultiple(schemaCategory),
@@ -91,19 +92,18 @@ export default async function PageHome({
         <RankingSearch filters={filters} />
       </Suspense>
 
-      <div className="mt-10 flex flex-col-reverse gap-x-4 gap-y-10 md:flex-row">
-        <div className="basis-full md:basis-1/3">
+      <RankingsSectionClient
+        filtersSlot={
           <Suspense fallback={<RankingsFiltersSkeleton />}>
-            <RankingFilters filters={filters} critics={criticsPromise} />
+            <RankingsFilters filters={filters} critics={criticsPromise} />
           </Suspense>
-        </div>
-
-        <div className="basis-full overflow-y-hidden md:basis-2/3">
+        }
+        listSlot={
           <Suspense fallback={<SkeletonList />}>
             <RankingsList filters={filters} />
           </Suspense>
-        </div>
-      </div>
+        }
+      />
 
       <AboutSection />
     </div>

@@ -1,6 +1,13 @@
 "use client";
 
 import type { FiltersRankings } from "@/app/page";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { CriticQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { routes } from "@/lib/navigation";
@@ -9,10 +16,10 @@ import {
   useSearchParamsHelper,
 } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
-import { FilterX } from "lucide-react";
+import { FilterX, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useOptimistic, useState, useTransition } from "react";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
 import { LoadingSpinner } from "./loading-spinner";
@@ -51,6 +58,7 @@ export function RankingsFiltersSkeleton() {
   );
 }
 
+/** Filter UI with search params integration */
 export function RankingsFiltersClient({
   filters,
   critics,
@@ -172,7 +180,7 @@ function RankingsFiltersClientInternal({
               <div
                 key={critic.id}
                 className={cn(
-                  "flex h-12 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  "flex h-10 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
                   isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
                 )}
                 onMouseDown={() =>
@@ -181,13 +189,13 @@ function RankingsFiltersClientInternal({
                   })
                 }
               >
-                <div className="w-12 p-0">
+                <div className="w-10 p-0">
                   <Image
                     alt="Kritikerbild"
                     className="rounded-full object-cover"
-                    height="48"
+                    height="40"
                     src="/image-placeholder.svg"
-                    width="48"
+                    width="40"
                   />
                 </div>
 
@@ -276,5 +284,61 @@ function FilterRow({
 
       {children}
     </div>
+  );
+}
+
+export function RankingsFiltersMobile({
+  sectionRef,
+  filtersSlot,
+}: {
+  sectionRef: React.RefObject<HTMLDivElement | null>;
+  filtersSlot: React.ReactNode;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsVisible(entry.isIntersecting);
+        }
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [sectionRef]);
+
+  return (
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerTrigger asChild>
+        <Button
+          className={cn(
+            "fixed bottom-6 right-6 z-40 h-14 gap-2 rounded-full px-5 shadow-lg transition-all duration-300 md:hidden",
+            isVisible
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none translate-y-4 opacity-0",
+          )}
+          size="lg"
+        >
+          <SlidersHorizontal className="size-6" />
+          <span className="text-lg">Filter</span>
+        </Button>
+      </DrawerTrigger>
+
+      <DrawerContent className="max-h-[85vh] px-0">
+        <DrawerHeader>
+          <DrawerTitle className="sr-only">Filter</DrawerTitle>
+        </DrawerHeader>
+
+        <div className="overflow-y-auto px-4 pb-8">{filtersSlot}</div>
+      </DrawerContent>
+    </Drawer>
   );
 }
