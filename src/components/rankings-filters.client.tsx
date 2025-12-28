@@ -360,8 +360,8 @@ export function RankingsFiltersMobile({
           )}
           size="lg"
         >
-          <SlidersHorizontal className="size-6" />
-          <span className="text-lg">Filter</span>
+          <SlidersHorizontal />
+          <p className="text-2xl">Filter</p>
         </Button>
       </DrawerTrigger>
 

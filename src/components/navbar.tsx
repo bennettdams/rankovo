@@ -42,6 +42,13 @@ export function Navbar() {
           </Link> */}
 
           <Link
+            href={routes.champions}
+            className="transition-colors hover:text-primary"
+          >
+            Champions
+          </Link>
+
+          <Link
             href={routes.aboutUs}
             className="transition-colors hover:text-primary"
           >
@@ -115,16 +122,25 @@ function MobileMenu() {
               <span className="block text-primary">Rankovo</span>
             </h1>
           </Link>
+
           <SheetClose asChild>
             <Link href={routes.rankings} className="hover:text-primary">
               Rangliste
             </Link>
           </SheetClose>
+
+          <SheetClose asChild>
+            <Link href={routes.champions} className="hover:text-primary">
+              Champions
+            </Link>
+          </SheetClose>
+
           {/* <SheetClose asChild>
             <Link href={routes.reviews} className="hover:text-primary">
               Bewertungen
             </Link>
           </SheetClose> */}
+
           <SheetClose asChild>
             <Link href={routes.aboutUs} className="hover:text-primary">
               {t["about-us"]}
