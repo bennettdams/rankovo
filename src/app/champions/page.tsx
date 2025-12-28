@@ -43,7 +43,7 @@ export default async function PageChampions() {
       <SectionHeader>Die Champions</SectionHeader>
 
       <h2 className="mb-8 mt-4 text-center text-2xl">
-        Deutschlands beste Gerichte in jeder Kategorie
+        Deutschlands beste Gerichte je Kategorie
       </h2>
 
       <TopByCategories
