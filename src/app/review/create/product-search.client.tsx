@@ -2,7 +2,6 @@
 
 import { CategoryBadge } from "@/components/category-badge";
 import { FieldError, Fieldset } from "@/components/form";
-import { InfoMessage } from "@/components/info-message";
 import { NumberFormatted } from "@/components/number-formatted";
 import { SelectionCard, SelectionCardList } from "@/components/selection-card";
 import { StarsForRating } from "@/components/stars-for-rating";
@@ -174,9 +173,9 @@ export function ProductSearch({
         <SelectionCardList className="min-h-[200px]">
           {hasNoSearch ? (
             <div className="flex h-48 items-center justify-center rounded-xl">
-              <InfoMessage>
+              <p>
                 Gib einen Produktnamen oder Restaurantnamen ein, um zu suchen
-              </InfoMessage>
+              </p>
             </div>
           ) : (
             hasValidSearch &&
@@ -196,9 +195,7 @@ export function ProductSearch({
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
                   </svg>
-                  <InfoMessage>
-                    Keine Produkte für deine Suchkriterien gefunden
-                  </InfoMessage>
+                  <p>Keine Produkte für deine Suchkriterien gefunden</p>
                   <p className="mt-2 text-sm text-dark-gray">
                     Versuche, deine Suchbegriffe anzupassen oder überprüfe die
                     Schreibweise

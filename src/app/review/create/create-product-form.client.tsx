@@ -5,7 +5,6 @@ import {
   formInputWidth,
   SelectionFormField,
 } from "@/components/form";
-import { InfoMessage } from "@/components/info-message";
 import { MapWithPlace } from "@/components/map-with-place";
 import { SelectionCard, SelectionCardList } from "@/components/selection-card";
 import { Button } from "@/components/ui/button";
@@ -269,19 +268,22 @@ export function CreateProductForm({
               </Fieldset>
 
               <div>
-                <h4 className="mb-3 text-sm font-medium text-dark-gray">
-                  Ähnliche Restaurants
-                </h4>
+                {filters["place-name"] !== null && (
+                  <h4 className="mb-3 text-sm font-medium text-dark-gray">
+                    Ähnliche Restaurants
+                  </h4>
+                )}
+
                 <SelectionCardList className="space-y-3">
                   {!filters["place-name"] ? (
-                    <div className="flex h-32 items-center justify-center rounded-lg text-dark-gray">
-                      <InfoMessage>
+                    <div className="text-dark-gray">
+                      <p>
                         Gib einen Restaurantnamen ein, um Vorschläge zu sehen
-                      </InfoMessage>
+                      </p>
                     </div>
                   ) : placesForSearch.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center rounded-lg text-dark-gray">
-                      <InfoMessage>Keine Restaurants gefunden</InfoMessage>
+                    <div className="text-dark-gray">
+                      <p>Keine Restaurants gefunden</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -322,7 +324,7 @@ export function CreateProductForm({
                   <span>
                     Restaurant nicht gefunden?
                     <span className="ml-1 font-semibold">
-                      Erstelle stattdessen einen
+                      Hinterlege ein Neues
                     </span>
                   </span>
                 </Button>
@@ -367,7 +369,7 @@ export function CreateProductForm({
           )}
 
           {isPlaceSelectionNeeded && (
-            <FieldError errorMsg="Wähle ein Restaurant aus/erstelle eins oder entferne deine Restaurantnamenssuche." />
+            <FieldError errorMsg="Wähle ein Restaurant aus/hinterlege eins oder entferne deine Restaurantnamenssuche." />
           )}
 
           {state?.status === "SUCCESS" && (
@@ -489,7 +491,7 @@ function DrawerCreatePlace({
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader className="flex-shrink-0">
           <DrawerTitle className="font-normal">
-            Neues Restaurant erstellen
+            Neues Restaurant hinterlegen
           </DrawerTitle>
         </DrawerHeader>
 

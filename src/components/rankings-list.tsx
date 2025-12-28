@@ -21,7 +21,9 @@ export async function RankingsList({
     <div>
       <div className="flex flex-col gap-2">
         {rankings.length === 0 ? (
-          <InfoMessage>Keine Bewertungen für deine Filter</InfoMessage>
+          <div className="grid h-64 place-items-center">
+            <InfoMessage>Keine Bewertungen für deine Filter</InfoMessage>
+          </div>
         ) : (
           rankings.map((ranking, index) => (
             <RankingsTableRow

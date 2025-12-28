@@ -10,7 +10,7 @@ export function InfoMessage({
   return (
     <div
       className={cn(
-        "rounded-lg border border-secondary px-4 py-3 text-center text-secondary",
+        "rounded-lg border-l-4 border-secondary bg-bg px-4 py-3 text-center text-secondary shadow-sm",
         className,
       )}
     >
