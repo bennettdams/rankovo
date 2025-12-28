@@ -39,12 +39,12 @@ export function UserMenu() {
           <CircleUser className="stroke-primary" />
         </Button>
       ) : userAuth.state === "error" ? (
-        <>
-          <p className="text-error">
+        <div className="flex flex-row items-center gap-x-2">
+          <p className="w-40 text-error">
             Fehler beim Anmelden, bitte versuche es erneut
           </p>
           <SignInButton />
-        </>
+        </div>
       ) : userAuth.state === "no-data" ? (
         <SignInButton />
       ) : (
