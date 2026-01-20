@@ -86,6 +86,7 @@ export const usernameFranklin = "The Franklin";
 export const usernameReeze = "Reeze";
 export const usernameSturmwaffel = "Sturmwaffel";
 export const usernameHenryGibert = "Henry Gibert";
+export const usernameCrispyRob = "CrispyRob";
 
 export const usernamesReserved = [
   "Bennett",
@@ -95,4 +96,5 @@ export const usernamesReserved = [
   usernameReeze,
   usernameSturmwaffel,
   usernameHenryGibert,
+  usernameCrispyRob,
 ];
