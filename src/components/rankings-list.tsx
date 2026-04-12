@@ -88,7 +88,7 @@ function RankingsTableRow({
     >
       <Box
         variant="lg"
-        className="group/ranking-row relative cursor-pointer overflow-hidden p-4 transition-transform hover:-translate-y-0.5"
+        className="group/ranking-row relative cursor-pointer p-4 transition-transform hover:-translate-y-0.5"
       >
         {/* Mobile: Multi-line card layout */}
         <div className="flex flex-col gap-3 lg:hidden">
