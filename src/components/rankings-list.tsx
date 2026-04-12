@@ -88,7 +88,7 @@ function RankingsTableRow({
     >
       <Box
         variant="lg"
-        className="group/ranking-row cursor-pointer p-3 transition-colors hover:bg-secondary hover:text-secondary-fg"
+        className="group/ranking-row relative cursor-pointer overflow-hidden p-4 transition-transform hover:-translate-y-0.5"
       >
         {/* Mobile: Multi-line card layout */}
         <div className="flex flex-col gap-3 lg:hidden">
@@ -131,7 +131,7 @@ function RankingsTableRow({
 
           {/* Row 3: Place + City */}
           <div className="flex flex-wrap items-center gap-x-2 text-sm">
-            <span className="font-medium text-secondary group-hover/ranking-row:text-secondary-fg">
+            <span className="font-medium text-secondary transition-colors group-hover/ranking-row:text-primary">
               {placeName}
             </span>
             {city && (
@@ -180,7 +180,7 @@ function RankingsTableRow({
 
           {/* Place Name */}
           <div className="min-w-0 flex-shrink-0 basis-36">
-            <span className="line-clamp-2 text-secondary group-hover/ranking-row:text-secondary-fg">
+            <span className="line-clamp-2 text-secondary transition-colors group-hover/ranking-row:text-primary">
               {placeName}
             </span>
           </div>

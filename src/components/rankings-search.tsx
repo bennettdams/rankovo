@@ -60,42 +60,42 @@ export function RankingsSearchBase(props: RankingsSearchBaseProps) {
         };
 
   return (
-    <div className="mx-auto w-full md:w-2/3">
+    <div className="w-full">
       <div className="relative">
         <Input
           name="filter-search"
           type="text"
-          className="h-14 rounded-xl border-none bg-white text-center text-lg leading-none shadow-sm placeholder:text-center focus:placeholder:text-white focus-visible:ring-primary md:text-2xl md:placeholder:text-2xl"
+          className="h-14 rounded-2xl border-none bg-white/80 text-center text-lg leading-none shadow-lg ring-1 ring-black/5 backdrop-blur-sm transition-all placeholder:text-center focus:bg-white focus:placeholder:text-transparent focus-visible:ring-2 focus-visible:ring-primary md:h-16 md:text-xl md:placeholder:text-xl"
           placeholder='z.B. "Döner in Hamburg"'
           value={config.searchQuery ?? ""}
           onChange={config.handleChange}
           onKeyDown={config.handleKeyDown}
           disabled={config.disabled}
         />
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 transform">
+        <div className="absolute left-5 top-1/2 -translate-y-1/2 transform text-primary">
           {config.isLoading ? (
-            <LoadingSpinner className="size-7" />
+            <LoadingSpinner className="size-6" />
           ) : config.searchQuery ? (
             <XIcon
-              className="size-8 cursor-pointer stroke-primary"
+              className="size-6 cursor-pointer transition-transform hover:scale-110 active:scale-95"
               onClick={config.handleReset}
             />
           ) : (
-            <SearchIcon className="size-8 stroke-primary" />
+            <SearchIcon className="size-6" />
           )}
         </div>
       </div>
 
-      {!!config.searchQuery && config.searchQuery.length < minCharsSearch ? (
-        <FieldError
-          className="mt-1.5"
-          errorMsg={`Mindestens ${minCharsSearch} Zeichen`}
-        />
-      ) : (
-        <p className="mt-1.5">
-          Suche nach Produktname, Restaurantname oder Kategorie
-        </p>
-      )}
+      <div className="mt-3 text-center text-sm font-medium">
+        {!!config.searchQuery && config.searchQuery.length < minCharsSearch ? (
+          <FieldError
+            className="inline-block"
+            errorMsg={`Mindestens ${minCharsSearch} Zeichen`}
+          />
+        ) : (
+          <p>Suche nach Produktname, Restaurantname oder Kategorie</p>
+        )}
+      </div>
     </div>
   );
 }

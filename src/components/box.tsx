@@ -19,7 +19,7 @@ export function Box({
   return (
     <div
       className={cn(
-        "bg-white/60 shadow-black/10 backdrop-blur-sm transition-shadow",
+        "bg-white/40 shadow-sm ring-1 ring-white/60 backdrop-blur-sm transition-shadow",
         boxStyles[variant],
         className,
       )}
