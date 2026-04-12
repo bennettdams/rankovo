@@ -7,7 +7,6 @@ import {
   RankingSearch,
   RankingsSearchShell,
 } from "@/components/rankings-search";
-import { SectionHeader } from "@/components/section-header";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
@@ -46,74 +45,78 @@ export default async function PageHome({
   const criticsPromise = queries.critics();
 
   return (
-    <div className="px-4 md:px-0 md:pt-12">
-      <HeroSection />
-
-      <SectionHeader>Filter nach deinem Geschmack</SectionHeader>
-
-      <Suspense fallback={<RankingsSearchShell />}>
-        <RankingSearch filters={filters} />
-      </Suspense>
-
-      <RankingsSectionClient
-        filtersSlot={
-          <Suspense fallback={<RankingsFiltersSkeleton />}>
-            <RankingsFilters filters={filters} critics={criticsPromise} />
-          </Suspense>
-        }
-        listSlot={
-          <Suspense fallback={<SkeletonList />}>
-            <RankingsList filters={filters} />
+    <div className="px-4 md:px-0 md:pt-8">
+      <HeroSection
+        searchSlot={
+          <Suspense fallback={<RankingsSearchShell />}>
+            <RankingSearch filters={filters} />
           </Suspense>
         }
       />
+
+      <div className="mt-12 md:mt-20">
+        <RankingsSectionClient
+          filtersSlot={
+            <Suspense fallback={<RankingsFiltersSkeleton />}>
+              <RankingsFilters filters={filters} critics={criticsPromise} />
+            </Suspense>
+          }
+          listSlot={
+            <Suspense fallback={<SkeletonList />}>
+              <RankingsList filters={filters} />
+            </Suspense>
+          }
+        />
+      </div>
 
       <AboutSection />
     </div>
   );
 }
 
-function HeroSection() {
+function HeroSection({ searchSlot }: { searchSlot: React.ReactNode }) {
   return (
-    <section className="flex w-full flex-col gap-y-6 overflow-hidden rounded-3xl pb-8 pt-12 md:pb-16 md:pt-20">
-      <div className="flex flex-col items-center space-y-6 px-4 text-center md:px-6">
-        <IconRankovo className="h-16 w-16" />
+    <section className="relative flex w-full flex-col items-center gap-y-8 overflow-hidden px-6 pt-12 md:gap-y-12 md:px-12 md:pt-16">
+      <div className="relative z-10 flex flex-col items-center space-y-8 text-center">
+        <div className="flex items-center justify-center gap-4">
+          <IconRankovo className="h-12 w-12 md:h-16 md:w-16" />
+          <div className="rounded-full bg-white/60 px-4 py-1.5 shadow-sm backdrop-blur-sm">
+            <StarsForRating rating={ratingHighest} />
+          </div>
+        </div>
 
-        <h1 className="animate-appear text-5xl font-extrabold tracking-tight text-fg md:text-6xl lg:text-7xl">
-          <span className="block bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">
+        <h1 className="max-w-4xl animate-appear text-5xl font-extrabold tracking-tight text-fg md:text-7xl lg:text-7xl">
+          <span className="bg-gradient-to-br from-primary to-tertiary bg-clip-text text-transparent">
             Rankovo
           </span>
         </h1>
 
-        <div className="mx-auto w-min rounded-full bg-white/50 px-4 py-2 shadow-sm backdrop-blur-sm">
-          <StarsForRating rating={ratingHighest} />
-        </div>
-
-        <p className="mx-auto max-w-[600px] text-xl font-medium text-fg md:text-2xl">
-          <span className="block md:inline">Keine Überraschungen.</span>
-          <span className="block md:ml-2 md:inline">
-            Nur das <span className="italic text-primary">Allerbeste</span>.
-          </span>
+        <p className="mx-auto max-w-2xl text-xl font-medium leading-relaxed md:text-2xl">
+          Keine Überraschungen. Nur das{" "}
+          <span className="italic text-primary">Allerbeste</span>.
         </p>
       </div>
 
-      <div className="mx-auto w-80">
+      <div className="mx-auto w-full max-w-sm">
         <HeaderQuestion />
       </div>
+
+      <div className="w-full max-w-md pt-4 md:max-w-lg">{searchSlot}</div>
     </section>
   );
 }
 
 function AboutSection() {
   return (
-    <div className="mx-auto mt-24 w-full max-w-6xl px-4 pb-20">
-      <div className="mb-16 text-center">
-        <h2 className="text-3xl font-bold text-secondary md:text-5xl">
+    <Box
+      variant="xl"
+      className="mx-auto mt-32 w-full max-w-7xl px-6 py-20 md:px-12"
+    >
+      <div className="mb-20 text-center">
+        <h2 className="text-3xl font-bold tracking-tight text-secondary md:text-5xl">
           Was ist Rankovo?
         </h2>
-        <p className="mt-4 text-xl text-fg">
-          Dein Kompass für den guten Geschmack.
-        </p>
+        <p className="mt-6 text-xl">Dein Kompass für den guten Geschmack.</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -138,7 +141,7 @@ function AboutSection() {
           description="Finde das beste Gericht direkt in deiner Nachbarschaft."
         />
       </div>
-    </div>
+    </Box>
   );
 }
 
@@ -154,13 +157,13 @@ function FeatureCard({
   return (
     <Box
       variant="xl"
-      className="group flex flex-col items-center p-6 text-center transition-all hover:-translate-y-1"
+      className="group flex flex-col items-center p-8 text-center transition-transform hover:-translate-y-1"
     >
-      <div className="mb-4 p-4 transition-transform group-hover:scale-110">
+      <div className="mb-6 p-4 transition-transform group-hover:scale-110">
         {icon}
       </div>
-      <h3 className="mb-2 text-lg font-bold text-fg">{title}</h3>
-      <p className="text-fg">{description}</p>
+      <h3 className="mb-3 text-lg font-bold text-fg">{title}</h3>
+      <p className="leading-relaxed">{description}</p>
     </Box>
   );
 }

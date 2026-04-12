@@ -20,6 +20,7 @@ import { FilterX, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useOptimistic, useState, useTransition } from "react";
+import { Box } from "./box";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
 import { FilterButton } from "./filter-button";
@@ -142,7 +143,7 @@ function RankingsFiltersClientInternal({
   );
 
   return (
-    <div className="flex flex-col gap-y-6 md:gap-y-10">
+    <Box variant="lg" className="flex flex-col gap-y-6 md:gap-y-10">
       <div className="grid grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]">
         <div>
           {hasFilters && (
@@ -297,7 +298,7 @@ function RankingsFiltersClientInternal({
           </div>
         </div>
       </FilterRow>
-    </div>
+    </Box>
   );
 }
 

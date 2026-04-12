@@ -20,7 +20,7 @@ export function RankingsSectionClient({
   return (
     <div
       ref={ref}
-      className="mt-10 flex flex-col gap-y-10 md:flex-row md:gap-x-4"
+      className="mt-10 flex flex-col gap-y-10 md:flex-row md:gap-x-8"
     >
       {/* Desktop: sidebar filters */}
       <div className="hidden basis-auto md:block md:basis-1/3">
