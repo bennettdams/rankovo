@@ -75,7 +75,7 @@ function UserPageHeader({
 }) {
   return (
     <Box
-      variant="lg"
+      variant="xl"
       className="mx-auto flex max-w-3xl flex-col justify-between"
     >
       <div>
