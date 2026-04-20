@@ -29,7 +29,10 @@ export default function PageAboutUs() {
 
           <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
             {/* Email Card */}
-            <Box className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <Box
+              variant="xl"
+              className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
@@ -69,7 +72,10 @@ export default function PageAboutUs() {
             </Box>
 
             {/* X/Twitter Card */}
-            <Box className="hover:shadow-secondary/10 group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <Box
+              variant="xl"
+              className="hover:shadow-secondary/10 group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-secondary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
@@ -115,7 +121,7 @@ export default function PageAboutUs() {
         {/* Additional Info Section */}
         <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
           {/* About Card */}
-          <Box>
+          <Box variant="xl">
             <div className="mb-4">
               <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-tertiary">
                 <User className="h-6 w-6" />
@@ -132,7 +138,7 @@ export default function PageAboutUs() {
           </Box>
 
           {/* Legal Card */}
-          <Box>
+          <Box variant="xl">
             <div className="mb-4">
               <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-dark-gray">
                 <FileText className="h-6 w-6" />
