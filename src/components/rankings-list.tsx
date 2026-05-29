@@ -96,12 +96,12 @@ function RankingsTableRow({
           <div className="flex items-center gap-2">
             <RankingPositionMarker position={position} />
             <p
-              className="line-clamp-2 flex-1 font-medium leading-tight"
+              className="line-clamp-2 flex-1 leading-tight font-medium"
               title={productName}
             >
               {productName}
             </p>
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <CategoryIcon category={productCategory} />
             </div>
           </div>
@@ -146,18 +146,18 @@ function RankingsTableRow({
         {/* Desktop: Horizontal row layout */}
         <div className="hidden items-center gap-4 lg:flex">
           {/* Position */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <RankingPositionMarker position={position} />
           </div>
 
           {/* Icon */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <CategoryIcon category={productCategory} />
           </div>
 
           {/* Product Name */}
           <div className="min-w-0 flex-1 basis-40" title={productName}>
-            <p className="line-clamp-2 text-ellipsis font-medium">
+            <p className="line-clamp-2 font-medium text-ellipsis">
               {productName}
             </p>
           </div>
@@ -173,20 +173,20 @@ function RankingsTableRow({
           </div>
 
           {/* Stars + Review Count */}
-          <div className="flex flex-shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
             <StarsForRating rating={ratingAvg} size="small" />
             <span className="text-sm text-tertiary">({numOfReviews})</span>
           </div>
 
           {/* Place Name */}
-          <div className="min-w-0 flex-shrink-0 basis-36">
+          <div className="min-w-0 shrink-0 basis-36">
             <span className="line-clamp-2 text-secondary transition-colors group-hover/ranking-row:text-primary">
               {placeName}
             </span>
           </div>
 
           {/* City */}
-          <div className="flex-shrink-0 basis-24">
+          <div className="shrink-0 basis-24">
             <span>{city}</span>
           </div>
         </div>

@@ -156,12 +156,12 @@ export function ProductSearch({
                   Gefiltert nach:
                 </span>
                 {filters["product-name"] && (
-                  <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
+                  <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
                     Produkt: &ldquo;{filters["product-name"]}&rdquo;
                   </span>
                 )}
                 {filters["place-name"] && (
-                  <span className="bg-primary/10 rounded-md px-2 py-1 text-primary">
+                  <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
                     Restaurant: &ldquo;{filters["place-name"]}&rdquo;
                   </span>
                 )}
@@ -253,9 +253,9 @@ function ProductCard({
     <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
       <div className="flex h-full flex-col gap-3">
         {/* Header: Product name and category */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="mb-2 flex items-start justify-between gap-2">
-            <h4 className="line-clamp-2 flex-1 text-lg font-semibold leading-tight">
+            <h4 className="line-clamp-2 flex-1 text-lg leading-tight font-semibold">
               {name}
             </h4>
             <CategoryBadge size="sm" category={category} />
@@ -270,7 +270,7 @@ function ProductCard({
         {placeName && (
           <div className="flex items-start gap-2 text-sm">
             <svg
-              className="mt-0.5 size-4 flex-shrink-0"
+              className="mt-0.5 size-4 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -296,7 +296,7 @@ function ProductCard({
         )}
 
         {/* Footer: Rating - always at bottom */}
-        <div className="mt-auto flex-shrink-0 pt-2">
+        <div className="mt-auto shrink-0 pt-2">
           {!ratingAvg ? (
             <span className="text-sm">Noch keine Bewertungen</span>
           ) : (
@@ -304,7 +304,7 @@ function ProductCard({
               <div className="flex items-center gap-1">
                 <NumberFormatted num={ratingAvg} min={1} max={1} />
                 {/* prevent primary on primary */}
-                <div className={cn(isSelectedProduct && "rounded-sm bg-gray")}>
+                <div className={cn(isSelectedProduct && "rounded-xs bg-gray")}>
                   <StarsForRating size="small" rating={ratingAvg} />
                 </div>
               </div>

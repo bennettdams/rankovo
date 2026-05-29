@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function PageAboutUs() {
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto max-w-4xl px-6 pb-20 pt-16">
+      <div className="container mx-auto max-w-4xl px-6 pt-16 pb-20">
         {/* Hero Section */}
         <div className="mb-16 text-center">
           <h1 className="mb-4 text-5xl font-bold text-primary">
@@ -33,7 +33,7 @@ export default function PageAboutUs() {
               variant="xl"
               className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-linear-to-br from-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
                 <div className="mb-4">
@@ -74,9 +74,9 @@ export default function PageAboutUs() {
             {/* X/Twitter Card */}
             <Box
               variant="xl"
-              className="hover:shadow-secondary/10 group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-secondary/10"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-linear-to-br from-secondary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="relative z-10">
                 <div className="mb-4">
@@ -88,7 +88,7 @@ export default function PageAboutUs() {
                 <h3 className="mb-2 text-lg font-semibold text-secondary">
                   X (Twitter)
                 </h3>
-                <p className="text-fg/70 mb-4 text-sm">
+                <p className="mb-4 text-sm text-fg/70">
                   Folge mir für Updates und schnelle Gespräche
                 </p>
 
@@ -148,11 +148,11 @@ export default function PageAboutUs() {
             <h3 className="mb-3 text-xl font-semibold text-primary">
               Rechtliches
             </h3>
-            <p className="text-fg/80 leading-relaxed">
+            <p className="leading-relaxed text-fg/80">
               <span>Deine Privatsphäre ist wichtig. Lies unsere </span>
               <a
                 href="/privacy-policy"
-                className="decoration-primary/30 font-medium text-primary underline transition-colors hover:decoration-primary"
+                className="font-medium text-primary underline decoration-primary/30 transition-colors hover:decoration-primary"
               >
                 Datenschutzrichtlinie
               </a>

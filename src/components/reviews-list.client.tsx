@@ -36,7 +36,7 @@ export function EditReviewButtonWithSheet({
 
   return (
     <div
-      className="sticky right-0 z-10 flex h-full items-center justify-end px-3 backdrop-blur"
+      className="sticky right-0 z-10 flex h-full items-center justify-end px-3 backdrop-blur-sm"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
