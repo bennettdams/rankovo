@@ -42,7 +42,7 @@ export default async function PageChampions() {
     <div>
       <SectionHeader>Die Champions</SectionHeader>
 
-      <h2 className="mb-8 mt-4 text-center text-2xl">
+      <h2 className="mt-4 mb-8 text-center text-2xl">
         Deutschlands beste Gerichte je Kategorie
       </h2>
 
@@ -72,19 +72,19 @@ async function TopByCategories({
 
   return (
     <div className="grid grid-cols-1 gap-x-4 gap-y-8 px-6 lg:grid-cols-3 lg:gap-x-8 lg:px-0">
-      <div className="min-w-[300px] flex-shrink-0 lg:min-w-0">
+      <div className="min-w-[300px] shrink-0 lg:min-w-0">
         <TopByCategoryCard
           category="burger"
           rankings={rankingsBurgers.rankings}
         />
       </div>
-      <div className="min-w-[300px] flex-shrink-0 lg:min-w-0">
+      <div className="min-w-[300px] shrink-0 lg:min-w-0">
         <TopByCategoryCard
           category="doener"
           rankings={rankingsDoeners.rankings}
         />
       </div>
-      <div className="min-w-[300px] flex-shrink-0 lg:min-w-0">
+      <div className="min-w-[300px] shrink-0 lg:min-w-0">
         <TopByCategoryCard
           category="pizza"
           rankings={rankingsPizzas.rankings}
@@ -118,13 +118,13 @@ function TopByCategoryCard({
           priority
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        <h3 className="absolute bottom-4 left-4 text-3xl font-extrabold capitalize tracking-tight text-white drop-shadow-md">
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
+        <h3 className="absolute bottom-4 left-4 text-3xl font-extrabold tracking-tight text-white capitalize drop-shadow-md">
           {t[category]}
         </h3>
       </div>
 
-      <div className="grid grid-cols-[min-content,1fr] grid-rows-3 place-items-center gap-y-2">
+      <div className="grid grid-cols-[min-content_1fr] grid-rows-3 place-items-center gap-y-2">
         {/* RANKING ONE */}
         {!rankingOne ? (
           <RankingCardRow position={1} ranking={null} />

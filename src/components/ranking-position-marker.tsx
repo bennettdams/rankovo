@@ -15,11 +15,11 @@ export function RankingPositionMarker({
         position <= 3 && "shadow-lg",
         position > 3 && "border-2 border-gray",
         position === 1 &&
-          "bg-gradient-to-br from-yellow-500 via-yellow-400 to-yellow-600 text-white",
+          "bg-linear-to-br from-yellow-500 via-yellow-400 to-yellow-600 text-white",
         position === 2 &&
-          "bg-gradient-to-br from-slate-400 via-slate-300 to-slate-500 text-fg",
+          "bg-linear-to-br from-slate-400 via-slate-300 to-slate-500 text-fg",
         position === 3 &&
-          "bg-gradient-to-br from-amber-700 via-amber-600 to-amber-800 text-white",
+          "bg-linear-to-br from-amber-700 via-amber-600 to-amber-800 text-white",
       )}
     >
       {labelOverwrite ?? (

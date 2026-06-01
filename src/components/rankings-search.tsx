@@ -65,14 +65,14 @@ export function RankingsSearchBase(props: RankingsSearchBaseProps) {
         <Input
           name="filter-search"
           type="text"
-          className="h-14 rounded-2xl border-none bg-white/80 text-center text-lg leading-none shadow-lg ring-1 ring-black/5 backdrop-blur-sm transition-all placeholder:text-center focus:bg-white focus:placeholder:text-transparent focus-visible:ring-2 focus-visible:ring-primary md:h-16 md:text-xl md:placeholder:text-xl"
+          className="h-14 rounded-2xl border-none bg-white/80 text-center text-lg leading-none shadow-lg ring-1 ring-black/5 backdrop-blur-xs transition-all placeholder:text-center focus:bg-white focus:placeholder:text-transparent focus-visible:ring-2 focus-visible:ring-primary md:h-16 md:text-xl md:placeholder:text-xl"
           placeholder='z.B. "Döner in Hamburg"'
           value={config.searchQuery ?? ""}
           onChange={config.handleChange}
           onKeyDown={config.handleKeyDown}
           disabled={config.disabled}
         />
-        <div className="absolute left-5 top-1/2 -translate-y-1/2 transform text-primary">
+        <div className="absolute top-1/2 left-5 -translate-y-1/2 transform text-primary">
           {config.isLoading ? (
             <LoadingSpinner className="size-6" />
           ) : config.searchQuery ? (

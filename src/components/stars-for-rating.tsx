@@ -14,7 +14,7 @@ const starSizes = {
 };
 type StarSize = keyof typeof starSizes;
 
-const starStyles = "fill-gray text-gray drop-shadow-sm";
+const starStyles = "fill-gray text-gray drop-shadow-xs";
 
 const hoverableStyles =
   "active:scale-125 active:transition-transform peer peer-hover:fill-secondary hover:fill-secondary peer-hover:text-secondary hover:text-secondary";

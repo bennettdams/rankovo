@@ -9,11 +9,11 @@ import { boxStyles } from "../box";
 
 const dropdownMenuSurfaceStyles = cn(
   boxStyles.xl,
-  "z-50 min-w-[8rem] overflow-hidden p-2 text-fg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+  "z-50 min-w-32 overflow-hidden p-2 text-fg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
 );
 
 const dropdownMenuInteractionStyles =
-  "text-fg outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-white/70 focus:text-primary data-[highlighted]:bg-white/70 data-[highlighted]:text-primary";
+  "text-fg outline-hidden transition-colors data-disabled:pointer-events-none data-disabled:opacity-50 focus:bg-white/70 focus:text-primary data-highlighted:bg-white/70 data-highlighted:text-primary";
 
 const dropdownMenuIconStyles =
   "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
@@ -39,7 +39,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center gap-2 rounded-2xl px-3 py-2 text-sm",
+      "flex cursor-default items-center gap-2 rounded-2xl px-3 py-2 text-sm select-none",
       dropdownMenuInteractionStyles,
       dropdownMenuIconStyles,
       "data-[state=open]:bg-white/70 data-[state=open]:text-primary",
@@ -92,7 +92,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-2xl px-3 py-2 text-sm",
+      "relative flex cursor-default items-center gap-2 rounded-2xl px-3 py-2 text-sm select-none",
       dropdownMenuInteractionStyles,
       dropdownMenuIconStyles,
       inset && "pl-9",
@@ -110,7 +110,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-2xl py-2 pl-9 pr-3 text-sm",
+      "relative flex cursor-default items-center gap-2 rounded-2xl py-2 pr-3 pl-9 text-sm select-none",
       dropdownMenuInteractionStyles,
       dropdownMenuIconStyles,
       className,
@@ -136,7 +136,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-2xl py-2 pl-9 pr-3 text-sm",
+      "relative flex cursor-default items-center gap-2 rounded-2xl py-2 pr-3 pl-9 text-sm select-none",
       dropdownMenuInteractionStyles,
       dropdownMenuIconStyles,
       className,
@@ -162,7 +162,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em] text-fg",
+      "px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.18em] text-fg uppercase",
       inset && "pl-9",
       className,
     )}

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const baseStyles =
-  "bg-white/40 shadow-sm ring-1 ring-white/60 backdrop-blur-sm transition-shadow";
+  "bg-white/40 shadow-xs ring-1 ring-white/60 backdrop-blur-xs transition-shadow";
 
 export const boxStyles = {
   sm: cn(baseStyles, "rounded-md p-3 shadow-md hover:shadow-lg"),

@@ -18,7 +18,7 @@ export function ErrorCard({
   const Icon = icons[variant];
   return (
     <div className="flex size-full items-center justify-center text-left">
-      <div className="flex max-h-[90vh] w-full max-w-lg flex-col gap-6 overflow-y-auto bg-white p-8 shadow-sm">
+      <div className="flex max-h-[90vh] w-full max-w-lg flex-col gap-6 overflow-y-auto bg-white p-8 shadow-xs">
         <Icon className="size-16 stroke-error" />
         <h1 className="text-2xl">{title}</h1>
         {children}

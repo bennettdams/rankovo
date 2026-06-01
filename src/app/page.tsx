@@ -80,20 +80,20 @@ function HeroSection({ searchSlot }: { searchSlot: React.ReactNode }) {
       <div className="relative z-10 flex flex-col items-center space-y-8 text-center">
         <div className="flex items-center justify-center gap-4">
           <IconRankovo className="h-12 w-12 md:h-16 md:w-16" />
-          <div className="rounded-full bg-white/60 px-4 py-1.5 shadow-sm backdrop-blur-sm">
+          <div className="rounded-full bg-white/60 px-4 py-1.5 shadow-xs backdrop-blur-xs">
             <StarsForRating rating={ratingHighest} />
           </div>
         </div>
 
         <h1 className="max-w-4xl animate-appear text-5xl font-extrabold tracking-tight text-fg md:text-7xl lg:text-7xl">
-          <span className="bg-gradient-to-br from-primary to-tertiary bg-clip-text text-transparent">
+          <span className="bg-linear-to-br from-primary to-tertiary bg-clip-text text-transparent">
             Rankovo
           </span>
         </h1>
 
-        <p className="mx-auto max-w-2xl text-xl font-medium leading-relaxed md:text-2xl">
+        <p className="mx-auto max-w-2xl text-xl leading-relaxed font-medium md:text-2xl">
           Keine Überraschungen. Nur das{" "}
-          <span className="italic text-primary">Allerbeste</span>.
+          <span className="text-primary italic">Allerbeste</span>.
         </p>
       </div>
 

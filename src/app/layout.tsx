@@ -12,10 +12,13 @@ export const metadata: Metadata = {
 };
 
 const fontSans = localFont({
-  variable: "--font-sans",
+  variable: "--font-geist-sans",
   src: "./fonts/GeistVF.woff",
 });
-const fontSerif = Domine({ variable: "--font-serif", subsets: ["latin"] });
+const fontSerif = Domine({
+  variable: "--font-domine-serif",
+  subsets: ["latin"],
+});
 
 export default function RootLayout({
   children,
@@ -26,7 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "flex min-h-screen flex-col bg-gradient-to-r from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
+          "flex min-h-screen flex-col bg-linear-to-r from-bg to-orange-200 font-sans text-fg antialiased caret-primary accent-primary selection:bg-primary selection:text-white",
           fontSans.variable,
           fontSerif.variable,
         )}

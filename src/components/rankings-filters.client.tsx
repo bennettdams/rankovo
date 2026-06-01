@@ -144,7 +144,7 @@ function RankingsFiltersClientInternal({
 
   return (
     <Box variant="lg" className="flex flex-col gap-y-6 md:gap-y-10">
-      <div className="grid grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <div>
           {hasFilters && (
             <Button
@@ -247,7 +247,7 @@ function RankingsFiltersClientInternal({
               <div
                 key={critic.id}
                 className={cn(
-                  "flex h-10 select-none flex-row items-center rounded-full py-1 pr-1 duration-200 hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
+                  "flex h-10 flex-row items-center rounded-full py-1 pr-1 duration-200 select-none hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
                   isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
                 )}
                 onMouseDown={() =>
@@ -266,7 +266,7 @@ function RankingsFiltersClientInternal({
                   />
                 </div>
 
-                <span className="pl-1.5 pr-2.5">{critic.name}</span>
+                <span className="pr-2.5 pl-1.5">{critic.name}</span>
               </div>
             );
           })}
@@ -354,7 +354,7 @@ export function RankingsFiltersMobile({
       <DrawerTrigger asChild>
         <Button
           className={cn(
-            "fixed bottom-6 right-6 z-40 h-14 gap-2 rounded-full px-5 shadow-lg transition-all duration-300 md:hidden",
+            "fixed right-6 bottom-6 z-40 h-14 gap-2 rounded-full px-5 shadow-lg transition-all duration-300 md:hidden",
             isVisible
               ? "translate-y-0 opacity-100"
               : "pointer-events-none translate-y-4 opacity-0",
