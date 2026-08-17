@@ -1,5 +1,6 @@
 import type { FiltersRankings } from "@/app/page";
 import { queries, type RankingWithReviewsQuery } from "@/data/queries";
+import { formatCitiesLabel } from "@/lib/cities";
 import { Box } from "./box";
 import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
@@ -33,7 +34,7 @@ export async function RankingsList({
               productName={ranking.productName}
               productCategory={ranking.productCategory}
               productNote={ranking.productNote}
-              city={ranking.city}
+              cities={ranking.cities}
               lastReviewedAt={ranking.lastReviewedAt}
               numOfReviews={ranking.numOfReviews}
               reviews={ranking.reviews}
@@ -58,7 +59,7 @@ function RankingsTableRow({
   productNote,
   lastReviewedAt,
   placeName,
-  city,
+  cities,
   numOfReviews,
   reviews,
   position,
@@ -69,11 +70,13 @@ function RankingsTableRow({
   productNote: RankingWithReviewsQuery["productNote"];
   lastReviewedAt: RankingWithReviewsQuery["lastReviewedAt"];
   placeName: RankingWithReviewsQuery["placeName"];
-  city: RankingWithReviewsQuery["city"];
+  cities: RankingWithReviewsQuery["cities"];
   numOfReviews: RankingWithReviewsQuery["numOfReviews"];
   reviews: RankingWithReviewsQuery["reviews"];
   position: number;
 }) {
+  const citiesLabel = formatCitiesLabel(cities);
+
   return (
     <RankingDrawer
       placeName={placeName}
@@ -81,7 +84,7 @@ function RankingsTableRow({
       productName={productName}
       productCategory={productCategory}
       productNote={productNote}
-      city={city}
+      cities={cities}
       lastReviewedAt={lastReviewedAt}
       numOfReviews={numOfReviews}
       reviews={reviews}
@@ -134,10 +137,10 @@ function RankingsTableRow({
             <span className="font-medium text-secondary transition-colors group-hover/ranking-row:text-primary">
               {placeName}
             </span>
-            {city && (
+            {citiesLabel && (
               <>
                 <span className="text-tertiary">•</span>
-                <span>{city}</span>
+                <span>{citiesLabel}</span>
               </>
             )}
           </div>
@@ -186,8 +189,10 @@ function RankingsTableRow({
           </div>
 
           {/* City */}
-          <div className="shrink-0 basis-24">
-            <span>{city}</span>
+          <div className="min-w-0 shrink-0 basis-36">
+            <span className="block truncate" title={citiesLabel ?? undefined}>
+              {citiesLabel}
+            </span>
           </div>
         </div>
       </Box>

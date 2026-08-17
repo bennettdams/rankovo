@@ -1,4 +1,5 @@
 import type { RankingWithReviewsQuery } from "@/data/queries";
+import { formatCitiesFull, pickCityForMap } from "@/lib/cities";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
 import Link from "next/link";
@@ -27,7 +28,7 @@ export function RankingDrawer({
   productNote,
   lastReviewedAt,
   placeName,
-  city,
+  cities,
   numOfReviews,
   reviews,
   children,
@@ -38,11 +39,13 @@ export function RankingDrawer({
   productNote: RankingWithReviewsQuery["productNote"];
   lastReviewedAt: RankingWithReviewsQuery["lastReviewedAt"];
   placeName: RankingWithReviewsQuery["placeName"];
-  city: RankingWithReviewsQuery["city"];
+  cities: RankingWithReviewsQuery["cities"];
   numOfReviews: RankingWithReviewsQuery["numOfReviews"];
   reviews: RankingWithReviewsQuery["reviews"];
   children: React.ReactNode;
 }) {
+  const citiesFull = formatCitiesFull(cities);
+
   return (
     <Drawer>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
@@ -58,10 +61,10 @@ export function RankingDrawer({
                 <div className="line-clamp-2">
                   <span className="text-xl text-secondary">{placeName}</span>
 
-                  {city && (
+                  {citiesFull && (
                     <>
                       <span className="ml-2 text-secondary">•</span>
-                      <span className="ml-2 text-secondary">{city}</span>
+                      <span className="ml-2 text-secondary">{citiesFull}</span>
                     </>
                   )}
                 </div>
@@ -116,7 +119,7 @@ export function RankingDrawer({
           </TabsContent>
 
           <TabsContent value="tab-map" className="flex-1">
-            <ProductMap placeName={placeName} city={city} />
+            <ProductMap placeName={placeName} cities={cities} />
           </TabsContent>
         </Tabs>
 
@@ -125,7 +128,7 @@ export function RankingDrawer({
             <LastReviewsList reviews={reviews} />
           </div>
           <div className="mt-3 flex-1 pt-3">
-            <ProductMap placeName={placeName} city={city} />
+            <ProductMap placeName={placeName} cities={cities} />
           </div>
         </div>
 
@@ -202,15 +205,17 @@ function LastReviewsList({
 
 function ProductMap({
   placeName,
-  city,
+  cities,
 }: {
   placeName: RankingWithReviewsQuery["placeName"];
-  city: RankingWithReviewsQuery["city"];
+  cities: RankingWithReviewsQuery["cities"];
 }) {
+  const mapCity = pickCityForMap(cities);
+
   return (
     <div className="grid h-full">
-      {!!placeName && !!city && (
-        <MapWithPlace placeName={placeName} city={city} />
+      {!!placeName && !!mapCity && (
+        <MapWithPlace placeName={placeName} city={mapCity} />
       )}
     </div>
   );

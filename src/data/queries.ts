@@ -1,6 +1,7 @@
 import type { FiltersRankings } from "@/app/page";
 import {
   criticsTable,
+  placeCitiesTable,
   placesTable,
   productsTable,
   reviewsTable,
@@ -13,6 +14,7 @@ import {
   avg,
   desc,
   eq,
+  exists,
   gte,
   ilike,
   inArray,
@@ -24,9 +26,32 @@ import {
 } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
+import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, categoriesActive, minCharsSearch } from "./static";
 
 const numOfReviewsForAverage = 20;
+
+/**
+ * `EXISTS (SELECT place_id FROM place_cities … WHERE …)` — true if the outer
+ * place has at least one matching city row.
+ *
+ * Why EXISTS instead of joining `place_cities` in the main FROM?
+ * - A join would duplicate product rows (one per matching city).
+ * - EXISTS only checks “is there ≥1 matching row?” and keeps one product row.
+ *
+ * The subquery selects a real column (`placeId`) so the builder stays typed;
+ * EXISTS ignores the selected values and only cares whether any row matches.
+ * `eq(placeCitiesTable.placeId, placesTable.id)` correlates to the outer
+ * `places` row (the parent query must already join `places`).
+ */
+function existsPlaceCityMatching(cityCondition: SQL) {
+  return exists(
+    db
+      .select({ placeId: placeCitiesTable.placeId })
+      .from(placeCitiesTable)
+      .where(and(eq(placeCitiesTable.placeId, placesTable.id), cityCondition)),
+  );
+}
 
 export type QueryRankingWithReviews = ReturnType<typeof rankingsWithReviews>;
 export type RankingWithReviewsQuery = Awaited<
@@ -63,7 +88,8 @@ export function conditionsSearchProducts(searchQuery: string) {
       ilike(productsTable.category, wildcardTerm),
       // PLACES: Only search in place fields if they exist (not null)
       and(isNotNull(placesTable.name), ilike(placesTable.name, wildcardTerm)),
-      and(isNotNull(placesTable.city), ilike(placesTable.city, wildcardTerm)),
+      // Match if any linked city name contains the search term (see existsPlaceCityMatching).
+      existsPlaceCityMatching(ilike(placeCitiesTable.city, wildcardTerm)),
     );
   });
 
@@ -148,7 +174,11 @@ export function subqueryRankings(
 
     // FILTERS for places only
     if (filters.cities) {
-      sqlFiltersPlaces.push(inArray(placesTable.city, filters.cities));
+      // Place matches if any of its cities is in the selected filter set.
+      // See existsPlaceCityMatching for why we use EXISTS here.
+      sqlFiltersPlaces.push(
+        existsPlaceCityMatching(inArray(placeCitiesTable.city, filters.cities)),
+      );
     }
 
     // FILTERS that span multiple tables (products + places)
@@ -255,6 +285,7 @@ export function subqueryRankings(
   // Using "as" below to rename the column in the query.
   // See: https://github.com/drizzle-team/drizzle-orm/issues/2772
   const placeNameHack = "placeName";
+  const citiesHack = "cities";
 
   const qRankings = db
     .with(
@@ -271,7 +302,7 @@ export function subqueryRankings(
       productId: qTopProducts.productId,
       ratingAvg: qTopProducts.ratingAvg,
       lastReviewedAt: qTopProducts.lastReviewedAt,
-      city: placesTable.city,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
       [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
         placeNameHack,
       ),
@@ -321,6 +352,8 @@ function createReviewsQuery(options: {
     whereConditions.push(eq(reviewsTable.isCurrent, true));
   }
 
+  const citiesHack = "cities";
+
   return db
     .select({
       id: reviewsTable.id,
@@ -333,7 +366,7 @@ function createReviewsQuery(options: {
       productName: productsTable.name,
       placeName: placesTable.name,
       username: usersTable.name,
-      city: placesTable.city,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
       reviewedAt: reviewsTable.reviewedAt,
       isCurrent: reviewsTable.isCurrent,
       authorId: reviewsTable.authorId,
@@ -392,11 +425,13 @@ async function searchPlaces(placeName: string) {
   if (!!placeName && placeName.length >= minCharsSearch)
     filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
 
+  const citiesHack = "cities";
+
   return await db
     .select({
       id: placesTable.id,
       name: placesTable.name,
-      city: placesTable.city,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
     })
     .from(placesTable)
     .where(and(...filtersSQL));
@@ -416,6 +451,7 @@ async function searchProducts(searchQuery: string) {
   }
 
   const placeNameHack = "placeName";
+  const citiesHack = "cities";
 
   return await db
     .select({
@@ -427,7 +463,7 @@ async function searchProducts(searchQuery: string) {
       [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
         placeNameHack,
       ),
-      city: placesTable.city,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
     })
     .from(productsTable)
     .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))

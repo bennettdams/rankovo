@@ -15,6 +15,13 @@
       "when": 1766027760183,
       "tag": "0001_sharp_ikaris",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786922510199,
+      "tag": "0002_brave_prism",
+      "breakpoints": true
     }
   ]
 }

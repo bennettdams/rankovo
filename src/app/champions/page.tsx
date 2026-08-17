@@ -135,7 +135,7 @@ function TopByCategoryCard({
             productName={rankingOne.productName}
             productCategory={rankingOne.productCategory}
             productNote={rankingOne.productNote}
-            city={rankingOne.city}
+            cities={rankingOne.cities}
             lastReviewedAt={rankingOne.lastReviewedAt}
             numOfReviews={rankingOne.numOfReviews}
             reviews={rankingOne.reviews}
@@ -154,7 +154,7 @@ function TopByCategoryCard({
             productName={rankingTwo.productName}
             productCategory={rankingTwo.productCategory}
             productNote={rankingTwo.productNote}
-            city={rankingTwo.city}
+            cities={rankingTwo.cities}
             lastReviewedAt={rankingTwo.lastReviewedAt}
             numOfReviews={rankingTwo.numOfReviews}
             reviews={rankingTwo.reviews}
@@ -173,7 +173,7 @@ function TopByCategoryCard({
             productName={rankingThree.productName}
             productCategory={rankingThree.productCategory}
             productNote={rankingThree.productNote}
-            city={rankingThree.city}
+            cities={rankingThree.cities}
             lastReviewedAt={rankingThree.lastReviewedAt}
             numOfReviews={rankingThree.numOfReviews}
             reviews={rankingThree.reviews}
@@ -192,7 +192,7 @@ function TopByCategoryCard({
             productName={rankingFour.productName}
             productCategory={rankingFour.productCategory}
             productNote={rankingFour.productNote}
-            city={rankingFour.city}
+            cities={rankingFour.cities}
             lastReviewedAt={rankingFour.lastReviewedAt}
             numOfReviews={rankingFour.numOfReviews}
             reviews={rankingFour.reviews}
@@ -211,7 +211,7 @@ function TopByCategoryCard({
             productName={rankingFive.productName}
             productCategory={rankingFive.productCategory}
             productNote={rankingFive.productNote}
-            city={rankingFive.city}
+            cities={rankingFive.cities}
             lastReviewedAt={rankingFive.lastReviewedAt}
             numOfReviews={rankingFive.numOfReviews}
             reviews={rankingFive.reviews}
@@ -261,7 +261,7 @@ function RankingCardRow({
       <ProductDescriptionRow
         productName={ranking?.productName ?? null}
         placeName={ranking?.placeName ?? null}
-        city={ranking?.city ?? null}
+        cities={ranking?.cities ?? []}
         showBold={position === 1}
       />
     </div>

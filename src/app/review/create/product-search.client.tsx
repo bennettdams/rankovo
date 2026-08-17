@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ProductSearchQuery } from "@/data/queries";
 import { type Category, type City, minCharsSearch } from "@/data/static";
+import { formatCitiesLabel } from "@/lib/cities";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
@@ -214,7 +215,7 @@ export function ProductSearch({
                     category={product.productCategory}
                     note={product.productNote}
                     placeName={product.placeName}
-                    city={product.city}
+                    cities={product.cities}
                     ratingAvg={null}
                     numOfReviews={null}
                   />
@@ -235,7 +236,7 @@ function ProductCard({
   category,
   note,
   placeName,
-  city,
+  cities,
   ratingAvg,
   numOfReviews,
 }: {
@@ -245,10 +246,12 @@ function ProductCard({
   category: Category;
   note: string | null;
   placeName: string | null;
-  city: City | null;
+  cities: City[];
   ratingAvg: number | null;
   numOfReviews: number | null;
 }) {
+  const citiesLabel = formatCitiesLabel(cities);
+
   return (
     <SelectionCard isSelected={isSelectedProduct} onClick={onClick}>
       <div className="flex h-full flex-col gap-3">
@@ -290,7 +293,7 @@ function ProductCard({
             </svg>
             <div className="min-w-0 flex-1">
               <span className="line-clamp-1">{placeName}</span>
-              {city && <span className="text-xs">{city}</span>}
+              {citiesLabel && <span className="text-xs">{citiesLabel}</span>}
             </div>
           </div>
         )}

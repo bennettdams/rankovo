@@ -1,4 +1,5 @@
 import { queries, type ReviewQuery } from "@/data/queries";
+import { formatCitiesLabel } from "@/lib/cities";
 import { Box } from "./box";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
@@ -22,7 +23,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
       {reviews.map((review) => (
         <ReviewWithDrawer key={review.id} productId={review.productId}>
           <Box
-            className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center whitespace-nowrap p-0 transition-colors hover:bg-secondary hover:text-secondary-fg"
+            className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center p-0 whitespace-nowrap transition-colors hover:bg-secondary hover:text-secondary-fg"
             variant="sm"
           >
             <div>{review.productName}</div>
@@ -34,7 +35,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
             <div>{review.username}</div>
             <div>{review.note}</div>
             <div>{review.placeName}</div>
-            <div>{review.city}</div>
+            <div>{formatCitiesLabel(review.cities)}</div>
             <div>
               {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
             </div>
@@ -60,7 +61,7 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
               productId={review.productId}
               productName={review.productName}
               placeName={review.placeName}
-              city={review.city}
+              cities={review.cities}
               rating={review.rating}
               note={review.note}
               urlSource={review.urlSource}
@@ -89,7 +90,7 @@ export async function ReviewWithDrawer({
       productNote={ranking.productNote}
       lastReviewedAt={ranking.lastReviewedAt}
       placeName={ranking.placeName}
-      city={ranking.city}
+      cities={ranking.cities}
       numOfReviews={ranking.numOfReviews}
       reviews={ranking.reviews}
     >
