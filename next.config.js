@@ -11,6 +11,7 @@ const nextConfig = {
     },
   },
   cacheComponents: true,
+  partialPrefetching: true,
   experimental: {
     authInterrupts: true,
   },
