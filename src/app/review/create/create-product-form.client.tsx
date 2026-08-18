@@ -30,6 +30,7 @@ import { PlaceSearchQuery } from "@/data/queries";
 import { categoriesActive, type City, minCharsSearch } from "@/data/static";
 import { schemaCreatePlace, schemaCreateProduct } from "@/db/db-schema";
 import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
+import { formatCitiesLabel, pickCityForMap } from "@/lib/cities";
 import {
   type FormConfig,
   type FormState,
@@ -164,6 +165,9 @@ export function CreateProductForm({
     ? placesForSearch.find((p) => p.id === selectedPlaceId)
     : // fallback first place from search if nothing selected
       (placesForSearch[0] ?? null);
+  const placeForMapCity = placeForMap
+    ? pickCityForMap(placeForMap.cities)
+    : null;
 
   /** We remind the user to select a place so it is not assumed that entering a place name automatically makes a selection. */
   const isPlaceSelectionNeeded =
@@ -294,7 +298,7 @@ export function CreateProductForm({
                           )
                         }
                         name={place.name}
-                        city={place.city}
+                        cities={place.cities}
                       />
                     ))}
                   </div>
@@ -334,10 +338,10 @@ export function CreateProductForm({
               Vorschau des Standorts
             </h4>
             <div className="grid h-40 w-full overflow-hidden md:h-96">
-              {!!placeForMap && placeForMap.city ? (
+              {!!placeForMap && placeForMapCity ? (
                 <MapWithPlace
                   placeName={placeForMap.name}
-                  city={placeForMap.city}
+                  city={placeForMapCity}
                 />
               ) : (
                 <MapWithPlace placeName="Bun's" city="Hamburg" />
@@ -386,18 +390,20 @@ function PlaceCard({
   isSelected,
   onSelect,
   name,
-  city,
+  cities,
 }: {
   isSelected: boolean;
   onSelect: () => void;
   name: string;
-  city: City | null;
+  cities: City[];
 }) {
+  const citiesLabel = formatCitiesLabel(cities);
+
   return (
     <SelectionCard isSelected={isSelected} onClick={onSelect}>
       <div className="space-y-2">
         <h4 className="line-clamp-2 font-semibold">{name}</h4>
-        {city && (
+        {citiesLabel && (
           <div className="flex items-center gap-1 text-sm text-dark-gray">
             <svg
               className="size-4 text-dark-gray"
@@ -418,7 +424,7 @@ function PlaceCard({
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <span>{city}</span>
+            <span>{citiesLabel}</span>
           </div>
         )}
       </div>
@@ -428,15 +434,21 @@ function PlaceCard({
 
 const formKeysCreatePlace = {
   name: "name",
-  city: "city",
+  cities: "cities",
 } satisfies Record<keyof PlaceCreate, string>;
 
 const formConfigCreatePlace = {
   name: "string",
-  city: "string",
+  cities: "stringArray",
 } satisfies FormConfig<PlaceCreate>;
 
 export type FormStateCreatePlace = FormState<typeof formConfigCreatePlace>;
+
+function toggleCity(citiesSelected: City[], city: City): City[] {
+  return citiesSelected.includes(city)
+    ? citiesSelected.filter((c) => c !== city)
+    : [...citiesSelected, city];
+}
 
 async function createPlace(_: unknown, formData: FormData) {
   const formState = prepareFormState(formConfigCreatePlace, formData);
@@ -475,14 +487,23 @@ function DrawerCreatePlace({
 }) {
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(createPlace, {
-      onSuccess: (data) => onCreatedPlace(data.placeIdCreated),
+      onSuccess: (data) => {
+        setSelectedCities([]);
+        onCreatedPlace(data.placeIdCreated);
+      },
     }),
     null,
   );
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [selectedCities, setSelectedCities] = useState<City[]>([]);
+  const mapCity = pickCityForMap(selectedCities);
+
+  function handleOpenChange(open: boolean) {
+    setIsOpen(open);
+    if (!open) setSelectedCities([]);
+  }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader className="shrink-0">
@@ -515,17 +536,25 @@ function DrawerCreatePlace({
                 </Fieldset>
 
                 <Fieldset>
-                  <Label htmlFor={formKeysCreatePlace.city}>Stadt</Label>
-                  <Input
-                    name={formKeysCreatePlace.city}
-                    type="hidden"
-                    defaultValue={selectedCity ?? undefined}
-                  />
+                  <Label>Städte</Label>
+                  <p className="mb-2 text-sm text-dark-gray">
+                    Keine Auswahl = nicht städtebezogen
+                  </p>
+                  {selectedCities.map((city) => (
+                    <input
+                      key={city}
+                      type="hidden"
+                      name={formKeysCreatePlace.cities}
+                      value={city}
+                    />
+                  ))}
                   <CitiesSelection
-                    citiesActive={!selectedCity ? [] : [selectedCity]}
-                    onClick={setSelectedCity}
+                    citiesActive={selectedCities}
+                    onClick={(city) =>
+                      setSelectedCities((prev) => toggleCity(prev, city))
+                    }
                   />
-                  <FieldError errorMsg={state?.errors?.city} />
+                  <FieldError errorMsg={state?.errors?.cities} />
                 </Fieldset>
 
                 <Button
@@ -542,8 +571,8 @@ function DrawerCreatePlace({
 
               <div className="flex flex-col md:w-1/2">
                 <div className="h-60 w-full md:h-80">
-                  {!!placeName && !!selectedCity ? (
-                    <MapWithPlace placeName={placeName} city={selectedCity} />
+                  {!!placeName && !!mapCity ? (
+                    <MapWithPlace placeName={placeName} city={mapCity} />
                   ) : (
                     <MapWithPlace placeName="Bun's" city="Hamburg" />
                   )}

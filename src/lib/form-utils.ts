@@ -25,6 +25,10 @@ type TransformerResult<TFormValue extends FormValueType> = ReturnType<
 const formDataTransformers = {
   string: (formData: FormData, key: string) =>
     (formData.get(key) as string | null) || null,
+  stringArray: (formData: FormData, key: string) =>
+    formData
+      .getAll(key)
+      .filter((value): value is string => typeof value === "string"),
   number: (formData: FormData, key: string) =>
     transformFromStringToNumber(formData.get(key) as string | null),
   date: (formData: FormData, key: string) =>

@@ -14,6 +14,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   real,
   text,
   timestamp,
@@ -115,15 +116,31 @@ export type ReviewUpdateDb = z.infer<typeof schemaUpdateReview>;
 export const placesTable = pgTable("places", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  city: varchar({ length: 255, enum: cities }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const placeCitiesTable = pgTable(
+  "place_cities",
+  {
+    placeId: integer("place_id")
+      .notNull()
+      .references(() => placesTable.id, { onDelete: "cascade" }),
+    city: varchar({ length: 255, enum: cities }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.placeId, table.city] })],
+);
+
+const schemaCity = z.enum(cities);
+
 export const schemaCreatePlace = createInsertSchema(placesTable)
   .required()
   .omit({
     createdAt: true,
     updatedAt: true,
+  })
+  .extend({
+    cities: z.array(schemaCity),
   });
 export type PlaceCreateDb = z.infer<typeof schemaCreatePlace>;
 

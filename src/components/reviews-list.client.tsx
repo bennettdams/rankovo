@@ -1,5 +1,6 @@
 "use client";
 
+import type { City } from "@/data/static";
 import { useUserAuth } from "@/lib/auth-client";
 import { useState } from "react";
 import { ProductDescriptionRow } from "./product-description-row";
@@ -18,7 +19,7 @@ export function EditReviewButtonWithSheet({
   productId,
   productName,
   placeName,
-  city,
+  cities,
   rating,
   note,
   urlSource,
@@ -26,7 +27,7 @@ export function EditReviewButtonWithSheet({
   productId: number;
   productName: string;
   placeName: string | null;
-  city: string | null;
+  cities: City[];
   rating: number;
   note: string | null;
   urlSource: string | null;
@@ -66,7 +67,7 @@ export function EditReviewButtonWithSheet({
             <ProductDescriptionRow
               productName={productName}
               placeName={placeName ?? null}
-              city={city ?? null}
+              cities={cities}
               showBold={true}
             />
 

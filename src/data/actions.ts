@@ -8,6 +8,7 @@ import { type FormStateChangeUsername } from "@/app/welcome/form-username-change
 import type { FormStateCreateReview } from "@/components/review-form.client";
 import {
   lower,
+  placeCitiesTable,
   type PlaceCreateDb,
   placesTable,
   type ProductCreateDb,
@@ -41,6 +42,7 @@ import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { headers } from "next/headers";
+import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, usernamesReserved } from "./static";
 
 export type PlaceCreate = PlaceCreateDb;
@@ -67,17 +69,33 @@ export async function actionCreatePlace(
     } satisfies ActionStateError;
   }
 
-  const placeCreatedRows = await db
-    .insert(placesTable)
-    .values({
-      ...placeParsed,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .returning({ id: placesTable.id });
+  const { cities: citiesSelected, ...placeValues } = placeParsed;
+  const citiesUnique = [...new Set(citiesSelected)];
 
-  const placeCreated = placeCreatedRows[0];
-  if (!placeCreated) throw new Error("No created place");
+  const placeCreated = await db.transaction(async (tx) => {
+    const placeCreatedRows = await tx
+      .insert(placesTable)
+      .values({
+        ...placeValues,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning({ id: placesTable.id });
+
+    const place = placeCreatedRows[0];
+    if (!place) throw new Error("No created place");
+
+    if (citiesUnique.length > 0) {
+      await tx.insert(placeCitiesTable).values(
+        citiesUnique.map((city) => ({
+          placeId: place.id,
+          city,
+        })),
+      );
+    }
+
+    return place;
+  });
 
   updateTag(cacheKeys.places);
 
@@ -249,7 +267,7 @@ export async function actionCreateProduct(
       category: productInsertQuery.category,
       note: productInsertQuery.note,
       placeName: placesTable.name,
-      city: placesTable.city,
+      cities: sqlCitiesForPlace(),
     })
     .from(productInsertQuery)
     .leftJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));

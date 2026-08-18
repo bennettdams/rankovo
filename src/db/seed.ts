@@ -17,6 +17,7 @@ import {
 import { and, asc, eq, sql } from "drizzle-orm";
 import {
   criticsTable,
+  placeCitiesTable,
   type PlaceCreateDb,
   placesTable,
   type ProductCreateDb,
@@ -27,6 +28,29 @@ import {
   usersTable,
 } from "./db-schema";
 import { db } from "./drizzle-setup";
+
+async function createPlace(place: PlaceCreateDb) {
+  const { cities: placeCities, ...placeValues } = place;
+
+  return await db.transaction(async (tx) => {
+    const placeCreated = (
+      await tx.insert(placesTable).values(placeValues).returning()
+    ).at(0);
+
+    if (!placeCreated) throw new Error("Place not created");
+
+    if (placeCities.length > 0) {
+      await tx.insert(placeCitiesTable).values(
+        placeCities.map((city) => ({
+          placeId: placeCreated.id,
+          city,
+        })),
+      );
+    }
+
+    return placeCreated;
+  });
+}
 
 const numOfReviews = 10_000;
 
@@ -196,16 +220,6 @@ async function createReviewsBulk() {
 async function createReviewsReal() {
   console.info("Create reviews (real)");
 
-  async function createPlace(place: PlaceCreateDb) {
-    const placeCreated = (
-      await db.insert(placesTable).values(place).returning()
-    ).at(0);
-
-    if (!placeCreated) throw new Error("Place not created");
-
-    return placeCreated;
-  }
-
   async function createProduct(product: ProductCreateDb) {
     const productCreated = (
       await db.insert(productsTable).values(product).returning()
@@ -282,7 +296,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Lister Döner",
-    city: "Hannover",
+    cities: ["Hannover"],
   });
 
   product = await createProduct({
@@ -321,7 +335,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "SISI Smashburger",
-    city: "Bremen",
+    cities: ["Bremen"],
   });
 
   product = await createProduct({
@@ -344,7 +358,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "moodburger",
-    city: "Bremen",
+    cities: ["Bremen"],
   });
 
   product = await createProduct({
@@ -367,7 +381,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Hendl & Glut",
-    city: "Hannover",
+    cities: ["Hannover"],
   });
 
   product = await createProduct({
@@ -390,7 +404,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Wagner",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -413,7 +427,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Roberto di Frosty",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -436,7 +450,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Guller BBQ",
-    city: "Stuttgart",
+    cities: ["Stuttgart"],
   });
 
   product = await createProduct({
@@ -475,7 +489,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Saman",
-    city: "Köln",
+    cities: ["Köln"],
   });
 
   product = await createProduct({
@@ -498,7 +512,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Gyros Manufaktur Pepe",
-    city: "Düsseldorf",
+    cities: ["Düsseldorf"],
   });
 
   product = await createProduct({
@@ -521,7 +535,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Magnum",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -544,7 +558,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "McDonald's",
-    city: null,
+    cities: [],
   });
   const placeMcDonId = place.id;
 
@@ -568,7 +582,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Kinder",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -591,7 +605,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "ROB's",
-    city: null,
+    cities: [],
   });
   const placeIdRobs = place.id;
 
@@ -615,7 +629,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "funny-frisch",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -654,7 +668,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Melrose by Fairfax Express",
-    city: "München",
+    cities: ["München"],
   });
 
   product = await createProduct({
@@ -693,7 +707,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "BioDöner by MonsterFit",
-    city: "Frankfurt",
+    cities: ["Frankfurt"],
   });
 
   product = await createProduct({
@@ -716,7 +730,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Honest Kebab",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -755,7 +769,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Dr. Smusy",
-    city: "Köln",
+    cities: ["Köln"],
   });
 
   product = await createProduct({
@@ -826,7 +840,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Chingu Westfield",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -867,7 +881,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Pastalich",
-    city: "Hannover",
+    cities: ["Hannover"],
   });
 
   product = await createProduct({
@@ -906,7 +920,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "JOKOLADE",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -945,7 +959,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Burgermeister",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -1000,7 +1014,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "BETR Burger",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
   const placeIdBETR = place.id;
 
@@ -1074,7 +1088,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "HOB's Hut of Burger",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1145,7 +1159,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "köfte23",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1168,7 +1182,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Soulkebab",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1226,7 +1240,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Bobby's Burger",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1296,7 +1310,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Koz Tantuni Street Food",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1319,7 +1333,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Antep Kebab House",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1342,7 +1356,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Crockpot's",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1365,7 +1379,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "La Noodle",
-    city: "Düsseldorf",
+    cities: ["Düsseldorf"],
   });
 
   product = await createProduct({
@@ -1388,7 +1402,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "goldies",
-    city: null,
+    cities: [],
   });
   const placeIdGoldies = place.id;
 
@@ -1429,7 +1443,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "TAKE - THE GOOD FOOD",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -1481,7 +1495,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Five Guys",
-    city: null,
+    cities: ["Berlin", "Hamburg", "München"],
   });
 
   product = await createProduct({
@@ -1504,7 +1518,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Joe & The Juice",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1527,7 +1541,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Frittenwerk",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -1550,7 +1564,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Block House",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -1591,7 +1605,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Superbad",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1614,7 +1628,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Chingu St. Pauli",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1637,7 +1651,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "The Salli's",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1660,7 +1674,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Siggys Gemüse Kebap",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1699,7 +1713,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Erika's Eck",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1738,7 +1752,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Mis Tantuni & Döner",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1761,7 +1775,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Papa Johns",
-    city: null,
+    cities: [],
   });
 
   product = await createProduct({
@@ -1784,7 +1798,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "L'Antica Pizzeria da Michele",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1807,7 +1821,7 @@ async function createReviewsReal() {
 
   place = await createPlace({
     name: "Spezzagrano",
-    city: "Hamburg",
+    cities: ["Hamburg"],
   });
 
   product = await createProduct({
@@ -1953,22 +1967,24 @@ async function createProducts() {
 async function createPlaces() {
   console.info("Create places");
 
-  await db
-    .insert(placesTable)
-    .values([
-      { name: "Bun's", city: "Hamburg" },
-      { name: "Batu Noodle Society", city: "Hamburg" },
-      { name: "Goldies" },
-      { name: "Guten Dag", city: "Berlin" },
-      { name: "Breggs", city: "Berlin" },
-      { name: "Horváth", city: "Berlin" },
-      { name: "TROYKA", city: "Düsseldorf" },
-      { name: "Karl Hermann's", city: "Düsseldorf" },
-      { name: "Bibis Baguette", city: "Frankfurt" },
-      { name: "Happy Pizza" },
-      { name: "Domino's" },
-      { name: "Five Guys" },
-    ]);
+  const placesToCreate: PlaceCreateDb[] = [
+    { name: "Bun's", cities: ["Hamburg"] },
+    { name: "Batu Noodle Society", cities: ["Hamburg"] },
+    { name: "Goldies", cities: [] },
+    { name: "Guten Dag", cities: ["Berlin"] },
+    { name: "Breggs", cities: ["Berlin"] },
+    { name: "Horváth", cities: ["Berlin"] },
+    { name: "TROYKA", cities: ["Düsseldorf"] },
+    { name: "Karl Hermann's", cities: ["Düsseldorf"] },
+    { name: "Bibis Baguette", cities: ["Frankfurt"] },
+    { name: "Happy Pizza", cities: [] },
+    { name: "Domino's", cities: [] },
+    { name: "Five Guys", cities: ["Berlin", "Hamburg", "München"] },
+  ];
+
+  for (const place of placesToCreate) {
+    await createPlace(place);
+  }
 }
 
 async function createCritics() {
