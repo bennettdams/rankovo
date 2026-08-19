@@ -11,7 +11,9 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { forbidden, unauthorized } from "next/navigation";
+import { cache } from "react";
 import "server-only";
 
 export const auth = betterAuth({
@@ -92,9 +94,9 @@ async function createTemporaryUsername(
   }
 }
 
-export async function getUserAuth(headers: Headers) {
+const resolveUserAuth = cache(async () => {
   const data = await auth.api.getSession({
-    headers,
+    headers: await headers(),
   });
 
   if (!data) return null;
@@ -107,6 +109,10 @@ export async function getUserAuth(headers: Headers) {
     username: data.user.name,
     role,
   };
+});
+
+export async function getUserAuth(_headers: Headers) {
+  return resolveUserAuth();
 }
 
 export type UserAuth = Awaited<ReturnType<typeof getUserAuthGated>>;
