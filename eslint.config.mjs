@@ -32,7 +32,7 @@ const eslintConfig = defineConfig([
       "no-console": [
         "warn",
         {
-          allow: ["info", "error", "debug"],
+          allow: ["info", "error", "debug", "warn"],
         },
       ],
     },

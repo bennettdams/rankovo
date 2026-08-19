@@ -33,7 +33,6 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { cacheTag } from "next/cache";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, categoriesActive, minCharsSearch } from "./static";
@@ -365,14 +364,14 @@ export function subqueryRankings(
 const pageSizeReviews = 20;
 
 function createReviewsQuery(options: {
-  page?: number;
+  page?: PageSearchParam;
   userIdFilter?: string | null;
   productIdsFilter?: number[];
   limit?: number;
   onlyCurrentReviews?: boolean;
 }) {
   const {
-    page = 1,
+    page = null,
     userIdFilter = null,
     productIdsFilter,
     limit,
@@ -397,6 +396,7 @@ function createReviewsQuery(options: {
   }
 
   const citiesHack = "cities";
+  const pageNumber = pageFromSearchParam(page);
 
   return db
     .select({
@@ -427,10 +427,13 @@ function createReviewsQuery(options: {
       asc(reviewsTable.id),
     )
     .limit(limit || pageSizeReviews)
-    .offset(limit ? 0 : (page - 1) * pageSizeReviews);
+    .offset(limit ? 0 : pageOffset(pageNumber, pageSizeReviews));
 }
 
-async function reviews(page = 1, userIdFilter: string | null = null) {
+async function reviews(
+  page: PageSearchParam = null,
+  userIdFilter: string | null = null,
+) {
   "use cache";
   cacheTag(
     cacheKeys.reviews,
@@ -582,10 +585,16 @@ async function rankingForProductId(productId: number) {
 const pageSizeAdmin = 25;
 
 async function asAdmin<T>(query: () => Promise<T>): Promise<T> {
-  await assertAdmin(await headers());
+  await assertAdmin();
   return query();
 }
 
+/**
+ * Auth first, cache second. `assertAdmin` reads `headers()`, which cannot run
+ * inside `"use cache"`. Never inline the auth check into the cached query, and
+ * never export the inner function — callers would skip the gate. Cache keys
+ * (`cacheTag`) are not per-user; authorization is only this wrapper.
+ */
 function wrapAdmin<TArgs extends unknown[], TResult>(
   query: (...args: TArgs) => Promise<TResult>,
 ) {

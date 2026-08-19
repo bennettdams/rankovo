@@ -139,11 +139,14 @@ export const placeCitiesTable = pgTable(
 );
 
 const schemaCity = z.enum(cities);
-const schemaPlaceName = z
-  .string({ error: "Kann nicht leer sein" })
-  .trim()
-  .min(1, "Kann nicht leer sein")
-  .max(255);
+function schemaTrimmedName(min: number, max: number) {
+  return z
+    .string({ error: "Kann nicht leer sein" })
+    .trim()
+    .min(min, "Kann nicht leer sein")
+    .max(max);
+}
+const schemaPlaceName = schemaTrimmedName(1, 255);
 
 export const schemaCreatePlace = createInsertSchema(placesTable, {
   name: schemaPlaceName,
@@ -184,11 +187,7 @@ export const productsTable = pgTable(
 export const schemaCategory = z.enum(categories, {
   message: "Bitte wähle eine Kategorie aus",
 });
-const schemaProductName = z
-  .string({ error: "Kann nicht leer sein" })
-  .trim()
-  .min(2)
-  .max(255);
+const schemaProductName = schemaTrimmedName(2, 255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,
@@ -205,10 +204,12 @@ export type ProductCreateDb = z.infer<typeof schemaCreateProduct>;
 export const schemaUpdateProduct = createUpdateSchema(productsTable, {
   name: schemaProductName,
   note: schemaNote,
+  category: schemaCategory,
 })
   .pick({
     name: true,
     note: true,
+    category: true,
     placeId: true,
   })
   .required();

@@ -15,7 +15,18 @@ import {
 } from "./ui/dropdown-menu";
 import { SheetClose } from "./ui/sheet";
 
-function SignInButton() {
+function SignInButton({ allowDevLogin }: { allowDevLogin: boolean }) {
+  if (allowDevLogin) {
+    return (
+      <Button asChild className="bg-secondary text-secondary-fg">
+        <Link href={routes.devLogin}>
+          <CircleUser />
+          <p>Anmelden</p>
+        </Link>
+      </Button>
+    );
+  }
+
   return (
     <Button onClick={() => signIn()} className="bg-secondary text-secondary-fg">
       <CircleUser />
@@ -24,7 +35,7 @@ function SignInButton() {
   );
 }
 
-export function UserMenu() {
+export function UserMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
   const userAuth = useUserAuth();
 
   return (
@@ -43,10 +54,10 @@ export function UserMenu() {
           <p className="w-40 text-error">
             Fehler beim Anmelden, bitte versuche es erneut
           </p>
-          <SignInButton />
+          <SignInButton allowDevLogin={allowDevLogin} />
         </div>
       ) : userAuth.state === "no-data" ? (
-        <SignInButton />
+        <SignInButton allowDevLogin={allowDevLogin} />
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -83,7 +94,11 @@ export function UserMenu() {
   );
 }
 
-export function UserMenuForMobile() {
+export function UserMenuForMobile({
+  allowDevLogin,
+}: {
+  allowDevLogin: boolean;
+}) {
   const userAuth = useUserAuth();
 
   if (userAuth.state === "pending") return <div>Nutzer wird geladen..</div>;
@@ -93,10 +108,11 @@ export function UserMenuForMobile() {
         <p className="text-error">
           Fehler beim Anmelden, bitte versuche es erneut
         </p>
-        <SignInButton />
+        <SignInButton allowDevLogin={allowDevLogin} />
       </>
     );
-  if (userAuth.state === "no-data") return <SignInButton />;
+  if (userAuth.state === "no-data")
+    return <SignInButton allowDevLogin={allowDevLogin} />;
 
   return (
     <>

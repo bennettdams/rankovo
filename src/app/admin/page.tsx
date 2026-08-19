@@ -12,64 +12,27 @@ import {
   lastPage,
   pageFromSearchParam,
   pageSearchParam,
-  schemaPageSearchParam,
   shiftPage,
   totalPages,
   type Page,
 } from "@/lib/pagination";
-import { schemaSearchParamSingle } from "@/lib/schemas";
-import { stringifySearchParams } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { z } from "zod";
+import { PlaceEditor, ProductEditor } from "./admin.client";
 import {
-  PlaceEditor,
-  ProductEditor,
+  adminHref,
+  emptyAdminParams,
+  parseSearchParamsAdmin,
   searchParamKeysAdmin,
-} from "./admin.client";
+  type SearchParamsAdmin,
+} from "./admin.shared";
 
 export const metadata: Metadata = {
   title: "Rankovo | Verwaltung",
 };
-
-const adminTabs = ["products", "places"] as const;
-
-const schemaParamsAdmin = z.object({
-  tab: schemaSearchParamSingle(z.enum(adminTabs), "string"),
-  page: schemaPageSearchParam,
-  productId: schemaSearchParamSingle(z.number().int().positive(), "number"),
-  placeId: schemaSearchParamSingle(z.number().int().positive(), "number"),
-  "product-search": schemaSearchParamSingle(
-    z.string().min(1).max(255),
-    "string",
-  ),
-  "place-search": schemaSearchParamSingle(z.string().min(1).max(255), "string"),
-});
-
-export type SearchParamsAdmin = z.output<typeof schemaParamsAdmin>;
-
-function emptyAdminParams(
-  overrides: Partial<SearchParamsAdmin> = {},
-): SearchParamsAdmin {
-  return {
-    tab: null,
-    page: null,
-    productId: null,
-    placeId: null,
-    "product-search": null,
-    "place-search": null,
-    ...overrides,
-  };
-}
-
-function adminHref(params: SearchParamsAdmin): string {
-  const queryString = stringifySearchParams(params);
-  return queryString ? `${routes.admin}?${queryString}` : routes.admin;
-}
 
 function redirectIfPageOutOfRange(
   page: Page,
@@ -111,8 +74,8 @@ async function AdminContent({
 }: {
   searchParams: Promise<unknown>;
 }) {
-  await assertAdmin(await headers());
-  const params = schemaParamsAdmin.parse(await searchParams);
+  await assertAdmin();
+  const params = parseSearchParamsAdmin(await searchParams);
   const isPlacesTab = params.tab === "places";
 
   return (
@@ -151,26 +114,29 @@ async function AdminContent({
 }
 
 function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
-  const searchKey =
-    params.tab === "places"
-      ? searchParamKeysAdmin["place-search"]
-      : searchParamKeysAdmin["product-search"];
+  const isPlacesTab = params.tab === "places";
+  const searchKey = isPlacesTab
+    ? searchParamKeysAdmin["place-search"]
+    : searchParamKeysAdmin["product-search"];
+  const searchLabel = isPlacesTab ? "Restaurantname" : "Produktname";
 
   return (
     <form action={routes.admin} className="flex gap-2" method="get">
-      {params.tab === "places" && (
+      {/* Native GET replaces the query string. Without this, search from the
+          places tab drops `tab=places` and the page falls back to products. */}
+      {isPlacesTab && (
         <input
           name={searchParamKeysAdmin.tab}
           type="hidden"
-          value={params.tab}
+          value="places"
         />
       )}
       <Input
-        aria-label="Nach Name suchen"
+        aria-label={searchLabel}
         defaultValue={params[searchKey] ?? ""}
         maxLength={255}
         name={searchKey}
-        placeholder="Nach Name suchen"
+        placeholder={searchLabel}
         type="search"
       />
       <Button type="submit">Suchen</Button>

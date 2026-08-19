@@ -34,11 +34,11 @@ export function FieldError({
 
   if (messages.length === 0) return null;
 
-  return messages.map((message) => (
+  return messages.map((message, index) => (
     <p
       aria-live="polite"
       className={cn("text-error", className)}
-      key={message}
+      key={`${index}-${message}`}
     >
       {message}
     </p>

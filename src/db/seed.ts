@@ -1,4 +1,6 @@
 import {
+  devPassword,
+  devUsers,
   ratingHighest,
   ratingLowest,
   reviewSources,
@@ -9,13 +11,16 @@ import {
   usernameReeze,
   usernameSturmwaffel,
 } from "@/data/static";
+import { isDevLoginEnabled } from "@/lib/dev-login";
 import {
   createRandomNumberBetween,
   pickRandomFromArray,
   pickRandomValueFromObject,
 } from "@/lib/utils";
+import { hashPassword } from "better-auth/crypto";
 import { and, asc, eq, sql } from "drizzle-orm";
 import {
+  accountsTable,
   criticsTable,
   placeCitiesTable,
   type PlaceCreateDb,
@@ -2057,6 +2062,8 @@ async function createUsers() {
     })),
   );
 
+  await createDevUsers();
+
   Array.from({ length: 20 }).forEach(async (_, index) => {
     const userId = `user${index + 1}`;
     await db.insert(usersTable).values({
@@ -2065,6 +2072,35 @@ async function createUsers() {
       email: `user${index + 1}@example.com`,
     });
   });
+}
+
+async function createDevUsers() {
+  if (!isDevLoginEnabled()) return;
+
+  console.info("Create dev users");
+
+  const passwordHash = await hashPassword(devPassword);
+  const now = new Date();
+
+  for (const user of devUsers) {
+    await db.insert(usersTable).values({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      emailVerified: true,
+    });
+
+    await db.insert(accountsTable).values({
+      id: `credential-${user.id}`,
+      accountId: user.id,
+      providerId: "credential",
+      userId: user.id,
+      password: passwordHash,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
 }
 
 main();

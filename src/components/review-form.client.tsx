@@ -17,7 +17,11 @@ import {
   usernamesReserved,
 } from "@/data/static";
 import { type ReviewCreate, schemaCreateReview } from "@/db/db-schema";
-import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
+import {
+  type ActionStateError,
+  getActionRootErrors,
+  withCallbacks,
+} from "@/lib/action-utils";
 import {
   type FormConfig,
   type FormState,
@@ -173,7 +177,7 @@ function ReviewFormInternal({
             <StarsForRating
               rating={ratingSlider ?? ratingMiddle}
               size="large"
-              onMouseDown={(ratingClicked) => setRatingSlider(ratingClicked)}
+              onClick={(ratingClicked) => setRatingSlider(ratingClicked)}
             />
 
             <div className="w-full max-w-xs">
@@ -292,6 +296,7 @@ function ReviewFormInternal({
               : "Bitte wähle oben ein Produkt aus"
           }
         />
+        <FieldError errorMsg={getActionRootErrors(state)} />
       </div>
     </form>
   );

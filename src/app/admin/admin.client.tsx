@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryBadge } from "@/components/category-badge";
+import { CategoriesSelection } from "@/components/categories-selection";
 import { CitiesSelection } from "@/components/cities-selection";
 import { FieldError, Fieldset } from "@/components/form";
 import { Button } from "@/components/ui/button";
@@ -11,62 +11,34 @@ import {
   actionAdminUpdatePlace,
   actionAdminUpdateProduct,
 } from "@/data/actions";
-import type { AdminPlace, AdminPlacesQuery, AdminProduct } from "@/data/queries";
-import { minCharsSearch, type City } from "@/data/static";
+import type {
+  AdminPlace,
+  AdminPlacesQuery,
+  AdminProduct,
+} from "@/data/queries";
+import { minCharsSearch, type Category, type City } from "@/data/static";
 import {
   schemaPlaceId,
   schemaProductId,
   schemaUpdatePlace,
   schemaUpdateProduct,
-  type PlaceUpdateDb,
-  type ProductUpdateDb,
 } from "@/db/db-schema";
 import { getActionRootErrors, type ActionStateError } from "@/lib/action-utils";
 import { formatCitiesFull } from "@/lib/cities";
-import {
-  prepareFormState,
-  type FormConfig,
-  type FormState,
-} from "@/lib/form-utils";
+import { prepareFormState } from "@/lib/form-utils";
 import { useSearchParamsHelper } from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
 import { useActionState, useState, type FormEvent } from "react";
-import type { SearchParamsAdmin } from "./page";
-
-export const searchParamKeysAdmin = {
-  tab: "tab",
-  page: "page",
-  productId: "productId",
-  placeId: "placeId",
-  "product-search": "product-search",
-  "place-search": "place-search",
-} as const satisfies Record<keyof SearchParamsAdmin, string>;
-
-const formConfigUpdateProduct = {
-  name: "string",
-  note: "string",
-  placeId: "number",
-} satisfies FormConfig<ProductUpdateDb>;
-
-const formKeysUpdateProduct = {
-  name: "name",
-  note: "note",
-  placeId: "placeId",
-} as const satisfies Record<keyof typeof formConfigUpdateProduct, string>;
-
-export type FormStateUpdateProduct = FormState<typeof formConfigUpdateProduct>;
-
-const formConfigUpdatePlace = {
-  name: "string",
-  cities: "stringArray",
-} satisfies FormConfig<PlaceUpdateDb>;
-
-const formKeysUpdatePlace = {
-  name: "name",
-  cities: "cities",
-} as const satisfies Record<keyof typeof formConfigUpdatePlace, string>;
-
-export type FormStateUpdatePlace = FormState<typeof formConfigUpdatePlace>;
+import {
+  formConfigUpdatePlace,
+  formConfigUpdateProduct,
+  formKeysUpdatePlace,
+  formKeysUpdateProduct,
+  searchParamKeysAdmin,
+  type FormStateUpdatePlace,
+  type FormStateUpdateProduct,
+  type SearchParamsAdmin,
+} from "./admin.shared";
 
 type SelectedPlace = {
   id: number;
@@ -103,6 +75,9 @@ export function ProductEditor({
   const { updateSearchParams } = useSearchParamsHelper();
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(
     selectedPlaceFromProduct(product),
+  );
+  const [selectedCategory, setSelectedCategory] = useState<Category>(
+    product.category,
   );
   const placeQuery = params["place-search"] ?? "";
 
@@ -158,10 +133,7 @@ export function ProductEditor({
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Produkt bearbeiten</h2>
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
-          <span className="text-dark-gray">ID #{product.id}</span>
-          <CategoryBadge category={product.category} size="sm" />
-        </div>
+        <p className="mt-2 text-sm text-dark-gray">ID #{product.id}</p>
       </div>
 
       <div className="space-y-5">
@@ -182,6 +154,20 @@ export function ProductEditor({
               required
             />
             <FieldError errorMsg={errors?.name} />
+          </Fieldset>
+
+          <Fieldset className="w-full">
+            <Label>Kategorie</Label>
+            <input
+              name={formKeysUpdateProduct.category}
+              type="hidden"
+              value={selectedCategory}
+            />
+            <CategoriesSelection
+              categoriesSelected={[selectedCategory]}
+              onClick={setSelectedCategory}
+            />
+            <FieldError errorMsg={errors?.category} />
           </Fieldset>
 
           <Fieldset className="w-full">

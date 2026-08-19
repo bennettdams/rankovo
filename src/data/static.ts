@@ -79,6 +79,26 @@ export const reviewSources = {
 } as const;
 export type ReviewSource = keyof typeof reviewSources;
 
+export const usernameDevUser = "rankovo-dev-user";
+export const usernameDevAdmin = "rankovo-dev-admin";
+
+export const devPassword = "rankovo-dev";
+
+export const devUsers = [
+  {
+    id: usernameDevUser,
+    name: usernameDevUser,
+    email: `${usernameDevUser}@example.com`,
+    role: "user" satisfies Role,
+  },
+  {
+    id: usernameDevAdmin,
+    name: usernameDevAdmin,
+    email: `${usernameDevAdmin}@example.com`,
+    role: "admin" satisfies Role,
+  },
+] as const;
+
 // Critics
 export const usernameHolle = "Holle21614";
 export const usernameJFG = "JunkFoodGuru";
@@ -89,6 +109,8 @@ export const usernameHenryGibert = "Henry Gibert";
 export const usernameCrispyRob = "CrispyRob";
 
 export const usernamesReserved = [
+  usernameDevUser,
+  usernameDevAdmin,
   "Bennett",
   usernameHolle,
   usernameJFG,
