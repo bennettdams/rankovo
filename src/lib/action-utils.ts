@@ -10,63 +10,94 @@ export type ActionDataExtract<TFn extends (...args: any[]) => Promise<any>> =
 type ActionDataBase = Record<string, unknown> | null;
 type FormStateBase = Record<string, unknown>;
 
+type FormErrors<TFormState extends FormStateBase> = Partial<
+  Record<keyof TFormState, string[]>
+>;
+
 export type ActionStateSuccess = {
   status: "SUCCESS";
   formState: FormStateBase;
   data: unknown;
 };
-export type ActionStateError = {
+
+type ActionStateErrorBase<TFormState extends FormStateBase> = {
   status: "ERROR";
-  formState: FormStateBase;
-  errors: Partial<Record<keyof FormStateBase, string[]>>;
+  formState: TFormState;
 };
 
-type FormErrors<TFormState extends FormStateBase> = Partial<
-  Record<keyof TFormState, string[]>
->;
+export type ActionStateError<TFormState extends FormStateBase = FormStateBase> =
+  ActionStateErrorBase<TFormState> &
+    (
+      | { errors: FormErrors<TFormState>; rootErrors?: string[] }
+      | { errors?: FormErrors<TFormState>; rootErrors: string[] }
+    );
+
+export function getActionRootErrors(
+  state: ActionStateSuccess | ActionStateError | null,
+): string[] | undefined {
+  return state?.status === "ERROR" ? state.rootErrors : undefined;
+}
+
+type ActionState<
+  TFormState extends FormStateBase,
+  TActionData extends ActionDataBase,
+> =
+  | {
+      status: "SUCCESS";
+      formState: TFormState;
+      data: TActionData;
+    }
+  | ActionStateError<TFormState>;
+
+type SuccessData<TActionState> = TActionState extends {
+  status: "SUCCESS";
+  data: infer TData;
+}
+  ? TData
+  : never;
 
 export function withCallbacks<
   TArgs extends unknown[],
   TFormState extends FormStateBase,
   TActionData extends ActionDataBase,
-  TActionState extends
-    | {
-        status: "SUCCESS";
-        formState: TFormState;
-        data: TActionData;
-      }
-    | {
-        status: "ERROR";
-        formState: TFormState;
-        errors: FormErrors<TFormState>;
-      },
+  TActionState extends ActionState<TFormState, TActionData>,
 >(
   action: (...args: TArgs) => Promise<TActionState>,
   callbacks?: {
     onSuccess?: TActionState extends { status: "SUCCESS" }
-      ? ((actionData: NonNullable<TActionState["data"]>) => void) | (() => void)
+      ? (actionData: SuccessData<TActionState>) => void
       : never;
     onError?: TActionState extends { status: "ERROR" }
-      ? (errors: FormErrors<TFormState>) => void
+      ? (error: ActionStateError<TFormState>) => void
       : never;
   },
 ): (...args: TArgs) => Promise<TActionState> {
   return async (...args: TArgs) => {
     const promise = action(...args);
 
-    const result = await promise;
+    // Needed so `status` narrows to SUCCESS/ERROR and we can pass `result`
+    // into onSuccess/onError.
+    //
+    // TS *will* narrow a concrete union:
+    //   type Result =
+    //     | { status: "SUCCESS"; data: { id: number } }
+    //     | { status: "ERROR"; errors: { name?: string[] } }
+    //   if (result.status === "ERROR") result.errors // ok
+    //
+    // `await promise` is TActionState: a type *parameter* `T extends Result`,
+    // not Result itself. T might be only SUCCESS, only ERROR, or the full
+    // union. Discriminant narrowing only filters union members, so it does
+    // not apply to T — `result.errors` stays invalid. We widen to the
+    // concrete union (subtype → supertype, not an assertion). Callers still
+    // get TActionState back via `return promise`.
+    const result: ActionState<TFormState, TActionData> = await promise;
 
     if (result.status === "SUCCESS") {
-      if (result.data === null) {
-        // FIXME How to make this a valid call for the given type?
-        (callbacks?.onSuccess as (() => void) | undefined)?.();
-      } else {
-        callbacks?.onSuccess?.(result.data);
-      }
+      callbacks?.onSuccess?.(result.data);
     }
 
     if (result.status === "ERROR") {
-      callbacks?.onError?.(result.errors);
+      callbacks?.onError?.(result);
     }
 
     return promise;

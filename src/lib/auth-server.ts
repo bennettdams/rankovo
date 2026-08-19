@@ -11,7 +11,7 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
-import { unauthorized } from "next/navigation";
+import { forbidden, unauthorized } from "next/navigation";
 import "server-only";
 
 export const auth = betterAuth({
@@ -115,7 +115,7 @@ export async function getUserAuthGated(headers: Headers) {
   const userAuth = await getUserAuth(headers);
 
   if (!userAuth) {
-    console.error("Unauthorized access attempt. Not authenticated.");
+    console.info("Unauthorized access attempt. Not authenticated.");
     unauthorized();
   }
 
@@ -130,11 +130,11 @@ export async function assertAdmin(headers: Headers) {
   const userAuth = await getUserAuthGated(headers);
 
   if (userAuth.role !== "admin") {
-    console.error(
-      "Unauthorized access attempt. Admin role required.",
+    console.info(
+      "Forbidden access attempt. Admin role required.",
       `User ${userAuth.id} has role: ${userAuth.role}`,
     );
-    unauthorized();
+    forbidden();
   }
 }
 
@@ -147,7 +147,7 @@ export async function assertUserForEntity(
   const authorId = await cb();
 
   if (userAuth.id !== authorId) {
-    console.error(
+    console.info(
       "Unauthorized access attempt. You are not the author of this entity.",
     );
     unauthorized();

@@ -14,7 +14,7 @@ export function CitiesSelection({
         <FilterButton
           key={city}
           isActive={citiesActive === null ? true : citiesActive.includes(city)}
-          onMouseDown={() => onClick(city)}
+          onClick={() => onClick(city)}
         >
           <span className="capitalize">{city}</span>
         </FilterButton>

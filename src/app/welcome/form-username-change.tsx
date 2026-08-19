@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { actionChangeUsername, type UsernameChange } from "@/data/actions";
 import { schemaUpdateUsername } from "@/db/db-schema";
-import { withCallbacks, type ActionStateError } from "@/lib/action-utils";
+import {
+  getActionRootErrors,
+  withCallbacks,
+  type ActionStateError,
+} from "@/lib/action-utils";
 import { useUserAuth } from "@/lib/auth-client";
 import {
   prepareFormState,
@@ -82,11 +86,11 @@ export function FormUsernameChange({ redirectTo }: { redirectTo: string }) {
 
       {state?.status === "SUCCESS" && (
         <p aria-live="polite" className="text-xl text-green-700">
-          Nutzername erfolgreich aktualisiert!
+          Benutzername erfolgreich aktualisiert!
         </p>
       )}
 
-      {/* // TODO add global error unrelated to schema validation */}
+      <FieldError errorMsg={getActionRootErrors(state)} />
     </form>
   );
 }

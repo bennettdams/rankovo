@@ -8,13 +8,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { CriticQuery } from "@/data/queries";
+import type { CriticQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
 import { routes } from "@/lib/navigation";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
-} from "@/lib/url-state";
+} from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
 import { FilterX, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
@@ -286,7 +286,7 @@ function RankingsFiltersClientInternal({
                 <FilterButton
                   key={value ?? "all"}
                   isActive={isActive}
-                  onMouseDown={() => {
+                  onClick={() => {
                     setReviewsMinUncommited(value);
                     changeFilters({ "reviews-min": value });
                   }}

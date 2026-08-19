@@ -20,7 +20,7 @@ export function CategoriesSelection({
               ? true
               : categoriesSelected.includes(category)
           }
-          onMouseDown={() => onClick(category)}
+          onClick={() => onClick(category)}
         >
           <CategoryIcon category={category} size="sm" />
           <span className="ml-1 capitalize">{t[category]}</span>

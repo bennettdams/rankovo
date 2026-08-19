@@ -13,7 +13,7 @@ import { formatCitiesLabel } from "@/lib/cities";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
-} from "@/lib/url-state";
+} from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
 import { startTransition, useOptimistic } from "react";
 import { searchParamKeysCreateReview } from "./create-review-form.client";

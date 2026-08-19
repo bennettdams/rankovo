@@ -1,6 +1,10 @@
 "use server";
 
 import type {
+  FormStateUpdatePlace,
+  FormStateUpdateProduct,
+} from "@/app/admin/admin.client";
+import type {
   FormStateCreatePlace,
   FormStateCreateProduct,
 } from "@/app/review/create/create-product-form.client";
@@ -11,8 +15,10 @@ import {
   placeCitiesTable,
   type PlaceCreateDb,
   placesTable,
+  type PlaceUpdateDb,
   type ProductCreateDb,
   productsTable,
+  type ProductUpdateDb,
   type Review,
   type ReviewCreate,
   type ReviewCreateDb,
@@ -21,6 +27,10 @@ import {
   schemaCreatePlace,
   schemaCreateProduct,
   schemaCreateReview,
+  schemaPlaceId,
+  schemaProductId,
+  schemaUpdatePlace,
+  schemaUpdateProduct,
   schemaUpdateReview,
   schemaUpdateUsername,
   usersTable,
@@ -83,7 +93,7 @@ export async function actionCreatePlace(
       .returning({ id: placesTable.id });
 
     const place = placeCreatedRows[0];
-    if (!place) throw new Error("No created place");
+    if (!place) return null;
 
     if (citiesUnique.length > 0) {
       await tx.insert(placeCitiesTable).values(
@@ -97,6 +107,14 @@ export async function actionCreatePlace(
     return place;
   });
 
+  if (!placeCreated) {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Restaurant konnte nicht gespeichert werden"],
+    } satisfies ActionStateError;
+  }
+
   updateTag(cacheKeys.places);
 
   return {
@@ -105,6 +123,82 @@ export async function actionCreatePlace(
     data: {
       placeIdCreated: placeCreated.id,
     },
+  } satisfies ActionStateSuccess;
+}
+
+export async function actionAdminUpdatePlace(
+  formState: FormStateUpdatePlace,
+  placeId: number,
+  placeToUpdate: PlaceUpdateDb,
+) {
+  await assertAdmin(await headers());
+
+  const placeIdResult = schemaPlaceId.safeParse(placeId);
+  if (!placeIdResult.success) {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Ungültige Restaurant-ID"],
+    } satisfies ActionStateError<FormStateUpdatePlace>;
+  }
+
+  const placeResult = schemaUpdatePlace.safeParse(placeToUpdate);
+  if (!placeResult.success) {
+    return {
+      status: "ERROR",
+      formState,
+      errors: placeResult.error.flatten().fieldErrors,
+    } satisfies ActionStateError<FormStateUpdatePlace>;
+  }
+
+  const { name, cities: selectedCities } = placeResult.data;
+  const uniqueCities = [...new Set(selectedCities)];
+  const placeUpdated = await db.transaction(async (tx) => {
+    const updatedRows = await tx
+      .update(placesTable)
+      .set({
+        name,
+        updatedAt: new Date(),
+      })
+      .where(eq(placesTable.id, placeIdResult.data))
+      .returning({ id: placesTable.id });
+
+    const updatedPlace = updatedRows[0];
+    if (!updatedPlace) return false;
+
+    await tx
+      .delete(placeCitiesTable)
+      .where(eq(placeCitiesTable.placeId, updatedPlace.id));
+
+    if (uniqueCities.length > 0) {
+      await tx.insert(placeCitiesTable).values(
+        uniqueCities.map((city) => ({
+          placeId: updatedPlace.id,
+          city,
+        })),
+      );
+    }
+
+    return true;
+  });
+
+  if (!placeUpdated) {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Restaurant wurde nicht gefunden"],
+    } satisfies ActionStateError<FormStateUpdatePlace>;
+  }
+
+  updateTag(cacheKeys.places);
+  updateTag(cacheKeys.products);
+  updateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.reviews);
+
+  return {
+    status: "SUCCESS",
+    formState,
+    data: null,
   } satisfies ActionStateSuccess;
 }
 
@@ -273,7 +367,13 @@ export async function actionCreateProduct(
     .leftJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));
 
   const productCreated = productCreatedRows[0];
-  if (!productCreated) throw new Error("No created product");
+  if (!productCreated) {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Produkt konnte nicht gespeichert werden"],
+    } satisfies ActionStateError;
+  }
 
   updateTag(cacheKeys.products);
 
@@ -283,6 +383,88 @@ export async function actionCreateProduct(
     data: {
       productCreated,
     },
+  } satisfies ActionStateSuccess;
+}
+
+export async function actionAdminUpdateProduct(
+  formState: FormStateUpdateProduct,
+  productId: number,
+  productToUpdate: ProductUpdateDb,
+) {
+  await assertAdmin(await headers());
+
+  const productIdResult = schemaProductId.safeParse(productId);
+  if (!productIdResult.success) {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Ungültige Produkt-ID"],
+    } satisfies ActionStateError<FormStateUpdateProduct>;
+  }
+
+  const productResult = schemaUpdateProduct.safeParse(productToUpdate);
+  if (!productResult.success) {
+    return {
+      status: "ERROR",
+      formState,
+      errors: productResult.error.flatten().fieldErrors,
+    } satisfies ActionStateError<FormStateUpdateProduct>;
+  }
+
+  const { name, note, placeId } = productResult.data;
+
+  const updateResult = await db.transaction(async (tx) => {
+    if (placeId !== null) {
+      const places = await tx
+        .select({ id: placesTable.id })
+        .from(placesTable)
+        .where(eq(placesTable.id, placeId))
+        .limit(1);
+
+      if (places.length === 0) return "place-not-found" as const;
+    }
+
+    const updatedRows = await tx
+      .update(productsTable)
+      .set({
+        name,
+        note,
+        placeId,
+        updatedAt: new Date(),
+      })
+      .where(eq(productsTable.id, productIdResult.data))
+      .returning({ id: productsTable.id });
+
+    if (!updatedRows[0]) return "product-not-found" as const;
+    return "updated" as const;
+  });
+
+  if (updateResult === "place-not-found") {
+    return {
+      status: "ERROR",
+      formState,
+      errors: {
+        placeId: ["Restaurant wurde nicht gefunden"],
+      },
+    } satisfies ActionStateError<FormStateUpdateProduct>;
+  }
+
+  if (updateResult === "product-not-found") {
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Produkt wurde nicht gefunden"],
+    } satisfies ActionStateError<FormStateUpdateProduct>;
+  }
+
+  updateTag(cacheKeys.products);
+  updateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.reviews);
+
+  return {
+    status: "SUCCESS",
+    formState,
+    data: null,
   } satisfies ActionStateSuccess;
 }
 
@@ -358,7 +540,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: { [formKeyName]: ["Benutzername bereits vergeben"] },
+      rootErrors: ["Nutzername konnte nicht gespeichert werden"],
     } satisfies ActionStateError;
   }
 

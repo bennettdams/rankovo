@@ -48,26 +48,6 @@ const formConfig = {
 
 export type FormStateCreateReview = FormState<typeof formConfig>;
 
-async function createReview(_: unknown, formData: FormData) {
-  const formState = prepareFormState(formConfig, formData);
-
-  const {
-    success,
-    error,
-    data: reviewParsed,
-  } = schemaCreateReview.safeParse(formState);
-
-  if (!success) {
-    return {
-      status: "ERROR",
-      formState,
-      errors: error.flatten().fieldErrors,
-    } satisfies ActionStateError;
-  }
-
-  return actionCreateReview(formState, reviewParsed);
-}
-
 type ReviewFormProps = {
   productId: FormStateCreateReview["productId"];
   /** Initial form values for editing (optional) */
@@ -126,6 +106,29 @@ function ReviewFormInternal({
   const router = useRouter();
   const pathname = usePathname();
 
+  async function createReview(_: unknown, formData: FormData) {
+    const formState = {
+      ...prepareFormState(formConfig, formData),
+      productId,
+    };
+
+    const {
+      success,
+      error,
+      data: reviewParsed,
+    } = schemaCreateReview.safeParse(formState);
+
+    if (!success) {
+      return {
+        status: "ERROR",
+        formState,
+        errors: error.flatten().fieldErrors,
+      } satisfies ActionStateError;
+    }
+
+    return actionCreateReview(formState, reviewParsed);
+  }
+
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(createReview, {
       onSuccess: () => {
@@ -147,16 +150,6 @@ function ReviewFormInternal({
 
   return (
     <form action={formAction} className="space-y-6" noValidate>
-      <Fieldset className="hidden">
-        <Label htmlFor={formKeys.productId}>Product ID</Label>
-        <Input
-          name={formKeys.productId}
-          type="hidden"
-          defaultValue={productId ?? undefined}
-        />
-        <FieldError errorMsg={state?.errors?.productId} />
-      </Fieldset>
-
       <div
         className={cn(
           "grid grid-cols-1 gap-6",
@@ -236,7 +229,7 @@ function ReviewFormInternal({
           defaultValue={
             state?.formState.note ?? initialValues?.note ?? undefined
           }
-          className="min-h-[120px] w-full resize-none"
+          className="min-h-30 w-full resize-none"
         />
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>

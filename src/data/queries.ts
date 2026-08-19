@@ -1,6 +1,7 @@
 import type { FiltersRankings } from "@/app/page";
 import {
   criticsTable,
+  lower,
   placeCitiesTable,
   placesTable,
   productsTable,
@@ -8,10 +9,17 @@ import {
   usersTable,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
+import { assertAdmin } from "@/lib/auth-server";
+import {
+  pageFromSearchParam,
+  pageOffset,
+  type PageSearchParam,
+} from "@/lib/pagination";
 import {
   and,
   asc,
   avg,
+  count,
   desc,
   eq,
   exists,
@@ -25,9 +33,45 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { cacheTag } from "next/cache";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, categoriesActive, minCharsSearch } from "./static";
+
+/**
+ * Pattern for a case-insensitive "contains" `ILIKE`.
+ *
+ * Postgres `ILIKE` treats `%` as "any text", `_` as "any one character", and
+ * `\` as the default escape. Wrapping the raw query in `%…%` would turn those
+ * characters into wildcards: searching `100%` would match `1000` and
+ * `100 extra`, not names that contain a percent sign.
+ *
+ * Escape `\`, `%`, and `_` first, then wrap in `%…%`, so search means "name
+ * contains this text".
+ *
+ * @example
+ * ilikeContains("döner")
+ * // "%döner%" — still a contains search
+ *
+ * @example
+ * ilikeContains("100%")
+ * // "%100\\%%" — matches "100%", not "100" + anything
+ *
+ * @example
+ * ilikeContains("A_B")
+ * // "%A\\_B%" — matches "A_B", not "AXB"
+ *
+ * @example
+ * ilike(productsTable.name, ilikeContains(q))
+ */
+export function ilikeContains(value: string): string {
+  const escaped = value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("%", "\\%")
+    .replaceAll("_", "\\_");
+
+  return `%${escaped}%`;
+}
 
 const numOfReviewsForAverage = 20;
 
@@ -79,7 +123,7 @@ export function conditionsSearchProducts(searchQuery: string) {
 
   // Create ILIKE conditions for each search term across all searchable fields
   const searchConditions = searchTerms.map((term) => {
-    const wildcardTerm = `%${term}%`;
+    const wildcardTerm = ilikeContains(term);
 
     return or(
       // PRODUCTS: Always search in product fields (these are never null)
@@ -423,7 +467,7 @@ async function searchPlaces(placeName: string) {
 
   const filtersSQL: SQL[] = [];
   if (!!placeName && placeName.length >= minCharsSearch)
-    filtersSQL.push(ilike(placesTable.name, `%${placeName}%`));
+    filtersSQL.push(ilike(placesTable.name, ilikeContains(placeName)));
 
   const citiesHack = "cities";
 
@@ -535,6 +579,145 @@ async function rankingForProductId(productId: number) {
   };
 }
 
+const pageSizeAdmin = 25;
+
+async function asAdmin<T>(query: () => Promise<T>): Promise<T> {
+  await assertAdmin(await headers());
+  return query();
+}
+
+function wrapAdmin<TArgs extends unknown[], TResult>(
+  query: (...args: TArgs) => Promise<TResult>,
+) {
+  return (...args: TArgs) => asAdmin(() => query(...args));
+}
+
+async function queryAdminProducts({
+  q,
+  page,
+}: {
+  q: string | null;
+  page: PageSearchParam;
+}) {
+  "use cache";
+  cacheTag(cacheKeys.products, cacheKeys.places);
+
+  const pageNumber = pageFromSearchParam(page);
+  const where = q ? ilike(productsTable.name, ilikeContains(q)) : undefined;
+
+  const citiesHack = "cities";
+
+  const [items, totalRows] = await Promise.all([
+    db
+      .select({
+        id: productsTable.id,
+        name: productsTable.name,
+        category: productsTable.category,
+        placeName: placesTable.name,
+        [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+      })
+      .from(productsTable)
+      .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+      .where(where)
+      .orderBy(asc(lower(productsTable.name)), asc(productsTable.id))
+      .limit(pageSizeAdmin)
+      .offset(pageOffset(pageNumber, pageSizeAdmin)),
+    db.select({ value: count() }).from(productsTable).where(where),
+  ]);
+
+  return {
+    items,
+    total: totalRows[0]?.value ?? 0,
+    pageSize: pageSizeAdmin,
+  };
+}
+
+async function queryAdminPlaces({
+  q,
+  page,
+}: {
+  q: string | null;
+  page: PageSearchParam;
+}) {
+  "use cache";
+  cacheTag(cacheKeys.places);
+
+  const pageNumber = pageFromSearchParam(page);
+  const where = q ? ilike(placesTable.name, ilikeContains(q)) : undefined;
+
+  const citiesHack = "cities";
+
+  const [items, totalRows] = await Promise.all([
+    db
+      .select({
+        id: placesTable.id,
+        name: placesTable.name,
+        [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+      })
+      .from(placesTable)
+      .where(where)
+      .orderBy(asc(lower(placesTable.name)), asc(placesTable.id))
+      .limit(pageSizeAdmin)
+      .offset(pageOffset(pageNumber, pageSizeAdmin)),
+    db.select({ value: count() }).from(placesTable).where(where),
+  ]);
+
+  return {
+    items,
+    total: totalRows[0]?.value ?? 0,
+    pageSize: pageSizeAdmin,
+  };
+}
+
+async function queryAdminProductForId(id: number) {
+  "use cache";
+  cacheTag(cacheKeys.products, cacheKeys.places);
+
+  const citiesHack = "cities";
+
+  const rows = await db
+    .select({
+      id: productsTable.id,
+      name: productsTable.name,
+      note: productsTable.note,
+      category: productsTable.category,
+      placeId: productsTable.placeId,
+      placeName: placesTable.name,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+    })
+    .from(productsTable)
+    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .where(eq(productsTable.id, id));
+
+  return rows[0] ?? null;
+}
+
+async function queryAdminPlaceForId(id: number) {
+  "use cache";
+  cacheTag(cacheKeys.places);
+
+  const citiesHack = "cities";
+
+  const rows = await db
+    .select({
+      id: placesTable.id,
+      name: placesTable.name,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+    })
+    .from(placesTable)
+    .where(eq(placesTable.id, id));
+
+  return rows[0] ?? null;
+}
+
+export type AdminProduct = NonNullable<
+  Awaited<ReturnType<typeof queryAdminProductForId>>
+>;
+
+export type AdminPlace = NonNullable<
+  Awaited<ReturnType<typeof queryAdminPlaceForId>>
+>;
+
 export const queries = {
   rankings,
   rankingsWithReviews,
@@ -544,4 +727,8 @@ export const queries = {
   searchPlaces,
   searchProducts,
   userForId,
+  adminProducts: wrapAdmin(queryAdminProducts),
+  adminPlaces: wrapAdmin(queryAdminPlaces),
+  adminProductForId: wrapAdmin(queryAdminProductForId),
+  adminPlaceForId: wrapAdmin(queryAdminPlaceForId),
 };
