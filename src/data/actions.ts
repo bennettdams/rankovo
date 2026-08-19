@@ -540,7 +540,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      rootErrors: ["Nutzername konnte nicht gespeichert werden"],
+      rootErrors: ["Benutzername konnte nicht gespeichert werden"],
     } satisfies ActionStateError;
   }
 
