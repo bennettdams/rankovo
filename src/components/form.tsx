@@ -26,13 +26,23 @@ export function FieldError({
   errorMsg: string | string[] | undefined;
   className?: string;
 }) {
-  return (
-    errorMsg && (
-      <p aria-live="polite" className={cn("text-error", className)}>
-        {errorMsg}
-      </p>
-    )
-  );
+  const messages = !errorMsg
+    ? []
+    : Array.isArray(errorMsg)
+      ? errorMsg
+      : [errorMsg];
+
+  if (messages.length === 0) return null;
+
+  return messages.map((message) => (
+    <p
+      aria-live="polite"
+      className={cn("text-error", className)}
+      key={message}
+    >
+      {message}
+    </p>
+  ));
 }
 
 /** This component does not allow unselecting, as it uses native radio buttons under the hood. */

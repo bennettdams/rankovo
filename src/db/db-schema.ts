@@ -21,7 +21,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
 import { z } from "zod";
 
 /**
@@ -80,9 +80,15 @@ const schemaUrl = z.url({
   error: "Bitte gib eine gültige URL ein (beginnt mit 'https')",
   protocol: /^https$/,
 });
+const schemaNote = z
+  .string()
+  .max(255)
+  .nullable()
+  .transform((note) => (note === "" ? null : note));
 
 const schemaCreateReviewDb = createInsertSchema(reviewsTable, {
   rating: schemaRating,
+  note: schemaNote,
   urlSource: schemaUrl.nullable(),
 })
   .required()
@@ -106,6 +112,7 @@ export type ReviewCreate = z.infer<typeof schemaCreateReview>;
 
 export const schemaUpdateReview = createUpdateSchema(reviewsTable, {
   rating: schemaRating,
+  note: schemaNote,
 }).omit({
   reviewedAt: true,
   createdAt: true,
@@ -132,8 +139,15 @@ export const placeCitiesTable = pgTable(
 );
 
 const schemaCity = z.enum(cities);
+const schemaPlaceName = z
+  .string({ error: "Kann nicht leer sein" })
+  .trim()
+  .min(1, "Kann nicht leer sein")
+  .max(255);
 
-export const schemaCreatePlace = createInsertSchema(placesTable)
+export const schemaCreatePlace = createInsertSchema(placesTable, {
+  name: schemaPlaceName,
+})
   .required()
   .omit({
     createdAt: true,
@@ -143,6 +157,15 @@ export const schemaCreatePlace = createInsertSchema(placesTable)
     cities: z.array(schemaCity),
   });
 export type PlaceCreateDb = z.infer<typeof schemaCreatePlace>;
+
+export const schemaUpdatePlace = schemaCreatePlace.pick({
+  name: true,
+  cities: true,
+});
+export type PlaceUpdateDb = z.infer<typeof schemaUpdatePlace>;
+export const schemaPlaceId = createSelectSchema(placesTable, {
+  id: (schema) => schema.positive(),
+}).shape.id;
 
 export const productsTable = pgTable(
   "products",
@@ -163,12 +186,14 @@ export const schemaCategory = z.enum(categories, {
 });
 const schemaProductName = z
   .string({ error: "Kann nicht leer sein" })
+  .trim()
   .min(2)
   .max(255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,
   name: schemaProductName,
+  note: schemaNote,
 })
   .required()
   .omit({
@@ -176,6 +201,21 @@ export const schemaCreateProduct = createInsertSchema(productsTable, {
     updatedAt: true,
   });
 export type ProductCreateDb = z.infer<typeof schemaCreateProduct>;
+
+export const schemaUpdateProduct = createUpdateSchema(productsTable, {
+  name: schemaProductName,
+  note: schemaNote,
+})
+  .pick({
+    name: true,
+    note: true,
+    placeId: true,
+  })
+  .required();
+export type ProductUpdateDb = z.infer<typeof schemaUpdateProduct>;
+export const schemaProductId = createSelectSchema(productsTable, {
+  id: (schema) => schema.positive(),
+}).shape.id;
 
 // #################### Auth schema generated
 // Changed:

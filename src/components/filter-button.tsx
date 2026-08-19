@@ -9,22 +9,24 @@ export const filterButtonStyles = {
 
 export function FilterButton({
   isActive,
-  onMouseDown,
+  onClick,
   children,
 }: {
   isActive: boolean;
-  onMouseDown: () => void;
+  onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <div
+    <button
+      aria-pressed={isActive}
       className={cn(
         filterButtonStyles.default,
         isActive && filterButtonStyles.active,
       )}
-      onMouseDown={onMouseDown}
+      onClick={onClick}
+      type="button"
     >
       {children}
-    </div>
+    </button>
   );
 }

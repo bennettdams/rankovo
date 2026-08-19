@@ -4,7 +4,7 @@ import { FiltersRankings } from "@/app/page";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
-} from "@/lib/url-state";
+} from "@/lib/url-state.client";
 import { useOptimistic, useTransition } from "react";
 import { RankingsSearchBase } from "./rankings-search";
 

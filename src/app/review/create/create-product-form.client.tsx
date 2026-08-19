@@ -26,10 +26,14 @@ import {
   type ProductCreate,
   type ProductCreatedByAction,
 } from "@/data/actions";
-import { PlaceSearchQuery } from "@/data/queries";
+import type { PlaceSearchQuery } from "@/data/queries";
 import { categoriesActive, type City, minCharsSearch } from "@/data/static";
 import { schemaCreatePlace, schemaCreateProduct } from "@/db/db-schema";
-import { type ActionStateError, withCallbacks } from "@/lib/action-utils";
+import {
+  type ActionStateError,
+  getActionRootErrors,
+  withCallbacks,
+} from "@/lib/action-utils";
 import { formatCitiesLabel, pickCityForMap } from "@/lib/cities";
 import {
   type FormConfig,
@@ -40,7 +44,7 @@ import { t } from "@/lib/i18n";
 import {
   prepareFiltersForUpdate,
   useSearchParamsHelper,
-} from "@/lib/url-state";
+} from "@/lib/url-state.client";
 import { MapPin, PlusIcon, ReceiptText, Save } from "lucide-react";
 import {
   type Dispatch,
@@ -75,26 +79,6 @@ const formConfig = {
 
 export type FormStateCreateProduct = FormState<typeof formConfig>;
 
-async function createProduct(_: unknown, formData: FormData) {
-  const formState = prepareFormState(formConfig, formData);
-
-  const {
-    success,
-    error,
-    data: productParsed,
-  } = schemaCreateProduct.safeParse(formState);
-
-  if (!success) {
-    return {
-      status: "ERROR",
-      formState,
-      errors: error.flatten().fieldErrors,
-    } satisfies ActionStateError;
-  }
-
-  return actionCreateProduct(formState, productParsed);
-}
-
 function SubSection({
   title,
   icon: Icon,
@@ -122,12 +106,6 @@ export function CreateProductForm({
   placesForSearch: PlaceSearchQuery[];
   onCreatedProduct: (productCreated: ProductCreatedByAction) => void;
 }) {
-  const [state, formAction, isPendingAction] = useActionState(
-    withCallbacks(createProduct, {
-      onSuccess: (data) => onCreatedProduct(data.productCreated),
-    }),
-    null,
-  );
   const { searchParams, updateSearchParams } = useSearchParamsHelper();
   const [filters, setOptimisticFilters] = useOptimistic({
     "product-name":
@@ -137,6 +115,36 @@ export function CreateProductForm({
   } satisfies SearchParamsCreateProduct);
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
   const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
+
+  async function createProduct(_: unknown, formData: FormData) {
+    const formState = {
+      ...prepareFormState(formConfig, formData),
+      placeId: selectedPlaceId,
+    };
+
+    const {
+      success,
+      error,
+      data: productParsed,
+    } = schemaCreateProduct.safeParse(formState);
+
+    if (!success) {
+      return {
+        status: "ERROR",
+        formState,
+        errors: error.flatten().fieldErrors,
+      } satisfies ActionStateError;
+    }
+
+    return actionCreateProduct(formState, productParsed);
+  }
+
+  const [state, formAction, isPendingAction] = useActionState(
+    withCallbacks(createProduct, {
+      onSuccess: (data) => onCreatedProduct(data.productCreated),
+    }),
+    null,
+  );
 
   function changeFilters(
     filtersUpdatedPartial: Partial<SearchParamsCreateProduct>,
@@ -261,11 +269,6 @@ export function CreateProductForm({
                 className="mt-1"
               />
               <Fieldset>
-                <Input
-                  name={formKeys.placeId}
-                  type="hidden"
-                  defaultValue={selectedPlaceId ?? undefined}
-                />
                 <FieldError errorMsg={state?.errors?.placeId} />
               </Fieldset>
             </Fieldset>
@@ -368,6 +371,8 @@ export function CreateProductForm({
         {state?.errors?.category && (
           <FieldError errorMsg={state.errors.category} />
         )}
+
+        <FieldError errorMsg={getActionRootErrors(state)} />
 
         {isPlaceSelectionNeeded && (
           <FieldError errorMsg="Wähle ein Restaurant aus/hinterlege eins oder entferne deine Restaurantnamenssuche." />
@@ -567,6 +572,8 @@ function DrawerCreatePlace({
                     ? "Restaurant wird gespeichert..."
                     : "Restaurant speichern"}
                 </Button>
+
+                <FieldError errorMsg={getActionRootErrors(state)} />
               </form>
 
               <div className="flex flex-col md:w-1/2">

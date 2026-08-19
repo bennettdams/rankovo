@@ -11,7 +11,9 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
-import { unauthorized } from "next/navigation";
+import { headers } from "next/headers";
+import { forbidden, unauthorized } from "next/navigation";
+import { cache } from "react";
 import "server-only";
 
 export const auth = betterAuth({
@@ -92,9 +94,9 @@ async function createTemporaryUsername(
   }
 }
 
-export async function getUserAuth(headers: Headers) {
+const resolveUserAuth = cache(async () => {
   const data = await auth.api.getSession({
-    headers,
+    headers: await headers(),
   });
 
   if (!data) return null;
@@ -107,6 +109,10 @@ export async function getUserAuth(headers: Headers) {
     username: data.user.name,
     role,
   };
+});
+
+export async function getUserAuth(_headers: Headers) {
+  return resolveUserAuth();
 }
 
 export type UserAuth = Awaited<ReturnType<typeof getUserAuthGated>>;
@@ -115,7 +121,7 @@ export async function getUserAuthGated(headers: Headers) {
   const userAuth = await getUserAuth(headers);
 
   if (!userAuth) {
-    console.error("Unauthorized access attempt. Not authenticated.");
+    console.warn("Unauthorized access attempt. Not authenticated.");
     unauthorized();
   }
 
@@ -130,11 +136,11 @@ export async function assertAdmin(headers: Headers) {
   const userAuth = await getUserAuthGated(headers);
 
   if (userAuth.role !== "admin") {
-    console.error(
-      "Unauthorized access attempt. Admin role required.",
-      `User ${userAuth.id} has role: ${userAuth.role}`,
+    console.warn(
+      "Forbidden access attempt. Admin role required.",
+      `User ${userAuth.username} has role: ${userAuth.role}`,
     );
-    unauthorized();
+    forbidden();
   }
 }
 
@@ -147,7 +153,7 @@ export async function assertUserForEntity(
   const authorId = await cb();
 
   if (userAuth.id !== authorId) {
-    console.error(
+    console.warn(
       "Unauthorized access attempt. You are not the author of this entity.",
     );
     unauthorized();

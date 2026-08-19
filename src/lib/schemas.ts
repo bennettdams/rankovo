@@ -8,50 +8,58 @@ export const schemaNonEmptyString = z
   .trim()
   .min(1, "Kann nicht leer sein");
 
-/**
- * Function overloads, so the return type can be inferred based on the variant parameter.
- */
-export function schemaSearchParamSingle<TSchema extends ZodType>(
+export function schemaSearchParamSingle<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- with the generic z.output<schemaSearchParamSingle(z.enum(["foo", "bar"]), "string")> infers to "foo" | "bar" | null instead of string | null
+  TSchema extends z.ZodString | z.ZodLiteral<any> | z.ZodEnum<any>,
+>(
   schema: TSchema,
   variant: "string",
-): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<z.ZodString>>;
-export function schemaSearchParamSingle<TSchema extends ZodType>(
+): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<TSchema>>;
+export function schemaSearchParamSingle<
+  TSchema extends z.ZodNumber | z.ZodPipe<z.ZodNumber, z.ZodNumber>,
+>(
   schema: TSchema,
   variant: "number",
-): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<z.ZodNumber>>;
-export function schemaSearchParamSingle<TSchema extends ZodType>(
+): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<TSchema>>;
+export function schemaSearchParamSingle<TSchema extends z.ZodDate>(
   schema: TSchema,
   variant: "date",
-): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<z.ZodDate>>;
-export function schemaSearchParamSingle<TSchema extends ZodType>(
+): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<TSchema>>;
+export function schemaSearchParamSingle<TSchema extends z.ZodBoolean>(
   schema: TSchema,
   variant: "boolean",
-): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<z.ZodBoolean>>;
+): ZodPipe<ReturnType<TSchema["optional"]>, z.ZodNullable<TSchema>>;
 export function schemaSearchParamSingle<
   TSchema extends ZodTypeUnknown,
   TVariant extends "string" | "number" | "date" | "boolean",
 >(schema: TSchema, variant: TVariant) {
-  return schemaNonEmptyString
-    .optional()
-    .transform((raw) => {
-      if (raw === undefined) return null;
+  return (
+    z
+      // We do not use schemaNonEmptyString (which has trim()) here, because we want to allow search params with leading/trailing spaces,
+      // as they might be intentional (e.g. searching for " ABC " with the spaces)
+      .string()
+      .min(1)
+      .optional()
+      .transform((raw) => {
+        if (raw === undefined) return null;
 
-      switch (variant) {
-        case "string":
-          return raw === "" ? null : raw;
-        case "number":
-          return Number(raw);
-        case "date":
-          return new Date(raw);
-        case "boolean":
-          return raw === "true" ? true : raw === "false" ? false : null;
-        default: {
-          const exhaustiveCheck: never = variant;
-          throw new Error(`Unhandled case: ${exhaustiveCheck}`);
+        switch (variant) {
+          case "string":
+            return raw === "" ? null : raw;
+          case "number":
+            return Number(raw);
+          case "date":
+            return new Date(raw);
+          case "boolean":
+            return raw === "true" ? true : raw === "false" ? false : null;
+          default: {
+            const exhaustiveCheck: never = variant;
+            throw new Error(`Unhandled case: ${exhaustiveCheck}`);
+          }
         }
-      }
-    })
-    .pipe(schema.nullable());
+      })
+      .pipe(schema.nullable())
+  );
 }
 
 export function schemaSearchParamMultiple<TSchema extends ZodTypeUnknown>(

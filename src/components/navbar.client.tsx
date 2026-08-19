@@ -35,7 +35,7 @@ export function UserMenu() {
           variant="ghost"
           className="flex h-10 items-center justify-end gap-2 py-0 text-right [&_svg]:size-8"
         >
-          <p className="min-w-40 max-w-40 truncate">&nbsp;</p>
+          <p className="max-w-40 min-w-40 truncate">&nbsp;</p>
           <CircleUser className="stroke-primary" />
         </Button>
       ) : userAuth.state === "error" ? (
@@ -55,11 +55,16 @@ export function UserMenu() {
               variant="ghost"
               className="flex h-10 items-center justify-end gap-2 py-0 text-right [&_svg]:size-8"
             >
-              <p className="min-w-40 max-w-40 truncate">{userAuth.username}</p>
+              <p className="max-w-40 min-w-40 truncate">{userAuth.username}</p>
               <CircleUser className="stroke-primary" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
+            {userAuth.role === "admin" && (
+              <DropdownMenuItem asChild>
+                <Link href={routes.admin}>Verwaltung</Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem>
               <Link href={routes.user(userAuth.id)}>Mein Profil</Link>
             </DropdownMenuItem>
@@ -96,6 +101,14 @@ export function UserMenuForMobile() {
   return (
     <>
       <p className="truncate text-xl text-primary">{userAuth.username}</p>
+
+      {userAuth.role === "admin" && (
+        <SheetClose asChild>
+          <Link href={routes.admin} className="hover:text-primary">
+            Verwaltung
+          </Link>
+        </SheetClose>
+      )}
 
       <SheetClose asChild>
         <Link href={routes.user(userAuth.id)} className="hover:text-primary">
