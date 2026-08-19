@@ -23,12 +23,12 @@ function StarForRating({
   rating,
   position,
   size = "medium",
-  onMouseDown,
+  onClick,
 }: {
   rating: number;
   position: 1 | 2 | 3 | 4 | 5;
   size?: StarSize;
-  onMouseDown?: () => void;
+  onClick?: () => void;
 }) {
   const lowerBoundCalculated =
     fullStarLowerBound * position + halfStarLowerBound - 1;
@@ -46,26 +46,26 @@ function StarForRating({
   return (
     <>
       <Star
-        onMouseDown={onMouseDown}
+        onClick={onClick}
         className={cn(
           starStyles,
           starSize,
           "relative z-0",
           isFullStarActive && "fill-primary text-primary",
-          !!onMouseDown && hoverableStyles,
+          !!onClick && hoverableStyles,
         )}
       >
         {(isHalfStarActive ||
           // Exception: Show half star for first position if the rating is really low
           (position === 1 && rating < halfStarLowerBound)) && (
           <StarHalf
-            onMouseDown={onMouseDown}
+            onClick={onClick}
             className={cn(
               starStyles,
               starSize,
               "absolute inset-0 z-10 fill-primary text-primary",
               // hide for hover as half stars are not clickable
-              !!onMouseDown &&
+              !!onClick &&
                 "group-hover/stars:fill-transparent group-hover/stars:text-transparent",
             )}
           />
@@ -78,18 +78,18 @@ function StarForRating({
 export function StarsForRating({
   rating,
   size,
-  onMouseDown,
+  onClick,
 }: {
   rating: number;
   size?: StarSize;
-  onMouseDown?: (ratingClicked: number) => void;
+  onClick?: (ratingClicked: number) => void;
 }) {
   // Scale rating from 0-10 to 0-5 for display
   const scaledRating = rating / 2;
 
   function handleClick(starPosition: number) {
     // When clicked, return the full 0-10 scale rating (starPosition * 2)
-    return !onMouseDown ? undefined : () => onMouseDown(starPosition * 2);
+    return !onClick ? undefined : () => onClick(starPosition * 2);
   }
 
   return (
@@ -99,31 +99,31 @@ export function StarsForRating({
       title={`Bewertung: ${rating}`}
     >
       <StarForRating
-        onMouseDown={handleClick(5)}
+        onClick={handleClick(5)}
         position={5}
         rating={scaledRating}
         size={size}
       />
       <StarForRating
-        onMouseDown={handleClick(4)}
+        onClick={handleClick(4)}
         position={4}
         rating={scaledRating}
         size={size}
       />
       <StarForRating
-        onMouseDown={handleClick(3)}
+        onClick={handleClick(3)}
         position={3}
         rating={scaledRating}
         size={size}
       />
       <StarForRating
-        onMouseDown={handleClick(2)}
+        onClick={handleClick(2)}
         position={2}
         rating={scaledRating}
         size={size}
       />
       <StarForRating
-        onMouseDown={handleClick(1)}
+        onClick={handleClick(1)}
         position={1}
         rating={scaledRating}
         size={size}

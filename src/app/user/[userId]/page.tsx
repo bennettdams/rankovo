@@ -7,7 +7,6 @@ import { queries, type UserForId } from "@/data/queries";
 import { getUserAuth } from "@/lib/auth-server";
 import { routes } from "@/lib/navigation";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -42,8 +41,8 @@ async function PageUserInternal({
 
   const [user, reviews, userAuth] = await Promise.all([
     queries.userForId(userId),
-    queries.reviews(1, userId),
-    getUserAuth(await headers()),
+    queries.reviews(null, userId),
+    getUserAuth(),
   ]);
 
   const isOwnProfile = userAuth?.id === userId;

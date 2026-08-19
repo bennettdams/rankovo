@@ -7,11 +7,13 @@ import {
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { parseSetCookieHeader, setSessionCookie } from "better-auth/cookies";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
+import { createInternalContext } from "better-call";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { forbidden, unauthorized } from "next/navigation";
 import { cache } from "react";
 import "server-only";
@@ -74,6 +76,63 @@ export const auth = betterAuth({
   plugins: [nextCookies()], // According to the docs, nextCookies is supposed the last plugin in the array
 });
 
+/**
+ * Create a Better Auth session for a seeded user without enabling the public
+ * email/password HTTP API. Writes the session cookie via Next.js `cookies()`.
+ *
+ * Normal sign-in goes through `auth.api.signInEmail`, which needs
+ * `emailAndPassword.enabled` and therefore registers `POST /api/auth/sign-in/email`.
+ * We skip that endpoint: insert a session row ourselves, then copy the signed
+ * `Set-Cookie` header into the Next.js cookie store the same way `nextCookies()`
+ * does after a real `auth.api.*` call.
+ */
+export async function createDevLoginSession(userId: string): Promise<boolean> {
+  // Adapter + cookie config (prefix `rankovo`, signing secret, max-age).
+  const authContext = await auth.$context;
+  const user = await authContext.internalAdapter.findUserById(userId);
+  // Seeded ids live in `devUsers`; false means `bun run db:seed` was not run.
+  if (!user) return false;
+
+  // Session row only — no password check, no HTTP sign-in route.
+  const session = await authContext.internalAdapter.createSession(userId);
+
+  // `setSessionCookie` expects a better-call endpoint context: `setSignedCookie`
+  // HMAC-signs the token and appends `Set-Cookie` on `responseHeaders`.
+  // Path/method are dummy; this context is never routed.
+  const endpointCtx = await createInternalContext(
+    { context: authContext },
+    { options: { method: "POST" }, path: "/dev-login" },
+  );
+
+  // better-call types `context` as `Record<string, any>`; Better Auth wants
+  // `GenericEndpointContext`. The object is the real endpoint ctx either way.
+  await setSessionCookie(
+    endpointCtx as unknown as Parameters<typeof setSessionCookie>[0],
+    { session, user },
+  );
+
+  // Cookie was written onto the fake response, not the incoming Next.js request.
+  const setCookies = endpointCtx.responseHeaders.get("set-cookie");
+  if (!setCookies) return false;
+
+  // Same mapping as `nextCookies()`: parse `Set-Cookie` and `cookies().set(...)`
+  // so the browser actually receives `rankovo.session_token`. Attributes are
+  // copied through so httpOnly / lax / max-age match a normal Better Auth login.
+  const cookieStore = await cookies();
+  parseSetCookieHeader(setCookies).forEach((attributes, name) => {
+    cookieStore.set(name, attributes.value, {
+      sameSite: attributes.samesite,
+      secure: attributes.secure,
+      maxAge: attributes["max-age"],
+      httpOnly: attributes.httponly,
+      domain: attributes.domain,
+      path: attributes.path,
+    });
+  });
+
+  return true;
+}
+
 async function createTemporaryUsername(
   usernameRawExternal: string,
   tryNum: number,
@@ -94,7 +153,7 @@ async function createTemporaryUsername(
   }
 }
 
-const resolveUserAuth = cache(async () => {
+export const getUserAuth = cache(async () => {
   const data = await auth.api.getSession({
     headers: await headers(),
   });
@@ -111,14 +170,10 @@ const resolveUserAuth = cache(async () => {
   };
 });
 
-export async function getUserAuth(_headers: Headers) {
-  return resolveUserAuth();
-}
-
 export type UserAuth = Awaited<ReturnType<typeof getUserAuthGated>>;
 
-export async function getUserAuthGated(headers: Headers) {
-  const userAuth = await getUserAuth(headers);
+export async function getUserAuthGated() {
+  const userAuth = await getUserAuth();
 
   if (!userAuth) {
     console.warn("Unauthorized access attempt. Not authenticated.");
@@ -128,12 +183,12 @@ export async function getUserAuthGated(headers: Headers) {
   return userAuth;
 }
 
-export async function assertAuthenticated(headers: Headers) {
-  await getUserAuthGated(headers);
+export async function assertAuthenticated() {
+  await getUserAuthGated();
 }
 
-export async function assertAdmin(headers: Headers) {
-  const userAuth = await getUserAuthGated(headers);
+export async function assertAdmin() {
+  const userAuth = await getUserAuthGated();
 
   if (userAuth.role !== "admin") {
     console.warn(
@@ -144,11 +199,8 @@ export async function assertAdmin(headers: Headers) {
   }
 }
 
-export async function assertUserForEntity(
-  headers: Headers,
-  cb: () => Promise<string>,
-) {
-  const userAuth = await getUserAuthGated(headers);
+export async function assertUserForEntity(cb: () => Promise<string>) {
+  const userAuth = await getUserAuthGated();
 
   const authorId = await cb();
 

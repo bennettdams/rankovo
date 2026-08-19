@@ -8,9 +8,23 @@ bun run tsc          # TypeScript type checking
 bun run lint         # ESLint with project-specific rules
 bun run check        # Combined linting and type-checking
 bun run build        # Production build
+bun run db:seed      # Reset local DB and seed (includes dev accounts)
 ```
 
 There is also always a running terminal task that monitors TypeScript errors called "Monitor TS Errors". Instead of running the type-check yourself, you can look at the output terminal of this task.
+
+## Dev accounts
+
+Seed (`bun run db:seed`) creates two local accounts so you can sign in without Google OAuth. They only exist after a seed. `/dev/login` is off unless `ALLOW_DEV_LOGIN=true` in `.env.local` **and** `NODE_ENV` is not `production`.
+
+| Username            | Role  | Email                           | Password      |
+| ------------------- | ----- | ------------------------------- | ------------- |
+| `rankovo-dev-user`  | user  | `rankovo-dev-user@example.com`  | `rankovo-dev` |
+| `rankovo-dev-admin` | admin | `rankovo-dev-admin@example.com` | `rankovo-dev` |
+
+To sign in, open `/dev/login` (the **Anmelden** button goes there when `ALLOW_DEV_LOGIN` is set) and choose the account. Use the user account for regular flows (reviews, profile). Use the admin account for `/admin`. Dev accounts work only under `next dev`, not `next start`.
+
+If sign-in fails, re-run `bun run db:seed`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

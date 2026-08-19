@@ -46,6 +46,10 @@ export function pageFromSearchParam(page: PageSearchParam): Page {
 
 /** 0-based SQL offset for a 1-based `Page` (`(page - 1) * pageSize`). */
 export function pageOffset(page: Page, pageSize: number): PageOffset {
+  if (pageSize < 1) {
+    throw new Error(`Invalid pageSize: ${pageSize}`);
+  }
+
   return ((page - 1) * pageSize) as PageOffset;
 }
 
@@ -54,6 +58,10 @@ export function pageSearchParam(page: Page): PageSearchParam {
 }
 
 export function totalPages(total: number, pageSize: number): PageCount {
+  if (pageSize < 1) {
+    throw new Error(`Invalid pageSize: ${pageSize}`);
+  }
+
   return Math.max(1, Math.ceil(total / pageSize)) as PageCount;
 }
 

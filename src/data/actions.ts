@@ -3,7 +3,7 @@
 import type {
   FormStateUpdatePlace,
   FormStateUpdateProduct,
-} from "@/app/admin/admin.client";
+} from "@/app/admin/admin.shared";
 import type {
   FormStateCreatePlace,
   FormStateCreateProduct,
@@ -46,14 +46,16 @@ import {
   assertAdmin,
   assertAuthenticated,
   assertUserForEntity,
+  createDevLoginSession,
   getUserAuthGated,
 } from "@/lib/auth-server";
+import { isDevLoginEnabled } from "@/lib/dev-login";
 import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
-import { headers } from "next/headers";
+import { forbidden } from "next/navigation";
 import { sqlCitiesForPlace } from "./place-cities";
-import { cacheKeys, usernamesReserved } from "./static";
+import { cacheKeys, devUsers, type Role, usernamesReserved } from "./static";
 
 export type PlaceCreate = PlaceCreateDb;
 
@@ -63,7 +65,7 @@ export async function actionCreatePlace(
 ) {
   console.debug("🟦 ACTION create place");
 
-  await assertAuthenticated(await headers());
+  await assertAuthenticated();
 
   const {
     success,
@@ -131,7 +133,8 @@ export async function actionAdminUpdatePlace(
   placeId: number,
   placeToUpdate: PlaceUpdateDb,
 ) {
-  await assertAdmin(await headers());
+  console.debug("🟦 ACTION admin update place", placeId);
+  await assertAdmin();
 
   const placeIdResult = schemaPlaceId.safeParse(placeId);
   if (!placeIdResult.success) {
@@ -219,8 +222,7 @@ export async function actionCreateReview(
 ) {
   console.debug("🟦 ACTION create review");
 
-  const headersVar = await headers();
-  const userAuth = await getUserAuthGated(headersVar);
+  const userAuth = await getUserAuthGated();
 
   const {
     success,
@@ -244,7 +246,7 @@ export async function actionCreateReview(
   if (overwriteAuthorId === null) {
     authorId = userAuth.id;
   } else {
-    await assertAdmin(headersVar);
+    await assertAdmin();
     console.debug(
       `Admin overriding author ID for review creation. New: ${overwriteAuthorId}`,
     );
@@ -298,7 +300,7 @@ export async function actionUpdateReview(
 ) {
   console.debug("🟦 ACTION update review");
 
-  await assertUserForEntity(await headers(), async () => {
+  await assertUserForEntity(async () => {
     const reviewFromDb = await db
       .select({ authorId: reviewsTable.authorId })
       .from(reviewsTable)
@@ -338,7 +340,7 @@ export async function actionCreateProduct(
 ) {
   console.debug("🟦 ACTION create product");
 
-  await assertAuthenticated(await headers());
+  await assertAuthenticated();
 
   const {
     success,
@@ -402,7 +404,8 @@ export async function actionAdminUpdateProduct(
   productId: number,
   productToUpdate: ProductUpdateDb,
 ) {
-  await assertAdmin(await headers());
+  console.debug("🟦 ACTION admin update product", productId);
+  await assertAdmin();
 
   const productIdResult = schemaProductId.safeParse(productId);
   if (!productIdResult.success) {
@@ -422,7 +425,7 @@ export async function actionAdminUpdateProduct(
     } satisfies ActionStateError<FormStateUpdateProduct>;
   }
 
-  const { name, note, placeId } = productResult.data;
+  const { name, note, category, placeId } = productResult.data;
 
   let updateResult;
   try {
@@ -442,6 +445,7 @@ export async function actionAdminUpdateProduct(
         .set({
           name,
           note,
+          category,
           placeId,
           updatedAt: new Date(),
         })
@@ -498,7 +502,7 @@ export async function actionChangeUsername(
 ) {
   console.debug("🟦 ACTION change username");
 
-  const userAuth = await getUserAuthGated(await headers());
+  const userAuth = await getUserAuthGated();
 
   const {
     success,
@@ -571,4 +575,37 @@ export async function actionChangeUsername(
     formState,
     data: null,
   } satisfies ActionStateSuccess;
+}
+
+export async function actionSignInDev(
+  role: Role,
+): Promise<{ status: "SUCCESS" } | { status: "ERROR"; message: string }> {
+  console.debug("🟦 ACTION sign in dev");
+
+  if (!isDevLoginEnabled()) {
+    forbidden();
+  }
+
+  const user = devUsers.find((candidate) => candidate.role === role);
+  if (!user) {
+    return { status: "ERROR", message: "Unknown dev role" };
+  }
+
+  try {
+    const signedIn = await createDevLoginSession(user.id);
+    if (!signedIn) {
+      return {
+        status: "ERROR",
+        message: "Sign in failed. Run `bun run db:seed` and try again.",
+      };
+    }
+
+    return { status: "SUCCESS" };
+  } catch (error) {
+    console.error("Dev sign-in failed:", error);
+    return {
+      status: "ERROR",
+      message: "Sign in failed. Run `bun run db:seed` and try again.",
+    };
+  }
 }

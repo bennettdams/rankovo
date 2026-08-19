@@ -1,3 +1,4 @@
+import { isDevLoginEnabled } from "@/lib/dev-login";
 import { t } from "@/lib/i18n";
 import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,8 @@ import {
 const userMenuWidthStyles = "w-96 min-w-96 max-w-96";
 
 export function Navbar() {
+  const allowDevLogin = isDevLoginEnabled();
+
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 px-4 backdrop-blur-2xl md:px-6">
       <nav className="hidden w-full flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
@@ -80,11 +83,11 @@ export function Navbar() {
         >
           <CreateReviewButtonLink />
 
-          <UserMenu />
+          <UserMenu allowDevLogin={allowDevLogin} />
         </div>
       </nav>
 
-      <MobileMenu />
+      <MobileMenu allowDevLogin={allowDevLogin} />
 
       {/* Mobile content */}
       <div className="flex w-full items-center justify-end gap-x-2 text-right md:hidden">
@@ -97,7 +100,7 @@ export function Navbar() {
   );
 }
 
-function MobileMenu() {
+function MobileMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -151,7 +154,7 @@ function MobileMenu() {
 
           <div className="h-0.5 bg-gray"></div>
 
-          <UserMenuForMobile />
+          <UserMenuForMobile allowDevLogin={allowDevLogin} />
         </nav>
       </SheetContent>
     </Sheet>

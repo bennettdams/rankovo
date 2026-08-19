@@ -7,4 +7,5 @@ export const routes = {
   user: (userId: string) => `/user/${userId}`,
   aboutUs: "/about-us",
   champions: "/champions",
+  devLogin: "/dev/login",
 } as const;

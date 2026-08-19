@@ -148,7 +148,7 @@ function RankingsFiltersClientInternal({
         <div>
           {hasFilters && (
             <Button
-              onMouseDown={() => clearFilters()}
+              onClick={() => clearFilters()}
               variant="outline"
               size="sm"
             >
@@ -201,7 +201,7 @@ function RankingsFiltersClientInternal({
           <div className="mt-2">
             <StarsForRating
               rating={ratingMaxUncommited ?? ratingHighest}
-              onMouseDown={(ratingClicked) => {
+              onClick={(ratingClicked) => {
                 setRatingMinUncommited(ratingClicked);
                 setRatingMaxUncommited(ratingHighest);
                 changeFilters({
@@ -244,17 +244,19 @@ function RankingsFiltersClientInternal({
                 ? true
                 : filters.critics.includes(critic.name);
             return (
-              <div
-                key={critic.id}
+              <button
+                aria-pressed={isActive}
                 className={cn(
                   "flex h-10 flex-row items-center rounded-full py-1 pr-1 duration-200 select-none hover:bg-tertiary hover:text-tertiary-fg active:scale-110 active:bg-tertiary active:text-tertiary-fg active:transition-transform",
                   isActive ? "bg-secondary text-secondary-fg" : "bg-gray",
                 )}
-                onMouseDown={() =>
+                key={critic.id}
+                onClick={() =>
                   changeFilters({
                     critics: updateArray(filters.critics, critic.name),
                   })
                 }
+                type="button"
               >
                 <div className="w-10 p-0">
                   <Image
@@ -267,7 +269,7 @@ function RankingsFiltersClientInternal({
                 </div>
 
                 <span className="pr-2.5 pl-1.5">{critic.name}</span>
-              </div>
+              </button>
             );
           })}
         </div>
