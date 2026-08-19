@@ -186,6 +186,7 @@ export const schemaCategory = z.enum(categories, {
 });
 const schemaProductName = z
   .string({ error: "Kann nicht leer sein" })
+  .trim()
   .min(2)
   .max(255);
 

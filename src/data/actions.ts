@@ -153,34 +153,45 @@ export async function actionAdminUpdatePlace(
 
   const { name, cities: selectedCities } = placeResult.data;
   const uniqueCities = [...new Set(selectedCities)];
-  const placeUpdated = await db.transaction(async (tx) => {
-    const updatedRows = await tx
-      .update(placesTable)
-      .set({
-        name,
-        updatedAt: new Date(),
-      })
-      .where(eq(placesTable.id, placeIdResult.data))
-      .returning({ id: placesTable.id });
+  let placeUpdated;
+  try {
+    placeUpdated = await db.transaction(async (tx) => {
+      const updatedRows = await tx
+        .update(placesTable)
+        .set({
+          name,
+          updatedAt: new Date(),
+        })
+        .where(eq(placesTable.id, placeIdResult.data))
+        .returning({ id: placesTable.id });
 
-    const updatedPlace = updatedRows[0];
-    if (!updatedPlace) return false;
+      const updatedPlace = updatedRows[0];
+      if (!updatedPlace) return false;
 
-    await tx
-      .delete(placeCitiesTable)
-      .where(eq(placeCitiesTable.placeId, updatedPlace.id));
+      await tx
+        .delete(placeCitiesTable)
+        .where(eq(placeCitiesTable.placeId, updatedPlace.id));
 
-    if (uniqueCities.length > 0) {
-      await tx.insert(placeCitiesTable).values(
-        uniqueCities.map((city) => ({
-          placeId: updatedPlace.id,
-          city,
-        })),
-      );
-    }
+      if (uniqueCities.length > 0) {
+        await tx.insert(placeCitiesTable).values(
+          uniqueCities.map((city) => ({
+            placeId: updatedPlace.id,
+            city,
+          })),
+        );
+      }
 
-    return true;
-  });
+      return true;
+    });
+  } catch (error) {
+    console.error("Error updating place:", error);
+
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Restaurant konnte nicht gespeichert werden"],
+    } satisfies ActionStateError<FormStateUpdatePlace>;
+  }
 
   if (!placeUpdated) {
     return {
@@ -413,31 +424,42 @@ export async function actionAdminUpdateProduct(
 
   const { name, note, placeId } = productResult.data;
 
-  const updateResult = await db.transaction(async (tx) => {
-    if (placeId !== null) {
-      const places = await tx
-        .select({ id: placesTable.id })
-        .from(placesTable)
-        .where(eq(placesTable.id, placeId))
-        .limit(1);
+  let updateResult;
+  try {
+    updateResult = await db.transaction(async (tx) => {
+      if (placeId !== null) {
+        const places = await tx
+          .select({ id: placesTable.id })
+          .from(placesTable)
+          .where(eq(placesTable.id, placeId))
+          .limit(1);
 
-      if (places.length === 0) return "place-not-found" as const;
-    }
+        if (places.length === 0) return "place-not-found" as const;
+      }
 
-    const updatedRows = await tx
-      .update(productsTable)
-      .set({
-        name,
-        note,
-        placeId,
-        updatedAt: new Date(),
-      })
-      .where(eq(productsTable.id, productIdResult.data))
-      .returning({ id: productsTable.id });
+      const updatedRows = await tx
+        .update(productsTable)
+        .set({
+          name,
+          note,
+          placeId,
+          updatedAt: new Date(),
+        })
+        .where(eq(productsTable.id, productIdResult.data))
+        .returning({ id: productsTable.id });
 
-    if (!updatedRows[0]) return "product-not-found" as const;
-    return "updated" as const;
-  });
+      if (!updatedRows[0]) return "product-not-found" as const;
+      return "updated" as const;
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+
+    return {
+      status: "ERROR",
+      formState,
+      rootErrors: ["Produkt konnte nicht gespeichert werden"],
+    } satisfies ActionStateError<FormStateUpdateProduct>;
+  }
 
   if (updateResult === "place-not-found") {
     return {

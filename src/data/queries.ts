@@ -714,6 +714,10 @@ export type AdminProduct = NonNullable<
   Awaited<ReturnType<typeof queryAdminProductForId>>
 >;
 
+export type AdminPlacesQuery = Awaited<
+  ReturnType<typeof queryAdminPlaces>
+>["items"][number];
+
 export type AdminPlace = NonNullable<
   Awaited<ReturnType<typeof queryAdminPlaceForId>>
 >;

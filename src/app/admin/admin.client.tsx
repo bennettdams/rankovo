@@ -11,7 +11,7 @@ import {
   actionAdminUpdatePlace,
   actionAdminUpdateProduct,
 } from "@/data/actions";
-import type { AdminPlace, AdminProduct } from "@/data/queries";
+import type { AdminPlace, AdminPlacesQuery, AdminProduct } from "@/data/queries";
 import { minCharsSearch, type City } from "@/data/static";
 import {
   schemaPlaceId,
@@ -96,7 +96,7 @@ export function ProductEditor({
   params,
 }: {
   product: AdminProduct;
-  placesForSearch: AdminPlace[];
+  placesForSearch: AdminPlacesQuery[];
   placesSearchTotal: number;
   params: SearchParamsAdmin;
 }) {
@@ -276,7 +276,7 @@ function PlaceSearchResults({
   onSelect,
 }: {
   placeQuery: string;
-  placesForSearch: AdminPlace[];
+  placesForSearch: AdminPlacesQuery[];
   placesSearchTotal: number;
   selectedPlaceId: number | null;
   onSelect: (place: SelectedPlace) => void;

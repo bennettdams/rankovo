@@ -15,6 +15,7 @@ import {
   schemaPageSearchParam,
   shiftPage,
   totalPages,
+  type Page,
 } from "@/lib/pagination";
 import { schemaSearchParamSingle } from "@/lib/schemas";
 import { stringifySearchParams } from "@/lib/url-state";
@@ -25,7 +26,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
-import { PlaceEditor, ProductEditor, searchParamKeysAdmin } from "./admin.client";
+import {
+  PlaceEditor,
+  ProductEditor,
+  searchParamKeysAdmin,
+} from "./admin.client";
 
 export const metadata: Metadata = {
   title: "Rankovo | Verwaltung",
@@ -38,7 +43,10 @@ const schemaParamsAdmin = z.object({
   page: schemaPageSearchParam,
   productId: schemaSearchParamSingle(z.number().int().positive(), "number"),
   placeId: schemaSearchParamSingle(z.number().int().positive(), "number"),
-  "product-search": schemaSearchParamSingle(z.string().min(1).max(255), "string"),
+  "product-search": schemaSearchParamSingle(
+    z.string().min(1).max(255),
+    "string",
+  ),
   "place-search": schemaSearchParamSingle(z.string().min(1).max(255), "string"),
 });
 
@@ -61,6 +69,25 @@ function emptyAdminParams(
 function adminHref(params: SearchParamsAdmin): string {
   const queryString = stringifySearchParams(params);
   return queryString ? `${routes.admin}?${queryString}` : routes.admin;
+}
+
+function redirectIfPageOutOfRange(
+  page: Page,
+  total: number,
+  pageSize: number,
+  params: SearchParamsAdmin,
+) {
+  const pageCount = totalPages(total, pageSize);
+  if (page > pageCount) {
+    redirect(
+      adminHref({
+        ...params,
+        page: pageSearchParam(lastPage(pageCount)),
+        productId: null,
+        placeId: null,
+      }),
+    );
+  }
 }
 
 export default function PageAdmin({
@@ -233,18 +260,8 @@ async function ProductPanel({ params }: { params: SearchParamsAdmin }) {
       ? queries.adminPlaces({ q: placeSearch, page: null })
       : Promise.resolve(null),
   ]);
-  const pageCount = totalPages(products.total, products.pageSize);
 
-  if (page > pageCount) {
-    redirect(
-      adminHref({
-        ...params,
-        page: pageSearchParam(lastPage(pageCount)),
-        productId: null,
-        placeId: null,
-      }),
-    );
-  }
+  redirectIfPageOutOfRange(page, products.total, products.pageSize, params);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(20rem,3fr)]">
@@ -329,7 +346,6 @@ async function ProductPanel({ params }: { params: SearchParamsAdmin }) {
 }
 
 async function PlacePanel({ params }: { params: SearchParamsAdmin }) {
-  const page = pageFromSearchParam(params.page);
   const [places, selectedPlace] = await Promise.all([
     queries.adminPlaces({
       q: params["place-search"],
@@ -339,18 +355,13 @@ async function PlacePanel({ params }: { params: SearchParamsAdmin }) {
       ? Promise.resolve(null)
       : queries.adminPlaceForId(params.placeId),
   ]);
-  const pageCount = totalPages(places.total, places.pageSize);
 
-  if (page > pageCount) {
-    redirect(
-      adminHref({
-        ...params,
-        page: pageSearchParam(lastPage(pageCount)),
-        productId: null,
-        placeId: null,
-      }),
-    );
-  }
+  redirectIfPageOutOfRange(
+    pageFromSearchParam(params.page),
+    places.total,
+    places.pageSize,
+    params,
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(20rem,3fr)]">

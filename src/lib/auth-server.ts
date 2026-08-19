@@ -121,7 +121,7 @@ export async function getUserAuthGated(headers: Headers) {
   const userAuth = await getUserAuth(headers);
 
   if (!userAuth) {
-    console.info("Unauthorized access attempt. Not authenticated.");
+    console.warn("Unauthorized access attempt. Not authenticated.");
     unauthorized();
   }
 
@@ -136,9 +136,9 @@ export async function assertAdmin(headers: Headers) {
   const userAuth = await getUserAuthGated(headers);
 
   if (userAuth.role !== "admin") {
-    console.info(
+    console.warn(
       "Forbidden access attempt. Admin role required.",
-      `User ${userAuth.id} has role: ${userAuth.role}`,
+      `User ${userAuth.username} has role: ${userAuth.role}`,
     );
     forbidden();
   }
@@ -153,7 +153,7 @@ export async function assertUserForEntity(
   const authorId = await cb();
 
   if (userAuth.id !== authorId) {
-    console.info(
+    console.warn(
       "Unauthorized access attempt. You are not the author of this entity.",
     );
     unauthorized();

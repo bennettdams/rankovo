@@ -14,10 +14,13 @@ type FormErrors<TFormState extends FormStateBase> = Partial<
   Record<keyof TFormState, string[]>
 >;
 
-export type ActionStateSuccess = {
+export type ActionStateSuccess<
+  TFormState extends FormStateBase = FormStateBase,
+  TData = unknown,
+> = {
   status: "SUCCESS";
-  formState: FormStateBase;
-  data: unknown;
+  formState: TFormState;
+  data: TData;
 };
 
 type ActionStateErrorBase<TFormState extends FormStateBase> = {
@@ -41,13 +44,7 @@ export function getActionRootErrors(
 type ActionState<
   TFormState extends FormStateBase,
   TActionData extends ActionDataBase,
-> =
-  | {
-      status: "SUCCESS";
-      formState: TFormState;
-      data: TActionData;
-    }
-  | ActionStateError<TFormState>;
+> = ActionStateSuccess<TFormState, TActionData> | ActionStateError<TFormState>;
 
 type SuccessData<TActionState> = TActionState extends {
   status: "SUCCESS";
