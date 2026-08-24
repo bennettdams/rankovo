@@ -10,7 +10,7 @@ import {
   UserMenu,
   UserMenuForMobile,
 } from "./navbar.client";
-import { Button } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import {
   Sheet,
   SheetClose,
@@ -103,11 +103,16 @@ export function Navbar() {
 function MobileMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Navigationsmenü umschalten</span>
-        </Button>
+      {/* Can't use Button and asChild here. asChild and RSC children hydrates incorrectly; trigger is already a button. */}
+      <SheetTrigger
+        className={buttonVariants({
+          variant: "outline",
+          size: "icon",
+          className: "shrink-0 md:hidden",
+        })}
+      >
+        <Menu className="h-5 w-5" />
+        <span className="sr-only">Navigationsmenü umschalten</span>
       </SheetTrigger>
 
       <SheetContent side="left">

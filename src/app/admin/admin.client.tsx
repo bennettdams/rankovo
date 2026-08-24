@@ -29,6 +29,7 @@ import { prepareFormState } from "@/lib/form-utils";
 import { useSearchParamsHelper } from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
 import { useActionState, useState, type FormEvent } from "react";
+import { z } from "zod";
 import {
   formConfigUpdatePlace,
   formConfigUpdateProduct,
@@ -104,7 +105,7 @@ export function ProductEditor({
       return {
         status: "ERROR",
         formState,
-        errors: productResult.error.flatten().fieldErrors,
+        errors: z.flattenError(productResult.error).fieldErrors,
       } satisfies ActionStateError<FormStateUpdateProduct>;
     }
 
@@ -346,7 +347,7 @@ export function PlaceEditor({ place }: { place: AdminPlace }) {
       return {
         status: "ERROR",
         formState,
-        errors: placeResult.error.flatten().fieldErrors,
+        errors: z.flattenError(placeResult.error).fieldErrors,
       } satisfies ActionStateError<FormStateUpdatePlace>;
     }
 

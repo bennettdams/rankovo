@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { Save } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
+import { z } from "zod";
 
 const formKeys = {
   productId: "productId",
@@ -126,7 +127,7 @@ function ReviewFormInternal({
       return {
         status: "ERROR",
         formState,
-        errors: error.flatten().fieldErrors,
+        errors: z.flattenError(error).fieldErrors,
       } satisfies ActionStateError;
     }
 

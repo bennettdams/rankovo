@@ -19,6 +19,7 @@ import {
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
+import { z } from "zod";
 
 export const formKeys = {
   name: "name",
@@ -43,7 +44,7 @@ async function changeUsername(_: unknown, formData: FormData) {
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 
