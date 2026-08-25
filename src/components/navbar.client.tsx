@@ -36,6 +36,8 @@ function SignInButton({ allowDevLogin }: { allowDevLogin: boolean }) {
     try {
       await signIn();
     } catch {
+      // keep the click handler from rejecting
+    } finally {
       setIsSigningIn(false);
     }
   }

@@ -17,4 +17,12 @@ describe(`${extractReviewSourceFromUrl.name}`, () => {
   test("returns null when the host is not a known review source", () => {
     expect(extractReviewSourceFromUrl("https://example.com/video")).toBeNull();
   });
+
+  test("rejects a lookalike hostname that only prefixes a known source", () => {
+    expect(
+      extractReviewSourceFromUrl(
+        "https://youtube.com.attacker.example/watch?v=abc",
+      ),
+    ).toBeNull();
+  });
 });

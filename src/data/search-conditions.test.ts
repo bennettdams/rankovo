@@ -75,6 +75,23 @@ describe(`${conditionsSearchReviewProducts.name}`, () => {
     expect(params).not.toContain("%fg%");
   });
 
+  test("trims trailing whitespace before matching the place name", () => {
+    const params = paramsOf(
+      conditionsSearchReviewProducts("cheesebur", "five guy  "),
+    );
+
+    expect(params).toContain("%five guy%");
+    expect(params).not.toContain("%five guy  %");
+  });
+
+  test("adds no place filter for whitespace-only input", () => {
+    expect(conditionsSearchReviewProducts(null, "   ")).toBeUndefined();
+
+    const params = paramsOf(conditionsSearchReviewProducts("cheesebur", "   "));
+    expect(params).toContain("%cheesebur%");
+    expect(params).not.toContain("%   %");
+  });
+
   test("returns undefined when neither filter is usable", () => {
     expect(conditionsSearchReviewProducts(null, null)).toBeUndefined();
     expect(conditionsSearchReviewProducts(null, "ab")).toBeUndefined();

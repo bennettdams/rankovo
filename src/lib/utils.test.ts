@@ -82,11 +82,16 @@ describe(`${createRandomNumberBetween.name}`, () => {
 
   test("rounds to one decimal place when requested", () => {
     const original = Math.random;
-    Math.random = () => 0.5;
     try {
+      Math.random = () => 0.5;
       expect(
         createRandomNumberBetween({ min: 0, max: 1, decimalPlaces: 1 }),
       ).toBe(0.5);
+
+      Math.random = () => 0.123;
+      expect(
+        createRandomNumberBetween({ min: 0, max: 1, decimalPlaces: 2 }),
+      ).toBe(0.12);
     } finally {
       Math.random = original;
     }

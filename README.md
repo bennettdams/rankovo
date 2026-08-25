@@ -4,6 +4,12 @@
 
 ## Local development
 
+Install [Bun](https://bun.sh) `^1.4.0` — the same range as `@types/bun` / `engines.bun` in `package.json`. `bun run test` needs that runtime.
+
+```sh
+bun --version
+```
+
 Create the database:
 
 ```sh

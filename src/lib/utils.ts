@@ -75,7 +75,7 @@ export function createRandomNumberBetween({
   if (decimalPlaces === 0) {
     return res;
   } else {
-    const multiplier = decimalPlaces * 10;
+    const multiplier = 10 ** decimalPlaces;
     return Math.round(res * multiplier) / multiplier;
   }
 }
