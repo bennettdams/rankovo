@@ -2,10 +2,13 @@
 
 ## Key Development Commands
 
+Requires Bun `^1.4.0` (`package.json` `engines.bun`, matching `@types/bun`). `bun run test` uses that runtime.
+
 ```bash
 bun run dev          # Development with Turbopack
 bun run tsc          # TypeScript type checking
 bun run lint         # ESLint with project-specific rules
+bun run test         # Unit tests (`bun test`)
 bun run check        # Combined linting and type-checking
 bun run build        # Production build
 bun run db:seed      # Reset local DB and seed (includes dev accounts)

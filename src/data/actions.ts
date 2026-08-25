@@ -54,6 +54,7 @@ import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { forbidden } from "next/navigation";
+import { z } from "zod";
 import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, devUsers, type Role, usernamesReserved } from "./static";
 
@@ -77,7 +78,7 @@ export async function actionCreatePlace(
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 
@@ -150,7 +151,7 @@ export async function actionAdminUpdatePlace(
     return {
       status: "ERROR",
       formState,
-      errors: placeResult.error.flatten().fieldErrors,
+      errors: z.flattenError(placeResult.error).fieldErrors,
     } satisfies ActionStateError<FormStateUpdatePlace>;
   }
 
@@ -234,7 +235,7 @@ export async function actionCreateReview(
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 
@@ -352,7 +353,7 @@ export async function actionCreateProduct(
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 
@@ -421,7 +422,7 @@ export async function actionAdminUpdateProduct(
     return {
       status: "ERROR",
       formState,
-      errors: productResult.error.flatten().fieldErrors,
+      errors: z.flattenError(productResult.error).fieldErrors,
     } satisfies ActionStateError<FormStateUpdateProduct>;
   }
 
@@ -514,7 +515,7 @@ export async function actionChangeUsername(
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 

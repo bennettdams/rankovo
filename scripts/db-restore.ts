@@ -174,7 +174,6 @@ process.on("SIGTERM", () => {
 });
 
 // Run the script only when executed directly (not when imported)
-// @ts-expect-error - Bun-specific property
 if (import.meta.main) {
   main();
 }

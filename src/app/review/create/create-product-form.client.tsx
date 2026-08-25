@@ -55,6 +55,7 @@ import {
   useOptimistic,
   useState,
 } from "react";
+import { z } from "zod";
 import { searchParamKeysCreateReview } from "./create-review-form.client";
 import { SearchParamsCreateReview } from "./page";
 
@@ -132,7 +133,7 @@ export function CreateProductForm({
       return {
         status: "ERROR",
         formState,
-        errors: error.flatten().fieldErrors,
+        errors: z.flattenError(error).fieldErrors,
       } satisfies ActionStateError;
     }
 
@@ -468,7 +469,7 @@ async function createPlace(_: unknown, formData: FormData) {
     return {
       status: "ERROR",
       formState,
-      errors: error.flatten().fieldErrors,
+      errors: z.flattenError(error).fieldErrors,
     } satisfies ActionStateError;
   }
 

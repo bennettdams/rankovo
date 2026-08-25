@@ -4,6 +4,8 @@ import { signIn, signOut, useUserAuth } from "@/lib/auth-client";
 import { routes } from "@/lib/navigation";
 import { CircleUser, NotepadText } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { LoadingSpinner } from "./loading-spinner";
 import { Tooltip } from "./tooltip-custom";
 import { Button } from "./ui/button";
 import {
@@ -16,6 +18,8 @@ import {
 import { SheetClose } from "./ui/sheet";
 
 function SignInButton({ allowDevLogin }: { allowDevLogin: boolean }) {
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
   if (allowDevLogin) {
     return (
       <Button asChild className="bg-secondary text-secondary-fg">
@@ -27,9 +31,29 @@ function SignInButton({ allowDevLogin }: { allowDevLogin: boolean }) {
     );
   }
 
+  async function handleSignIn() {
+    setIsSigningIn(true);
+    try {
+      await signIn();
+    } catch {
+      // keep the click handler from rejecting
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
+
   return (
-    <Button onClick={() => signIn()} className="bg-secondary text-secondary-fg">
-      <CircleUser />
+    <Button
+      onClick={handleSignIn}
+      disabled={isSigningIn}
+      aria-busy={isSigningIn}
+      className="bg-secondary text-secondary-fg"
+    >
+      {isSigningIn ? (
+        <LoadingSpinner className="fill-secondary-fg" />
+      ) : (
+        <CircleUser />
+      )}
       <p>Anmelden</p>
     </Button>
   );
