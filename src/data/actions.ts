@@ -50,6 +50,7 @@ import {
   getUserAuthGated,
 } from "@/lib/auth-server";
 import { isDevLoginEnabled } from "@/lib/dev-login";
+import { isForeignKeyViolation } from "@/lib/postgres-errors";
 import { takeUniqueOrThrow } from "@/lib/utils";
 import { and, eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
@@ -125,6 +126,8 @@ export async function actionCreatePlace(
     formState,
     data: {
       placeIdCreated: placeCreated.id,
+      name: placeValues.name,
+      cities: citiesUnique,
     },
   } satisfies ActionStateSuccess;
 }
@@ -357,31 +360,49 @@ export async function actionCreateProduct(
     } satisfies ActionStateError;
   }
 
-  const productInsertQuery = db.$with("productInsertQuery").as(
-    db
-      .insert(productsTable)
-      .values({
-        ...productParsed,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+  let productCreated;
+  try {
+    const productInsertQuery = db.$with("productInsertQuery").as(
+      db
+        .insert(productsTable)
+        .values({
+          ...productParsed,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning(),
+    );
+    const productCreatedRows = await db
+      .with(productInsertQuery)
+      .select({
+        id: productInsertQuery.id,
+        name: productInsertQuery.name,
+        category: productInsertQuery.category,
+        note: productInsertQuery.note,
+        placeName: placesTable.name,
+        cities: sqlCitiesForPlace(),
       })
-      .returning(),
-  );
-  const productCreatedRows = await db
-    .with(productInsertQuery)
-    .select({
-      id: productInsertQuery.id,
-      name: productInsertQuery.name,
-      category: productInsertQuery.category,
-      note: productInsertQuery.note,
-      placeName: placesTable.name,
-      cities: sqlCitiesForPlace(),
-    })
-    .from(productInsertQuery)
-    .leftJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));
+      .from(productInsertQuery)
+      .innerJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));
 
-  const productCreated = productCreatedRows[0];
-  if (!productCreated) {
+    productCreated = takeUniqueOrThrow(
+      productCreatedRows,
+      "Found more than one product after insert",
+      "No product returned after insert",
+    );
+  } catch (error) {
+    if (isForeignKeyViolation(error)) {
+      return {
+        status: "ERROR",
+        formState,
+        errors: {
+          placeId: ["Restaurant wurde nicht gefunden"],
+        },
+      } satisfies ActionStateError;
+    }
+
+    console.error("Error creating product:", error);
+
     return {
       status: "ERROR",
       formState,
@@ -428,59 +449,43 @@ export async function actionAdminUpdateProduct(
 
   const { name, note, category, placeId } = productResult.data;
 
-  let updateResult;
   try {
-    updateResult = await db.transaction(async (tx) => {
-      if (placeId !== null) {
-        const places = await tx
-          .select({ id: placesTable.id })
-          .from(placesTable)
-          .where(eq(placesTable.id, placeId))
-          .limit(1);
+    const updatedRows = await db
+      .update(productsTable)
+      .set({
+        name,
+        note,
+        category,
+        placeId,
+        updatedAt: new Date(),
+      })
+      .where(eq(productsTable.id, productIdResult.data))
+      .returning({ id: productsTable.id });
 
-        if (places.length === 0) return "place-not-found" as const;
-      }
-
-      const updatedRows = await tx
-        .update(productsTable)
-        .set({
-          name,
-          note,
-          category,
-          placeId,
-          updatedAt: new Date(),
-        })
-        .where(eq(productsTable.id, productIdResult.data))
-        .returning({ id: productsTable.id });
-
-      if (!updatedRows[0]) return "product-not-found" as const;
-      return "updated" as const;
-    });
+    if (!updatedRows[0]) {
+      return {
+        status: "ERROR",
+        formState,
+        rootErrors: ["Produkt wurde nicht gefunden"],
+      } satisfies ActionStateError<FormStateUpdateProduct>;
+    }
   } catch (error) {
+    if (isForeignKeyViolation(error)) {
+      return {
+        status: "ERROR",
+        formState,
+        errors: {
+          placeId: ["Restaurant wurde nicht gefunden"],
+        },
+      } satisfies ActionStateError<FormStateUpdateProduct>;
+    }
+
     console.error("Error updating product:", error);
 
     return {
       status: "ERROR",
       formState,
       rootErrors: ["Produkt konnte nicht gespeichert werden"],
-    } satisfies ActionStateError<FormStateUpdateProduct>;
-  }
-
-  if (updateResult === "place-not-found") {
-    return {
-      status: "ERROR",
-      formState,
-      errors: {
-        placeId: ["Restaurant wurde nicht gefunden"],
-      },
-    } satisfies ActionStateError<FormStateUpdateProduct>;
-  }
-
-  if (updateResult === "product-not-found") {
-    return {
-      status: "ERROR",
-      formState,
-      rootErrors: ["Produkt wurde nicht gefunden"],
     } satisfies ActionStateError<FormStateUpdateProduct>;
   }
 

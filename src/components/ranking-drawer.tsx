@@ -214,7 +214,7 @@ function ProductMap({
 
   return (
     <div className="grid h-full">
-      {!!placeName && !!mapCity && (
+      {mapCity !== null && (
         <MapWithPlace placeName={placeName} city={mapCity} />
       )}
     </div>

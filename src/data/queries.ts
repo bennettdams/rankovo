@@ -152,7 +152,7 @@ export function subqueryRankings(
     db
       .select({ productId: productsTable.id })
       .from(productsTable)
-      .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+      .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
       .where(
         and(
           ...sqlFiltersProducts,
@@ -254,14 +254,12 @@ export function subqueryRankings(
       ratingAvg: qTopProducts.ratingAvg,
       lastReviewedAt: qTopProducts.lastReviewedAt,
       [citiesHack]: sqlCitiesForPlace().as(citiesHack),
-      [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
-        placeNameHack,
-      ),
+      [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
       numOfReviews: qTopProducts.numOfReviews,
     })
     .from(qTopProducts)
     .innerJoin(productsTable, eq(qTopProducts.productId, productsTable.id))
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     // sorted by product ID as tiebreaker from same average rating
     .orderBy(desc(qTopProducts.ratingAvg), asc(qTopProducts.productId))
     .as("queryRankings");
@@ -327,7 +325,7 @@ function createReviewsQuery(options: {
     .where(and(...whereConditions))
     .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
     .innerJoin(usersTable, eq(reviewsTable.authorId, usersTable.id))
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .orderBy(
       desc(reviewsTable.reviewedAt),
       desc(reviewsTable.updatedAt),
@@ -426,13 +424,11 @@ async function searchProducts({
       productCategory: productsTable.category,
       productNote: productsTable.note,
       placeId: productsTable.placeId,
-      [placeNameHack]: sql<string | null>`${placesTable.name}`.as(
-        placeNameHack,
-      ),
+      [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
       [citiesHack]: sqlCitiesForPlace().as(citiesHack),
     })
     .from(productsTable)
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .where(and(...searchConditions))
     .orderBy(asc(productsTable.name))
     .limit(10);
@@ -545,7 +541,7 @@ async function queryAdminProducts({
         [citiesHack]: sqlCitiesForPlace().as(citiesHack),
       })
       .from(productsTable)
-      .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+      .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
       .where(where)
       .orderBy(asc(lower(productsTable.name)), asc(productsTable.id))
       .limit(pageSizeAdmin)
@@ -614,7 +610,7 @@ async function queryAdminProductForId(id: number) {
       [citiesHack]: sqlCitiesForPlace().as(citiesHack),
     })
     .from(productsTable)
-    .leftJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
     .where(eq(productsTable.id, id));
 
   return rows[0] ?? null;

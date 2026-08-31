@@ -245,7 +245,7 @@ function ProductCard({
   name: string;
   category: Category;
   note: string | null;
-  placeName: string | null;
+  placeName: string;
   cities: City[];
   ratingAvg: number | null;
   numOfReviews: number | null;
@@ -269,34 +269,31 @@ function ProductCard({
           )}
         </div>
 
-        {/* Middle: Location - only show if exists */}
-        {placeName && (
-          <div className="flex items-start gap-2 text-sm">
-            <svg
-              className="mt-0.5 size-4 shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            <div className="min-w-0 flex-1">
-              <span className="line-clamp-1">{placeName}</span>
-              {citiesLabel && <span className="text-xs">{citiesLabel}</span>}
-            </div>
+        <div className="flex items-start gap-2 text-sm">
+          <svg
+            className="mt-0.5 size-4 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+          <div className="min-w-0 flex-1">
+            <span className="line-clamp-1">{placeName}</span>
+            {citiesLabel && <span className="text-xs">{citiesLabel}</span>}
           </div>
-        )}
+        </div>
 
         {/* Footer: Rating - always at bottom */}
         <div className="mt-auto shrink-0 pt-2">

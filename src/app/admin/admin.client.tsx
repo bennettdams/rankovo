@@ -47,12 +47,10 @@ type SelectedPlace = {
   cities: City[];
 };
 
-function selectedPlaceFromProduct(product: AdminProduct): SelectedPlace | null {
-  if (product.placeId === null) return null;
-
+function selectedPlaceFromProduct(product: AdminProduct): SelectedPlace {
   return {
     id: product.placeId,
-    name: product.placeName ?? `Restaurant #${product.placeId}`,
+    name: product.placeName,
     cities: product.cities,
   };
 }
@@ -74,7 +72,7 @@ export function ProductEditor({
   params: SearchParamsAdmin;
 }) {
   const { updateSearchParams } = useSearchParamsHelper();
-  const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(
+  const [selectedPlace, setSelectedPlace] = useState<SelectedPlace>(
     selectedPlaceFromProduct(product),
   );
   const [selectedCategory, setSelectedCategory] = useState<Category>(
@@ -96,7 +94,7 @@ export function ProductEditor({
   async function updateProduct(_: unknown, formData: FormData) {
     const formState = {
       ...prepareFormState(formConfigUpdateProduct, formData),
-      placeId: selectedPlace?.id ?? null,
+      placeId: selectedPlace.id,
     };
     const productResult = schemaUpdateProduct.safeParse(formState);
     const productIdResult = schemaProductId.safeParse(product.id);
@@ -187,23 +185,8 @@ export function ProductEditor({
           <Label htmlFor="admin-place-search">Restaurant</Label>
           <div className="rounded-md border border-stone-200 bg-white/50 p-3">
             <p className="text-sm text-dark-gray">Aktuelle Zuweisung</p>
-            <p className="font-medium">
-              {selectedPlace
-                ? placeAssignmentLabel(selectedPlace)
-                : "Kein Restaurant"}
-            </p>
+            <p className="font-medium">{placeAssignmentLabel(selectedPlace)}</p>
           </div>
-          {selectedPlace !== null && (
-            <Button
-              className="w-fit"
-              onClick={() => setSelectedPlace(null)}
-              size="sm"
-              type="button"
-              variant="outline"
-            >
-              Zuweisung entfernen
-            </Button>
-          )}
           <form className="flex gap-2" onSubmit={searchPlaces}>
             <Input
               autoComplete="off"
@@ -229,7 +212,7 @@ export function ProductEditor({
             placeQuery={placeQuery}
             placesForSearch={placesForSearch}
             placesSearchTotal={placesSearchTotal}
-            selectedPlaceId={selectedPlace?.id ?? null}
+            selectedPlaceId={selectedPlace.id}
           />
         </Fieldset>
 
@@ -265,7 +248,7 @@ function PlaceSearchResults({
   placeQuery: string;
   placesForSearch: AdminPlacesQuery[];
   placesSearchTotal: number;
-  selectedPlaceId: number | null;
+  selectedPlaceId: number;
   onSelect: (place: SelectedPlace) => void;
 }) {
   if (placeQuery.length === 0) {

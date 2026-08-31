@@ -1,6 +1,28 @@
-import { cn } from "@/lib/utils";
-import { formatCitiesLabel } from "@/lib/cities";
 import type { City } from "@/data/static";
+import { formatCitiesLabel } from "@/lib/cities";
+import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+
+function ProductDescriptionRowBase({
+  productName,
+  showBold,
+  children,
+}: {
+  productName: string;
+  showBold: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col overflow-hidden text-start">
+      <p className={cn("truncate text-lg", showBold && "font-bold")}>
+        {productName}
+      </p>
+      <p className="line-clamp-2 h-12 text-ellipsis text-secondary group-hover/ranking-card-row:text-secondary-fg">
+        {children}
+      </p>
+    </div>
+  );
+}
 
 export function ProductDescriptionRow({
   productName,
@@ -8,33 +30,31 @@ export function ProductDescriptionRow({
   cities,
   showBold,
 }: {
-  productName: string | null;
-  placeName: string | null;
+  productName: string;
+  placeName: string;
   cities: City[];
   showBold: boolean;
 }) {
   const citiesLabel = formatCitiesLabel(cities);
 
   return (
-    <div className="flex flex-col overflow-hidden text-start">
-      <p className={cn("truncate text-lg", showBold && "font-bold")}>
-        {productName ?? "-"}
-      </p>
+    <ProductDescriptionRowBase productName={productName} showBold={showBold}>
+      <span>{placeName}</span>
 
-      <p className="line-clamp-2 h-12 text-ellipsis text-secondary group-hover/ranking-card-row:text-secondary-fg">
-        {placeName && (
-          <>
-            <span>{placeName}</span>
-
-            {citiesLabel && (
-              <>
-                <span className="ml-2">•</span>
-                <span className="ml-2">{citiesLabel}</span>
-              </>
-            )}
-          </>
-        )}
-      </p>
-    </div>
+      {citiesLabel && (
+        <>
+          <span className="ml-2">•</span>
+          <span className="ml-2">{citiesLabel}</span>
+        </>
+      )}
+    </ProductDescriptionRowBase>
   );
+}
+
+export function EmptyProductDescriptionRow({
+  showBold,
+}: {
+  showBold: boolean;
+}) {
+  return <ProductDescriptionRowBase productName="-" showBold={showBold} />;
 }

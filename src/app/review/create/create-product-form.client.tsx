@@ -34,7 +34,11 @@ import {
   getActionRootErrors,
   withCallbacks,
 } from "@/lib/action-utils";
-import { formatCitiesLabel, pickCityForMap } from "@/lib/cities";
+import {
+  formatCitiesFull,
+  formatCitiesLabel,
+  pickCityForMap,
+} from "@/lib/cities";
 import {
   type FormConfig,
   type FormState,
@@ -80,6 +84,17 @@ const formConfig = {
 
 export type FormStateCreateProduct = FormState<typeof formConfig>;
 
+type SelectedPlace = {
+  id: number;
+  name: string;
+  cities: City[];
+};
+
+function placeAssignmentLabel(place: SelectedPlace): string {
+  const cities = formatCitiesFull(place.cities);
+  return `${place.name}${cities ? ` · ${cities}` : ""}`;
+}
+
 function SubSection({
   title,
   icon: Icon,
@@ -114,13 +129,15 @@ export function CreateProductForm({
     "place-name":
       searchParams.get(searchParamKeysCreateReview["place-name"]) ?? null,
   } satisfies SearchParamsCreateProduct);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(
+    null,
+  );
   const [isPlaceDrawerOpen, setIsPlaceDrawerOpen] = useState(false);
 
   async function createProduct(_: unknown, formData: FormData) {
     const formState = {
       ...prepareFormState(formConfig, formData),
-      placeId: selectedPlaceId,
+      placeId: selectedPlace?.id ?? null,
     };
 
     const {
@@ -165,22 +182,14 @@ export function CreateProductForm({
     }
   }
 
-  const handlePlaceCreation = useCallback((placeIdCreated: number) => {
-    setSelectedPlaceId(placeIdCreated);
+  const handlePlaceCreation = useCallback((placeCreated: SelectedPlace) => {
+    setSelectedPlace(placeCreated);
     setIsPlaceDrawerOpen(false);
   }, []);
 
-  const placeForMap = selectedPlaceId
-    ? placesForSearch.find((p) => p.id === selectedPlaceId)
-    : // fallback first place from search if nothing selected
-      (placesForSearch[0] ?? null);
-  const placeForMapCity = placeForMap
-    ? pickCityForMap(placeForMap.cities)
+  const placeForMapCity = selectedPlace
+    ? pickCityForMap(selectedPlace.cities)
     : null;
-
-  /** We remind the user to select a place so it is not assumed that entering a place name automatically makes a selection. */
-  const isPlaceSelectionNeeded =
-    selectedPlaceId === null && filters["place-name"] !== null;
 
   return (
     <form action={formAction} className="space-y-6" noValidate>
@@ -247,7 +256,7 @@ export function CreateProductForm({
       </SubSection>
 
       {/* Place Selection */}
-      <SubSection title="Restaurant auswählen (optional)" icon={MapPin}>
+      <SubSection title="Restaurant auswählen" icon={MapPin}>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Place Search and Selection */}
           <div className="space-y-6">
@@ -258,17 +267,29 @@ export function CreateProductForm({
               >
                 Restaurantname
               </Label>
+              {selectedPlace && (
+                <div className="rounded-md border border-stone-200 bg-white/50 p-3">
+                  <p className="text-sm text-dark-gray">Aktuelle Zuweisung</p>
+                  <p className="font-medium">
+                    {placeAssignmentLabel(selectedPlace)}
+                  </p>
+                </div>
+              )}
               <Input
                 name="search-place-name"
                 type="text"
                 placeholder="z. B. Five Guys"
                 value={filters["place-name"] ?? ""}
                 onChange={(e) => {
-                  setSelectedPlaceId(null);
                   changeFilters({ "place-name": e.target.value });
                 }}
                 className="mt-1"
               />
+              {!selectedPlace && (
+                <p className="text-sm text-dark-gray">
+                  Wähle ein Restaurant aus der Liste oder hinterlege ein Neues.
+                </p>
+              )}
               <Fieldset>
                 <FieldError errorMsg={state?.errors?.placeId} />
               </Fieldset>
@@ -295,11 +316,13 @@ export function CreateProductForm({
                     {placesForSearch.map((place) => (
                       <PlaceCard
                         key={place.id}
-                        isSelected={place.id === selectedPlaceId}
+                        isSelected={place.id === selectedPlace?.id}
                         onSelect={() =>
-                          setSelectedPlaceId((prev) =>
-                            prev === place.id ? null : place.id,
-                          )
+                          setSelectedPlace({
+                            id: place.id,
+                            name: place.name,
+                            cities: place.cities,
+                          })
                         }
                         name={place.name}
                         cities={place.cities}
@@ -342,9 +365,9 @@ export function CreateProductForm({
               Vorschau des Standorts
             </h4>
             <div className="grid h-40 w-full overflow-hidden md:h-96">
-              {!!placeForMap && placeForMapCity ? (
+              {!!selectedPlace && placeForMapCity ? (
                 <MapWithPlace
-                  placeName={placeForMap.name}
+                  placeName={selectedPlace.name}
                   city={placeForMapCity}
                 />
               ) : (
@@ -360,7 +383,7 @@ export function CreateProductForm({
         <Button
           className="px-8 py-3 text-base font-medium shadow-lg"
           type="submit"
-          disabled={isPendingAction || isPlaceSelectionNeeded}
+          disabled={isPendingAction}
           size="lg"
         >
           <Save className="mr-2 size-5" />
@@ -374,10 +397,6 @@ export function CreateProductForm({
         )}
 
         <FieldError errorMsg={getActionRootErrors(state)} />
-
-        {isPlaceSelectionNeeded && (
-          <FieldError errorMsg="Wähle ein Restaurant aus/hinterlege eins oder entferne deine Restaurantnamenssuche." />
-        )}
 
         {state?.status === "SUCCESS" && (
           <p
@@ -488,19 +507,23 @@ function DrawerCreatePlace({
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   placeName: string | null;
   onChangePlaceName: (placeName: string) => void;
-  onCreatedPlace: (placeId: number) => void;
+  onCreatedPlace: (place: SelectedPlace) => void;
   children: React.ReactNode;
 }) {
+  const [selectedCities, setSelectedCities] = useState<City[]>([]);
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(createPlace, {
       onSuccess: (data) => {
+        onCreatedPlace({
+          id: data.placeIdCreated,
+          name: data.name,
+          cities: data.cities,
+        });
         setSelectedCities([]);
-        onCreatedPlace(data.placeIdCreated);
       },
     }),
     null,
   );
-  const [selectedCities, setSelectedCities] = useState<City[]>([]);
   const mapCity = pickCityForMap(selectedCities);
 
   function handleOpenChange(open: boolean) {
