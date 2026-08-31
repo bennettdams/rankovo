@@ -26,7 +26,7 @@ export function EditReviewButtonWithSheet({
 }: {
   productId: number;
   productName: string;
-  placeName: string | null;
+  placeName: string;
   cities: City[];
   rating: number;
   note: string | null;
@@ -66,7 +66,7 @@ export function EditReviewButtonWithSheet({
           <div className="flex flex-col gap-4 overflow-y-auto pr-2">
             <ProductDescriptionRow
               productName={productName}
-              placeName={placeName ?? null}
+              placeName={placeName}
               cities={cities}
               showBold={true}
             />

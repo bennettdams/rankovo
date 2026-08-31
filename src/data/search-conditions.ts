@@ -1,6 +1,6 @@
 import { placeCitiesTable, placesTable, productsTable } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import { and, eq, exists, ilike, isNotNull, or, type SQL } from "drizzle-orm";
+import { and, eq, exists, ilike, or, type SQL } from "drizzle-orm";
 import { minCharsSearch } from "./static";
 
 /**
@@ -84,12 +84,10 @@ export function conditionsSearchProducts(searchQuery: string) {
     const wildcardTerm = ilikeContains(term);
 
     return or(
-      // PRODUCTS: Always search in product fields (these are never null)
       ilike(productsTable.name, wildcardTerm),
       ilike(productsTable.note, wildcardTerm),
       ilike(productsTable.category, wildcardTerm),
-      // PLACES: Only search in place fields if they exist (not null)
-      and(isNotNull(placesTable.name), ilike(placesTable.name, wildcardTerm)),
+      ilike(placesTable.name, wildcardTerm),
       // Match if any linked city name contains the search term (see existsPlaceCityMatching).
       existsPlaceCityMatching(ilike(placeCitiesTable.city, wildcardTerm)),
     );
@@ -109,13 +107,9 @@ export function conditionsSearchReviewProducts(
     if (productConditions) filters.push(...productConditions);
   }
 
-  if (placeName && placeName.length >= minCharsSearch) {
-    filters.push(
-      and(
-        isNotNull(placesTable.name),
-        ilike(placesTable.name, ilikeContains(placeName)),
-      ),
-    );
+  const placeQuery = placeName?.trim();
+  if (placeQuery && placeQuery.length >= minCharsSearch) {
+    filters.push(ilike(placesTable.name, ilikeContains(placeQuery)));
   }
 
   return filters.length > 0 ? filters : undefined;

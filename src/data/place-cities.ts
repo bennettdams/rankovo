@@ -26,7 +26,7 @@ function isCity(value: unknown): value is City {
  * 1. Inner select from `place_cities` correlated to `places.id`.
  * 2. `array_agg(city ORDER BY array_position(static-list, city))` — stable
  *    order matching `static.ts`, independent of insert order.
- * 3. `coalesce(…, '{}')` — no cities (or no place) becomes `[]`, never null.
+ * 3. `coalesce(…, '{}')` — no cities becomes `[]`, never null.
  */
 export function sqlCitiesForPlace() {
   return sql<City[]>`coalesce(

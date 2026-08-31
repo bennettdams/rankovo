@@ -1,6 +1,9 @@
 import { Box } from "@/components/box";
 import { NumberFormatted } from "@/components/number-formatted";
-import { ProductDescriptionRow } from "@/components/product-description-row";
+import {
+  EmptyProductDescriptionRow,
+  ProductDescriptionRow,
+} from "@/components/product-description-row";
 import { RankingDrawer } from "@/components/ranking-drawer";
 import { RankingPositionMarker } from "@/components/ranking-position-marker";
 import { SectionHeader } from "@/components/section-header";
@@ -12,6 +15,7 @@ import {
 import type { Category } from "@/data/static";
 import { t } from "@/lib/i18n";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import type { FiltersRankings } from "../page";
 
 const defaultFilters: FiltersRankings = {
@@ -127,7 +131,7 @@ function TopByCategoryCard({
       <div className="grid grid-cols-[min-content_1fr] grid-rows-3 place-items-center gap-y-2">
         {/* RANKING ONE */}
         {!rankingOne ? (
-          <RankingCardRow position={1} ranking={null} />
+          <EmptyRankingCardRow position={1} />
         ) : (
           <RankingDrawer
             placeName={rankingOne.placeName}
@@ -146,7 +150,7 @@ function TopByCategoryCard({
 
         {/* RANKING TWO */}
         {!rankingTwo ? (
-          <RankingCardRow position={2} ranking={null} />
+          <EmptyRankingCardRow position={2} />
         ) : (
           <RankingDrawer
             placeName={rankingTwo.placeName}
@@ -165,7 +169,7 @@ function TopByCategoryCard({
 
         {/* RANKING THREE */}
         {!rankingThree ? (
-          <RankingCardRow position={3} ranking={null} />
+          <EmptyRankingCardRow position={3} />
         ) : (
           <RankingDrawer
             placeName={rankingThree.placeName}
@@ -184,7 +188,7 @@ function TopByCategoryCard({
 
         {/* RANKING FOUR */}
         {!rankingFour ? (
-          <RankingCardRow position={4} ranking={null} />
+          <EmptyRankingCardRow position={4} />
         ) : (
           <RankingDrawer
             placeName={rankingFour.placeName}
@@ -203,7 +207,7 @@ function TopByCategoryCard({
 
         {/* RANKING FIVE */}
         {!rankingFive ? (
-          <RankingCardRow position={5} ranking={null} />
+          <EmptyRankingCardRow position={5} />
         ) : (
           <RankingDrawer
             placeName={rankingFive.placeName}
@@ -231,39 +235,54 @@ const categoriesForTop = {
 } as const satisfies Partial<Record<Category, string>>;
 type CategoryForTop = keyof typeof categoriesForTop;
 
+function RankingCardRowShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="group/ranking-card-row col-span-2 grid cursor-pointer grid-cols-subgrid py-2 hover:bg-secondary hover:text-secondary-fg">
+      {children}
+    </div>
+  );
+}
+
 function RankingCardRow({
   position,
   ranking,
 }: {
   position: 1 | 2 | 3 | 4 | 5;
-  ranking: RankingWithReviewsQuery | null;
+  ranking: RankingWithReviewsQuery;
 }) {
   return (
-    <div className="group/ranking-card-row col-span-2 grid cursor-pointer grid-cols-subgrid py-2 hover:bg-secondary hover:text-secondary-fg">
+    <RankingCardRowShell>
       <div className="mx-2 lg:mx-3">
         <RankingPositionMarker
           position={position}
           labelOverwrite={
-            !ranking ? (
-              ""
-            ) : (
-              <NumberFormatted
-                className="text-xl"
-                num={ranking.ratingAvg}
-                min={2}
-                max={2}
-              />
-            )
+            <NumberFormatted
+              className="text-xl"
+              num={ranking.ratingAvg}
+              min={2}
+              max={2}
+            />
           }
         />
       </div>
 
       <ProductDescriptionRow
-        productName={ranking?.productName ?? null}
-        placeName={ranking?.placeName ?? null}
-        cities={ranking?.cities ?? []}
+        productName={ranking.productName}
+        placeName={ranking.placeName}
+        cities={ranking.cities}
         showBold={position === 1}
       />
-    </div>
+    </RankingCardRowShell>
+  );
+}
+
+function EmptyRankingCardRow({ position }: { position: 1 | 2 | 3 | 4 | 5 }) {
+  return (
+    <RankingCardRowShell>
+      <div className="mx-2 lg:mx-3">
+        <RankingPositionMarker position={position} labelOverwrite="" />
+      </div>
+      <EmptyProductDescriptionRow showBold={position === 1} />
+    </RankingCardRowShell>
   );
 }

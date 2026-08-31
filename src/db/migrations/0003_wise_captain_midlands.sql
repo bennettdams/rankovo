@@ -1,0 +1,1 @@
+ALTER TABLE "products" ALTER COLUMN "place_id" SET NOT NULL;

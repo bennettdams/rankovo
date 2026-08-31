@@ -125,11 +125,7 @@ function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
       {/* Native GET replaces the query string. Without this, search from the
           places tab drops `tab=places` and the page falls back to products. */}
       {isPlacesTab && (
-        <input
-          name={searchParamKeysAdmin.tab}
-          type="hidden"
-          value="places"
-        />
+        <input name={searchParamKeysAdmin.tab} type="hidden" value="places" />
       )}
       <Input
         aria-label={searchLabel}
@@ -273,9 +269,7 @@ async function ProductPanel({ params }: { params: SearchParamsAdmin }) {
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <CategoryBadge category={product.category} size="sm" />
                       <span className="text-sm text-dark-gray">
-                        {product.placeName
-                          ? `${product.placeName}${cities ? ` · ${cities}` : ""}`
-                          : "Kein Restaurant"}
+                        {`${product.placeName}${cities ? ` · ${cities}` : ""}`}
                       </span>
                     </div>
                   </Link>

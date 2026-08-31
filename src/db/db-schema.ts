@@ -21,7 +21,11 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 import { z } from "zod";
 
 /**
@@ -169,6 +173,11 @@ export type PlaceUpdateDb = z.infer<typeof schemaUpdatePlace>;
 export const schemaPlaceId = createSelectSchema(placesTable, {
   id: (schema) => schema.positive(),
 }).shape.id;
+const messagePlace = "Bitte wähle ein Restaurant aus";
+export const schemaProductPlaceId = z
+  .number({ error: messagePlace })
+  .int(messagePlace)
+  .positive(messagePlace);
 
 export const productsTable = pgTable(
   "products",
@@ -177,7 +186,9 @@ export const productsTable = pgTable(
     name: varchar({ length: 255 }).notNull(),
     note: varchar({ length: 255 }),
     category: varchar({ length: 255, enum: categories }).notNull(),
-    placeId: integer("place_id").references(() => placesTable.id),
+    placeId: integer("place_id")
+      .notNull()
+      .references(() => placesTable.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -193,6 +204,7 @@ export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,
   name: schemaProductName,
   note: schemaNote,
+  placeId: schemaProductPlaceId,
 })
   .required()
   .omit({
@@ -205,6 +217,7 @@ export const schemaUpdateProduct = createUpdateSchema(productsTable, {
   name: schemaProductName,
   note: schemaNote,
   category: schemaCategory,
+  placeId: schemaProductPlaceId,
 })
   .pick({
     name: true,
