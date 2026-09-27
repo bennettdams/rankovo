@@ -1,4 +1,7 @@
-import { getAuthSession, type AuthSession } from "@/lib/auth-server";
+import {
+  getOptionalAuthSession,
+  type AuthSession,
+} from "@/lib/auth-server";
 import { isDevLoginEnabled } from "@/lib/dev-login";
 import { t } from "@/lib/i18n";
 import { routes } from "@/lib/navigation";
@@ -25,7 +28,7 @@ import {
 const userMenuWidthStyles = "w-96 min-w-96 max-w-96";
 
 export async function NavbarWithSession() {
-  const initialSession = await getAuthSession();
+  const initialSession = await getOptionalAuthSession();
 
   return <Navbar initialSession={initialSession} />;
 }

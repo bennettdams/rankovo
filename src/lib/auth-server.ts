@@ -161,6 +161,15 @@ export const getAuthSession = cache(async () => {
   });
 });
 
+export const getOptionalAuthSession = cache(async () => {
+  try {
+    return await getAuthSession();
+  } catch (error) {
+    console.error("Failed to load optional auth session:", error);
+    return null;
+  }
+});
+
 export const getUserAuth = cache(async () => {
   const data = await getAuthSession();
   if (!data) return null;
