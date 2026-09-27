@@ -18,7 +18,7 @@ export const schemaRating = z
 export const schemaUrl = z.url({
   error: "Bitte gib eine gültige URL ein (beginnt mit 'https')",
   protocol: /^https$/,
-});
+}).max(255); // Matches the database column limit.
 
 export const schemaNote = z
   .string()

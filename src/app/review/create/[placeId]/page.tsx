@@ -41,9 +41,10 @@ async function ReviewCreateAtPlaceScreen({
   const placeIdResult = schemaPlaceId.safeParse(Number(placeIdParam));
   if (!placeIdResult.success) notFound();
 
-  const searchParamsParsed = schemaSearchParams.parse(await searchParams);
-  const productIdPreselected =
-    searchParamsParsed[searchParamKeysReviewCreate.productIdPreselected];
+  const searchParamsResult = schemaSearchParams.safeParse(await searchParams);
+  const productIdPreselected = searchParamsResult.success
+    ? searchParamsResult.data[searchParamKeysReviewCreate.productIdPreselected]
+    : null;
   const userAuth = await getUserAuth();
 
   const [place, userReviews] = await Promise.all([

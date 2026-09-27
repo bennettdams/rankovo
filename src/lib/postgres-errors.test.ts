@@ -42,8 +42,8 @@ describe(`${uniqueViolationConstraint.name}`, () => {
     ).toBe("some_idx");
   });
 
-  test("returns an empty string when the driver gives no name", () => {
-    expect(uniqueViolationConstraint({ code: "23505" })).toBe("");
+  test("returns null when the driver gives no constraint name", () => {
+    expect(uniqueViolationConstraint({ code: "23505" })).toBeNull();
   });
 
   test("returns null for other errors", () => {
