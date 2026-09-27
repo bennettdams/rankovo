@@ -1,7 +1,6 @@
 import { placeCitiesTable, placesTable, productsTable } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
 import { and, eq, exists, ilike, or, type SQL } from "drizzle-orm";
-import { minCharsSearch } from "./static";
 
 /**
  * Pattern for a case-insensitive "contains" `ILIKE`.
@@ -94,23 +93,4 @@ export function conditionsSearchProducts(searchQuery: string) {
   });
 
   return searchConditions;
-}
-
-export function conditionsSearchReviewProducts(
-  productName: string | null,
-  placeName: string | null,
-) {
-  const filters: (SQL | undefined)[] = [];
-
-  if (productName) {
-    const productConditions = conditionsSearchProducts(productName);
-    if (productConditions) filters.push(...productConditions);
-  }
-
-  const placeQuery = placeName?.trim();
-  if (placeQuery && placeQuery.length >= minCharsSearch) {
-    filters.push(ilike(placesTable.name, ilikeContains(placeQuery)));
-  }
-
-  return filters.length > 0 ? filters : undefined;
 }

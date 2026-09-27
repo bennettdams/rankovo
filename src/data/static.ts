@@ -73,6 +73,10 @@ export type City = (typeof cities)[number];
 
 export const minCharsSearch = 3;
 
+export function shouldRunSearch(query: string | null): query is string {
+  return !!query && query.trim().length >= minCharsSearch;
+}
+
 export const reviewSources = {
   YouTube: "youtube.com",
   Instagram: "instagram.com",

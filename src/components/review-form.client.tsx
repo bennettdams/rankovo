@@ -1,35 +1,26 @@
 "use client";
 
 import { FieldError, Fieldset } from "@/components/form";
-import { NumberFormatted } from "@/components/number-formatted";
-import { Slider } from "@/components/slider";
-import { StarsForRating } from "@/components/stars-for-rating";
+import { RatingInput } from "@/components/rating-input.client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { actionCreateReview } from "@/data/actions";
-import {
-  ratingHighest,
-  ratingLowest,
-  ratingMiddle,
-  type Role,
-  usernamesReserved,
-} from "@/data/static";
+import { type Role, usernamesReserved } from "@/data/static";
 import { type ReviewCreate, schemaCreateReview } from "@/db/db-schema";
 import {
   type ActionStateError,
   getActionRootErrors,
   withCallbacks,
 } from "@/lib/action-utils";
+import { isRatingInRange } from "@/lib/business-utils";
 import {
   type FormConfig,
   type FormState,
   prepareFormState,
 } from "@/lib/form-utils";
-import { cn } from "@/lib/utils";
 import { Save } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import { z } from "zod";
 
@@ -63,7 +54,6 @@ type ReviewFormProps = {
   } | null;
   onSuccess: (successAt: string) => void;
   showSuccessMessage?: boolean;
-  layout: "grid" | "stacked";
   userAuthRole: Role | null;
 };
 
@@ -72,7 +62,6 @@ export function ReviewForm({
   initialValues,
   onSuccess,
   showSuccessMessage: showSuccessMessageExternal = true,
-  layout,
   userAuthRole,
 }: ReviewFormProps) {
   const [formKey, setFormKey] = useState(0);
@@ -93,7 +82,6 @@ export function ReviewForm({
         // Without this, the success message would never show because the "state" of the server action is also reset.
         showSuccessMessageExternal === false ? false : showSuccessMessage
       }
-      layout={layout}
       userAuthRole={userAuthRole}
     />
   );
@@ -105,12 +93,8 @@ function ReviewFormInternal({
   onSuccess,
   onError,
   showSuccessMessage = true,
-  layout,
   userAuthRole,
 }: ReviewFormProps & { onError: () => void }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
   async function createReview(_: unknown, formData: FormData) {
     const formState = {
       ...prepareFormState(formConfig, formData),
@@ -134,14 +118,17 @@ function ReviewFormInternal({
     return actionCreateReview(formState, reviewParsed);
   }
 
+  const [ratingSlider, setRatingSlider] = useState<number | null>(
+    initialValues?.rating ?? null,
+  );
+  const [showUrlSource, setShowUrlSource] = useState(
+    () => !!initialValues?.urlSource,
+  );
+
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(createReview, {
       onSuccess: () => {
         setRatingSlider(null);
-
-        // reset search params
-        router.push(pathname, { scroll: false });
-
         onSuccess(new Date().toISOString());
       },
       onError,
@@ -149,80 +136,34 @@ function ReviewFormInternal({
     null,
   );
 
-  const [ratingSlider, setRatingSlider] = useState<number | null>(
-    state?.formState.rating ?? initialValues?.rating ?? null,
-  );
+  // A failed submit resets the form to these defaults. Once submitted, the
+  // submitted value wins, so a field the user cleared doesn't refill.
+  function valueAfterSubmit(key: "note" | "urlSource") {
+    const value = state ? state.formState[key] : initialValues?.[key];
+    return value ?? undefined;
+  }
+
+  const ratingError = isRatingInRange(ratingSlider)
+    ? undefined
+    : state?.errors?.rating;
 
   return (
     <form action={formAction} className="space-y-6" noValidate>
-      <div
-        className={cn(
-          "grid grid-cols-1 gap-6",
-          layout === "grid" ? "lg:grid-cols-2" : "lg:grid-cols-1",
-        )}
-      >
-        <Fieldset className="w-full">
-          <Label htmlFor={formKeys.rating} className="text-base font-medium">
-            Bewertung
-          </Label>
+      <Fieldset className="w-full">
+        <Label htmlFor={formKeys.rating} className="text-base font-medium">
+          Bewertung
+        </Label>
 
-          <div className="flex flex-col items-center space-y-4">
-            <div className="text-2xl font-semibold">
-              {ratingSlider !== null ? (
-                <NumberFormatted num={ratingSlider} min={1} max={1} />
-              ) : (
-                "—"
-              )}
-            </div>
+        <RatingInput value={ratingSlider} onChange={setRatingSlider} />
 
-            <StarsForRating
-              rating={ratingSlider ?? ratingMiddle}
-              size="large"
-              onClick={(ratingClicked) => setRatingSlider(ratingClicked)}
-            />
-
-            <div className="w-full max-w-xs">
-              <Slider
-                min={ratingLowest}
-                max={ratingHighest}
-                step={0.1}
-                value={!ratingSlider ? undefined : [ratingSlider]}
-                onValueChange={(value) => {
-                  const newRating = value[0];
-                  if (newRating !== undefined) {
-                    setRatingSlider(newRating);
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          <Input
-            name={formKeys.rating}
-            type="hidden"
-            value={ratingSlider ?? ""}
-            readOnly
-          />
-          <FieldError errorMsg={state?.errors?.rating} />
-        </Fieldset>
-
-        <Fieldset className="w-full">
-          <Label htmlFor={formKeys.urlSource} className="text-base font-medium">
-            URL-Quelle
-          </Label>
-          <Input
-            name={formKeys.urlSource}
-            placeholder="z.B. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-            defaultValue={
-              state?.formState.urlSource ??
-              initialValues?.urlSource ??
-              undefined
-            }
-            className="w-full"
-          />
-          <FieldError errorMsg={state?.errors?.urlSource} />
-        </Fieldset>
-      </div>
+        <Input
+          name={formKeys.rating}
+          type="hidden"
+          value={ratingSlider ?? ""}
+          readOnly
+        />
+        <FieldError errorMsg={ratingError} />
+      </Fieldset>
 
       <Fieldset className="w-full">
         <Label htmlFor={formKeys.note} className="text-base font-medium">
@@ -231,13 +172,49 @@ function ReviewFormInternal({
         <Textarea
           name={formKeys.note}
           placeholder="Besonderheiten, Anmerkungen, .."
-          defaultValue={
-            state?.formState.note ?? initialValues?.note ?? undefined
-          }
+          defaultValue={valueAfterSubmit("note")}
           className="min-h-30 w-full resize-none"
         />
         <FieldError errorMsg={state?.errors?.note} />
       </Fieldset>
+
+      {showUrlSource ? (
+        <Fieldset className="w-full">
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <Label
+              htmlFor={formKeys.urlSource}
+              className="text-base font-medium"
+            >
+              URL-Quelle
+            </Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowUrlSource(false)}
+            >
+              Entfernen
+            </Button>
+          </div>
+          <Input
+            id={formKeys.urlSource}
+            name={formKeys.urlSource}
+            placeholder="z.B. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            defaultValue={valueAfterSubmit("urlSource")}
+            className="w-full"
+          />
+          <FieldError errorMsg={state?.errors?.urlSource} />
+        </Fieldset>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          className="px-0 text-secondary"
+          onClick={() => setShowUrlSource(true)}
+        >
+          Quelle hinzufügen
+        </Button>
+      )}
 
       {userAuthRole === "admin" && (
         <Fieldset className="w-full">
@@ -274,7 +251,7 @@ function ReviewFormInternal({
         <Button
           className="w-full px-8 py-3 text-base font-medium shadow-lg sm:w-auto"
           type="submit"
-          disabled={isPendingAction}
+          disabled={isPendingAction || productId == null}
           size="lg"
         >
           <Save className="mr-2 size-5" />

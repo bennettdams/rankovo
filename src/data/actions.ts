@@ -4,19 +4,16 @@ import type {
   FormStateUpdatePlace,
   FormStateUpdateProduct,
 } from "@/app/admin/admin.shared";
-import type {
-  FormStateCreatePlace,
-  FormStateCreateProduct,
-} from "@/app/review/create/create-product-form.client";
+import { visitErrorsByReviewId } from "@/app/review/create/visit-errors";
 import { type FormStateChangeUsername } from "@/app/welcome/form-username-change";
 import type { FormStateCreateReview } from "@/components/review-form.client";
 import {
+  indexProductsPlaceNameUnique,
+  indexReviewsOneCurrent,
   lower,
   placeCitiesTable,
-  type PlaceCreateDb,
   placesTable,
   type PlaceUpdateDb,
-  type ProductCreateDb,
   productsTable,
   type ProductUpdateDb,
   type Review,
@@ -24,8 +21,6 @@ import {
   type ReviewCreateDb,
   reviewsTable,
   type ReviewUpdateDb,
-  schemaCreatePlace,
-  schemaCreateProduct,
   schemaCreateReview,
   schemaPlaceId,
   schemaProductId,
@@ -37,100 +32,28 @@ import {
   type UserUpdate,
 } from "@/db/db-schema";
 import { db } from "@/db/drizzle-setup";
-import type {
-  ActionDataExtract,
-  ActionStateError,
-  ActionStateSuccess,
+import {
+  type ActionStateError,
+  type ActionStateSuccess,
 } from "@/lib/action-utils";
 import {
   assertAdmin,
-  assertAuthenticated,
   assertUserForEntity,
   createDevLoginSession,
   getUserAuthGated,
 } from "@/lib/auth-server";
 import { isDevLoginEnabled } from "@/lib/dev-login";
-import { isForeignKeyViolation } from "@/lib/postgres-errors";
-import { takeUniqueOrThrow } from "@/lib/utils";
-import { and, eq } from "drizzle-orm";
+import {
+  isForeignKeyViolation,
+  uniqueViolationConstraint,
+} from "@/lib/postgres-errors";
+import { schemaCreateVisit, type VisitCreate } from "@/lib/schemas";
+import { Prettify, takeUniqueOrThrow } from "@/lib/utils";
+import { and, eq, inArray } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { forbidden } from "next/navigation";
 import { z } from "zod";
-import { sqlCitiesForPlace } from "./place-cities";
 import { cacheKeys, devUsers, type Role, usernamesReserved } from "./static";
-
-export type PlaceCreate = PlaceCreateDb;
-
-export async function actionCreatePlace(
-  formState: FormStateCreatePlace,
-  placeToCreate: PlaceCreate,
-) {
-  console.debug("🟦 ACTION create place");
-
-  await assertAuthenticated();
-
-  const {
-    success,
-    error,
-    data: placeParsed,
-  } = schemaCreatePlace.safeParse(placeToCreate);
-
-  if (!success) {
-    return {
-      status: "ERROR",
-      formState,
-      errors: z.flattenError(error).fieldErrors,
-    } satisfies ActionStateError;
-  }
-
-  const { cities: citiesSelected, ...placeValues } = placeParsed;
-  const citiesUnique = [...new Set(citiesSelected)];
-
-  const placeCreated = await db.transaction(async (tx) => {
-    const placeCreatedRows = await tx
-      .insert(placesTable)
-      .values({
-        ...placeValues,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning({ id: placesTable.id });
-
-    const place = placeCreatedRows[0];
-    if (!place) return null;
-
-    if (citiesUnique.length > 0) {
-      await tx.insert(placeCitiesTable).values(
-        citiesUnique.map((city) => ({
-          placeId: place.id,
-          city,
-        })),
-      );
-    }
-
-    return place;
-  });
-
-  if (!placeCreated) {
-    return {
-      status: "ERROR",
-      formState,
-      rootErrors: ["Restaurant konnte nicht gespeichert werden"],
-    } satisfies ActionStateError;
-  }
-
-  updateTag(cacheKeys.places);
-
-  return {
-    status: "SUCCESS",
-    formState,
-    data: {
-      placeIdCreated: placeCreated.id,
-      name: placeValues.name,
-      cities: citiesUnique,
-    },
-  } satisfies ActionStateSuccess;
-}
 
 export async function actionAdminUpdatePlace(
   formState: FormStateUpdatePlace,
@@ -264,32 +187,50 @@ export async function actionCreateReview(
     isCurrent: true,
   };
 
-  await db.transaction(async (tx) => {
-    // Mark any existing review as not current for the target author
-    await tx
-      .update(reviewsTable)
-      .set({ isCurrent: false })
-      .where(
-        and(
-          eq(reviewsTable.productId, reviewToCreateFixed.productId),
-          eq(reviewsTable.authorId, authorId),
-          eq(reviewsTable.isCurrent, true),
-        ),
-      );
+  try {
+    await db.transaction(async (tx) => {
+      // Mark any existing review as not current for the target author
+      await tx
+        .update(reviewsTable)
+        .set({ isCurrent: false })
+        .where(
+          and(
+            eq(reviewsTable.productId, reviewToCreateFixed.productId),
+            eq(reviewsTable.authorId, authorId),
+            eq(reviewsTable.isCurrent, true),
+          ),
+        );
 
-    // Insert new review as current
-    await tx.insert(reviewsTable).values({
-      ...reviewToCreateFixed,
-      authorId,
-      isCurrent: true,
-      reviewedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      // Insert new review as current
+      await tx.insert(reviewsTable).values({
+        ...reviewToCreateFixed,
+        authorId,
+        isCurrent: true,
+        reviewedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     });
-  });
+  } catch (error) {
+    // The partial unique index is the final arbiter when two saves race
+    // between the update above and their current-review inserts.
+    if (uniqueViolationConstraint(error) === indexReviewsOneCurrent) {
+      const errors: Partial<Record<keyof FormStateCreateReview, string[]>> = {};
+      return {
+        status: "ERROR",
+        formState,
+        errors,
+        rootErrors: [
+          "Diese Bewertung wurde gerade aktualisiert. Lade die Seite neu und versuche es erneut.",
+        ],
+      } satisfies ActionStateError<FormStateCreateReview>;
+    }
+    throw error;
+  }
 
   updateTag(cacheKeys.reviews);
   updateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.user(authorId));
 
   return {
     status: "SUCCESS",
@@ -304,7 +245,7 @@ export async function actionUpdateReview(
 ) {
   console.debug("🟦 ACTION update review");
 
-  await assertUserForEntity(async () => {
+  const authorIdForCache = await assertUserForEntity(async () => {
     const reviewFromDb = await db
       .select({ authorId: reviewsTable.authorId })
       .from(reviewsTable)
@@ -329,96 +270,274 @@ export async function actionUpdateReview(
 
   updateTag(cacheKeys.reviews);
   updateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.user(authorIdForCache));
   return true;
 }
 
-export type ProductCreate = ProductCreateDb;
+export type VisitSaved = {
+  placeId: number;
+  placeName: string;
+  reviews: { productId: number; productName: string; rating: number }[];
+};
 
-export type ProductCreatedByAction = ActionDataExtract<
-  typeof actionCreateProduct
->["productCreated"];
+export type VisitActionResult =
+  | { status: "SUCCESS"; data: VisitSaved }
+  | {
+      status: "ERROR";
+      /** Keyed by review draft ID, e.g. `new-4.product.name`. */
+      errors: Record<string, string>;
+      rootErrors: string[];
+    };
 
-export async function actionCreateProduct(
-  formState: FormStateCreateProduct,
-  productToCreate: ProductCreate,
-) {
-  console.debug("🟦 ACTION create product");
+class VisitConflictError extends Error {
+  constructor(readonly errors: Record<string, string>) {
+    super("Visit conflicts with existing data");
+  }
+}
 
-  await assertAuthenticated();
+/**
+ * Creates the place (if new), every new product and all reviews of one
+ * restaurant visit in a single transaction, so an aborted flow never leaves a
+ * place without products or a product without a review.
+ */
+export async function actionCreateVisit(
+  visitToCreate: VisitCreate,
+): Promise<VisitActionResult> {
+  console.debug("🟦 ACTION create visit");
 
-  const {
-    success,
-    error,
-    data: productParsed,
-  } = schemaCreateProduct.safeParse(productToCreate);
+  const userAuth = await getUserAuthGated();
 
-  if (!success) {
+  const visitResult = schemaCreateVisit.safeParse(visitToCreate);
+  if (!visitResult.success) {
     return {
       status: "ERROR",
-      formState,
-      errors: z.flattenError(error).fieldErrors,
-    } satisfies ActionStateError;
+      errors: visitErrorsByReviewId(
+        visitResult.error.issues,
+        visitToCreate.reviews,
+      ),
+      rootErrors: [],
+    };
   }
 
-  let productCreated;
-  try {
-    const productInsertQuery = db.$with("productInsertQuery").as(
-      db
-        .insert(productsTable)
-        .values({
-          ...productParsed,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning(),
-    );
-    const productCreatedRows = await db
-      .with(productInsertQuery)
-      .select({
-        id: productInsertQuery.id,
-        name: productInsertQuery.name,
-        category: productInsertQuery.category,
-        note: productInsertQuery.note,
-        placeName: placesTable.name,
-        cities: sqlCitiesForPlace(),
-      })
-      .from(productInsertQuery)
-      .innerJoin(placesTable, eq(productInsertQuery.placeId, placesTable.id));
+  const { place, reviews, urlSource, overwriteAuthorId } = visitResult.data;
 
-    productCreated = takeUniqueOrThrow(
-      productCreatedRows,
-      "Found more than one product after insert",
-      "No product returned after insert",
+  let authorId = userAuth.id;
+  if (overwriteAuthorId !== null) {
+    await assertAdmin();
+    console.debug(
+      `Admin overriding author ID for visit creation. New: ${overwriteAuthorId}`,
     );
-  } catch (error) {
-    if (isForeignKeyViolation(error)) {
+    authorId = overwriteAuthorId;
+  }
+
+  let visitSaved: VisitSaved;
+  try {
+    visitSaved = await db.transaction(async (tx) => {
+      const now = new Date();
+      let placeSaved: { id: number; name: string };
+
+      if (place.kind === "existing") {
+        const placeFound = await tx
+          .select({ id: placesTable.id, name: placesTable.name })
+          .from(placesTable)
+          .where(eq(placesTable.id, place.id))
+          .then((rows) => rows[0]);
+        if (!placeFound) {
+          throw new VisitConflictError({
+            place: "Restaurant wurde nicht gefunden",
+          });
+        }
+        placeSaved = placeFound;
+      } else {
+        const placeCreated = await tx
+          .insert(placesTable)
+          .values({ name: place.name, createdAt: now, updatedAt: now })
+          .returning({ id: placesTable.id, name: placesTable.name })
+          .then((rows) => rows[0]);
+        if (!placeCreated) throw new Error("No place returned after insert");
+
+        const citiesUnique = [...new Set(place.cities)];
+        if (citiesUnique.length > 0) {
+          await tx
+            .insert(placeCitiesTable)
+            .values(
+              citiesUnique.map((city) => ({ placeId: placeCreated.id, city })),
+            );
+        }
+        placeSaved = placeCreated;
+      }
+
+      const productsAtPlace = await tx
+        .select({ id: productsTable.id, name: productsTable.name })
+        .from(productsTable)
+        .where(eq(productsTable.placeId, placeSaved.id));
+      const productsById = new Map(productsAtPlace.map((p) => [p.id, p]));
+      const productsByName = new Map(
+        productsAtPlace.map((p) => [p.name.toLowerCase(), p]),
+      );
+
+      const conflicts: Record<string, string> = {};
+      const reviewsResolved: Prettify<
+        VisitSaved["reviews"][number] & {
+          note: string | null;
+        }
+      >[] = [];
+
+      for (const review of reviews) {
+        const { product } = review;
+
+        switch (product.kind) {
+          case "existing": {
+            const productFound = productsById.get(product.id);
+            if (!productFound) {
+              conflicts[`${review.id}.product`] =
+                "Produkt gehört nicht zu diesem Restaurant";
+              continue;
+            }
+
+            reviewsResolved.push({
+              productId: productFound.id,
+              productName: productFound.name,
+              rating: review.rating,
+              note: review.note,
+            });
+            continue;
+          }
+          case "new": {
+            const productSameName = productsByName.get(
+              product.name.toLowerCase(),
+            );
+            if (productSameName) {
+              conflicts[`${review.id}.product.name`] =
+                `"${productSameName.name}" gibt es hier schon. Bewerte es in der Liste oben.`;
+              continue;
+            }
+
+            const productCreated = await tx
+              .insert(productsTable)
+              .values({
+                name: product.name,
+                category: product.category,
+                note: null,
+                placeId: placeSaved.id,
+                createdAt: now,
+                updatedAt: now,
+              })
+              .returning({ id: productsTable.id, name: productsTable.name })
+              .then((rows) => rows[0]);
+            if (!productCreated)
+              throw new Error("No product returned after insert");
+
+            reviewsResolved.push({
+              productId: productCreated.id,
+              productName: productCreated.name,
+              rating: review.rating,
+              note: review.note,
+            });
+            continue;
+          }
+          default: {
+            const exhaustiveCheck: never = product;
+            throw new Error(`Unhandled visit product kind: ${exhaustiveCheck}`);
+          }
+        }
+      }
+
+      if (Object.keys(conflicts).length > 0) {
+        throw new VisitConflictError(conflicts);
+      }
+
+      await tx
+        .update(reviewsTable)
+        .set({ isCurrent: false })
+        .where(
+          and(
+            inArray(
+              reviewsTable.productId,
+              reviewsResolved.map((review) => review.productId),
+            ),
+            eq(reviewsTable.authorId, authorId),
+            eq(reviewsTable.isCurrent, true),
+          ),
+        );
+
+      await tx.insert(reviewsTable).values(
+        reviewsResolved.map((review) => ({
+          productId: review.productId,
+          rating: review.rating,
+          note: review.note,
+          urlSource,
+          authorId,
+          isCurrent: true,
+          reviewedAt: now,
+          createdAt: now,
+          updatedAt: now,
+        })),
+      );
+
       return {
-        status: "ERROR",
-        formState,
-        errors: {
-          placeId: ["Restaurant wurde nicht gefunden"],
-        },
-      } satisfies ActionStateError;
+        placeId: placeSaved.id,
+        placeName: placeSaved.name,
+        reviews: reviewsResolved.map((review) => ({
+          productId: review.productId,
+          productName: review.productName,
+          rating: review.rating,
+        })),
+      };
+    });
+  } catch (error) {
+    if (error instanceof VisitConflictError) {
+      return { status: "ERROR", errors: error.errors, rootErrors: [] };
     }
 
-    console.error("Error creating product:", error);
+    // The checks inside the transaction miss rows that a parallel request
+    // inserted in the meantime, the unique indexes catch those.
+    const constraintViolated = uniqueViolationConstraint(error);
+    if (constraintViolated === indexProductsPlaceNameUnique) {
+      return {
+        status: "ERROR",
+        errors: {},
+        rootErrors: [
+          "Eines der neuen Produkte wurde gerade von jemand anderem angelegt. Lade die Seite neu und bewerte es in der Liste.",
+        ],
+      };
+    }
+    // A competing visit can win the current-review insert. The transaction
+    // rolls back, so returning a retry prompt avoids reporting a partial save.
+    if (constraintViolated === indexReviewsOneCurrent) {
+      return {
+        status: "ERROR",
+        errors: {},
+        rootErrors: [
+          "Eine deiner Bewertungen wurde gerade aktualisiert. Lade die Seite neu und versuche es erneut.",
+        ],
+      };
+    }
+    if (overwriteAuthorId !== null && isForeignKeyViolation(error)) {
+      return {
+        status: "ERROR",
+        errors: { overwriteAuthorId: "Diesen User gibt es nicht" },
+        rootErrors: [],
+      };
+    }
 
+    console.error("Error creating visit:", error);
     return {
       status: "ERROR",
-      formState,
-      rootErrors: ["Produkt konnte nicht gespeichert werden"],
-    } satisfies ActionStateError;
+      errors: {},
+      rootErrors: ["Bewertungen konnten nicht gespeichert werden"],
+    };
   }
 
-  updateTag(cacheKeys.products);
+  if (place.kind === "new") updateTag(cacheKeys.places);
+  if (reviews.some((review) => review.product.kind === "new")) {
+    updateTag(cacheKeys.products);
+  }
+  updateTag(cacheKeys.reviews);
+  updateTag(cacheKeys.rankings);
+  updateTag(cacheKeys.user(authorId));
 
-  return {
-    status: "SUCCESS",
-    formState,
-    data: {
-      productCreated,
-    },
-  } satisfies ActionStateSuccess;
+  return { status: "SUCCESS", data: visitSaved };
 }
 
 export async function actionAdminUpdateProduct(
@@ -476,6 +595,17 @@ export async function actionAdminUpdateProduct(
         formState,
         errors: {
           placeId: ["Restaurant wurde nicht gefunden"],
+        },
+      } satisfies ActionStateError<FormStateUpdateProduct>;
+    }
+    if (uniqueViolationConstraint(error) === indexProductsPlaceNameUnique) {
+      return {
+        status: "ERROR",
+        formState,
+        errors: {
+          name: [
+            "Ein Produkt mit diesem Namen gibt es in diesem Restaurant schon",
+          ],
         },
       } satisfies ActionStateError<FormStateUpdateProduct>;
     }

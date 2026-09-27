@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "products_place_name_unique_idx_custom" ON "products" USING btree ("place_id",lower("name"));

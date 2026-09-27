@@ -4,7 +4,7 @@ import {
   EmptyProductDescriptionRow,
   ProductDescriptionRow,
 } from "@/components/product-description-row";
-import { RankingDrawer } from "@/components/ranking-drawer";
+import { RankingDrawer } from "@/components/ranking-drawer.client";
 import { RankingPositionMarker } from "@/components/ranking-position-marker";
 import { SectionHeader } from "@/components/section-header";
 import {
@@ -134,6 +134,8 @@ function TopByCategoryCard({
           <EmptyRankingCardRow position={1} />
         ) : (
           <RankingDrawer
+            placeId={rankingOne.placeId}
+            productId={rankingOne.productId}
             placeName={rankingOne.placeName}
             ratingAvg={rankingOne.ratingAvg}
             productName={rankingOne.productName}
@@ -153,6 +155,8 @@ function TopByCategoryCard({
           <EmptyRankingCardRow position={2} />
         ) : (
           <RankingDrawer
+            placeId={rankingTwo.placeId}
+            productId={rankingTwo.productId}
             placeName={rankingTwo.placeName}
             ratingAvg={rankingTwo.ratingAvg}
             productName={rankingTwo.productName}
@@ -172,6 +176,8 @@ function TopByCategoryCard({
           <EmptyRankingCardRow position={3} />
         ) : (
           <RankingDrawer
+            placeId={rankingThree.placeId}
+            productId={rankingThree.productId}
             placeName={rankingThree.placeName}
             ratingAvg={rankingThree.ratingAvg}
             productName={rankingThree.productName}
@@ -191,6 +197,8 @@ function TopByCategoryCard({
           <EmptyRankingCardRow position={4} />
         ) : (
           <RankingDrawer
+            placeId={rankingFour.placeId}
+            productId={rankingFour.productId}
             placeName={rankingFour.placeName}
             ratingAvg={rankingFour.ratingAvg}
             productName={rankingFour.productName}
@@ -210,6 +218,8 @@ function TopByCategoryCard({
           <EmptyRankingCardRow position={5} />
         ) : (
           <RankingDrawer
+            placeId={rankingFive.placeId}
+            productId={rankingFive.productId}
             placeName={rankingFive.placeName}
             ratingAvg={rankingFive.ratingAvg}
             productName={rankingFive.productName}

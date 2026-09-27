@@ -147,11 +147,7 @@ function RankingsFiltersClientInternal({
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <div>
           {hasFilters && (
-            <Button
-              onClick={() => clearFilters()}
-              variant="outline"
-              size="sm"
-            >
+            <Button onClick={() => clearFilters()} variant="outline" size="sm">
               <FilterX /> <span>Löschen</span>
             </Button>
           )}
@@ -216,6 +212,8 @@ function RankingsFiltersClientInternal({
             <SliderDual
               min={ratingLowest}
               max={ratingHighest}
+              aria-label="Bewertungsbereich"
+              thumbAriaLabels={["Mindestbewertung", "Höchstbewertung"]}
               value={[ratingMinToShow, ratingMaxToShow]}
               step={0.1}
               minStepsBetweenThumbs={0.1}

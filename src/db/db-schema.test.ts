@@ -81,7 +81,9 @@ describe("schemaUpdateProduct", () => {
   });
 
   test("rejects an update that omits the restaurant", () => {
-    const { placeId: _placeId, ...withoutPlace } = fromAdmin;
+    const withoutPlace = Object.fromEntries(
+      Object.entries(fromAdmin).filter(([key]) => key !== "placeId"),
+    );
     expect(
       fieldErrors(schemaUpdateProduct, withoutPlace).placeId,
     ).toBeDefined();
