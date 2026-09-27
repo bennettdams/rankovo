@@ -1,3 +1,4 @@
+import { getAuthSession, type AuthSession } from "@/lib/auth-server";
 import { isDevLoginEnabled } from "@/lib/dev-login";
 import { t } from "@/lib/i18n";
 import { routes } from "@/lib/navigation";
@@ -23,7 +24,17 @@ import {
 
 const userMenuWidthStyles = "w-96 min-w-96 max-w-96";
 
-export function Navbar() {
+export async function NavbarWithSession() {
+  const initialSession = await getAuthSession();
+
+  return <Navbar initialSession={initialSession} />;
+}
+
+export function Navbar({
+  initialSession,
+}: {
+  initialSession: AuthSession | null;
+}) {
   const allowDevLogin = isDevLoginEnabled();
 
   return (
@@ -81,13 +92,19 @@ export function Navbar() {
             userMenuWidthStyles,
           )}
         >
-          <CreateReviewButtonLink />
+          <CreateReviewButtonLink initialSession={initialSession} />
 
-          <UserMenu allowDevLogin={allowDevLogin} />
+          <UserMenu
+            allowDevLogin={allowDevLogin}
+            initialSession={initialSession}
+          />
         </div>
       </nav>
 
-      <MobileMenu allowDevLogin={allowDevLogin} />
+      <MobileMenu
+        allowDevLogin={allowDevLogin}
+        initialSession={initialSession}
+      />
 
       {/* Mobile content */}
       <div className="flex w-full items-center justify-end gap-x-2 text-right md:hidden">
@@ -100,7 +117,13 @@ export function Navbar() {
   );
 }
 
-function MobileMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
+function MobileMenu({
+  allowDevLogin,
+  initialSession,
+}: {
+  allowDevLogin: boolean;
+  initialSession: AuthSession | null;
+}) {
   return (
     <Sheet>
       {/* Can't use Button and asChild here. asChild and RSC children hydrates incorrectly; trigger is already a button. */}
@@ -155,11 +178,17 @@ function MobileMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
             </Link>
           </SheetClose>
 
-          <CreateReviewButtonLink inMobileMenu={true} />
+          <CreateReviewButtonLink
+            inMobileMenu={true}
+            initialSession={initialSession}
+          />
 
           <div className="h-0.5 bg-gray"></div>
 
-          <UserMenuForMobile allowDevLogin={allowDevLogin} />
+          <UserMenuForMobile
+            allowDevLogin={allowDevLogin}
+            initialSession={initialSession}
+          />
         </nav>
       </SheetContent>
     </Sheet>

@@ -3,7 +3,21 @@ import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 // client only because redirect after sign up (to "Welcome" page) via `newUserCallbackURL` uses relative path
 import "client-only";
-import type { auth } from "./auth-server";
+import type { AuthSession, auth } from "./auth-server";
+
+export function sessionForRender<T>({
+  initialSession,
+  data,
+  isPending,
+  isRefetching,
+}: {
+  initialSession: T | null;
+  data: T | null;
+  isPending: boolean;
+  isRefetching: boolean;
+}): T | null {
+  return isPending && !isRefetching ? initialSession : data;
+}
 
 export const authClient = createAuthClient({
   plugins: [inferAdditionalFields<typeof auth>()],
@@ -49,10 +63,19 @@ export async function signOut() {
   console.debug("Sign out successful:", res.data);
 }
 
-export function useUserAuth() {
-  const { data, error, isPending, refetch } = authClient.useSession();
+export function useUserAuth(initialSession: AuthSession | null = null) {
+  authClient.hydrateSession(initialSession);
 
-  if (isPending) {
+  const { data, error, isPending, isRefetching, refetch } =
+    authClient.useSession();
+  const session = sessionForRender({
+    initialSession,
+    data,
+    isPending,
+    isRefetching,
+  });
+
+  if (isPending && !isRefetching && !session) {
     return {
       state: "pending",
       id: null,
@@ -69,7 +92,7 @@ export function useUserAuth() {
       role: null,
       refetch,
     } as const;
-  } else if (!data) {
+  } else if (!session) {
     return {
       state: "no-data",
       id: null,
@@ -78,13 +101,13 @@ export function useUserAuth() {
       refetch,
     } as const;
   } else {
-    const role = data.user.role;
+    const role = session.user.role;
     assertAuthRole(role);
 
     return {
       state: "authenticated",
-      id: data.user.id,
-      username: data.user.name,
+      id: session.user.id,
+      username: session.user.name,
       role,
       refetch,
     } as const;
