@@ -80,7 +80,6 @@ export function EditReviewButtonWithSheet({
               }}
               onSuccess={() => setOpen(false)}
               showSuccessMessage={false}
-              layout="stacked"
               userAuthRole={
                 userAuth.state === "authenticated" ? userAuth.role : null
               }

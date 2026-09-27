@@ -1,11 +1,13 @@
+import { categories, cities, defaultRole, roles } from "@/data/static";
 import {
-  categories,
-  cities,
-  defaultRole,
-  ratingHighest,
-  ratingLowest,
-  roles,
-} from "@/data/static";
+  schemaCategory,
+  schemaCity,
+  schemaNote,
+  schemaPlaceName,
+  schemaProductName,
+  schemaRating,
+  schemaUrl,
+} from "@/lib/schemas";
 import { sql, type SQL } from "drizzle-orm";
 import {
   type AnyPgColumn,
@@ -37,6 +39,10 @@ export function lower(column: AnyPgColumn): SQL {
   return sql`lower(${column})`;
 }
 
+/** Only allow one review to be the current review per author and product */
+export const indexReviewsOneCurrent =
+  "reviews_one_current_per_author_product_idx_custom";
+
 export const roleEnum = pgEnum("role", roles);
 
 export const criticsTable = pgTable("critics", {
@@ -50,45 +56,39 @@ export const criticsTable = pgTable("critics", {
 });
 export type Critic = typeof criticsTable.$inferSelect;
 
-export const reviewsTable = pgTable("reviews", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  // "real" is an inexact floating point number (e.g. has a problem with 0.1 + 0.2 = 0.30000000000000004)
-  rating: real().notNull(),
-  note: varchar({ length: 255 }),
-  productId: integer("product_id")
-    .references(() => productsTable.id)
-    .notNull(),
-  authorId: text("author_id")
-    .references(() => usersTable.id)
-    .notNull(),
-  // TODO make non-nullable when all reviews have a date
-  reviewedAt: timestamp("reviewed_at", {
-    precision: 6,
-    withTimezone: true,
-  }),
-  isCurrent: boolean("is_current").default(false).notNull(),
-  urlSource: varchar("url_source", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const reviewsTable = pgTable(
+  "reviews",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    // "real" is an inexact floating point number (e.g. has a problem with 0.1 + 0.2 = 0.30000000000000004)
+    rating: real().notNull(),
+    note: varchar({ length: 255 }),
+    productId: integer("product_id")
+      .references(() => productsTable.id)
+      .notNull(),
+    authorId: text("author_id")
+      .references(() => usersTable.id)
+      .notNull(),
+    // TODO make non-nullable when all reviews have a date
+    reviewedAt: timestamp("reviewed_at", {
+      precision: 6,
+      withTimezone: true,
+    }),
+    isCurrent: boolean("is_current").default(false).notNull(),
+    urlSource: varchar("url_source", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Historical reviews remain available, while this partial index enforces
+    // one current review per author and product during concurrent writes.
+    uniqueIndex(indexReviewsOneCurrent)
+      .on(table.authorId, table.productId)
+      .where(sql`${table.isCurrent} = true`),
+  ],
+);
 
 export type Review = typeof reviewsTable.$inferSelect;
-
-const messageRating = `Bitte wähle zwischen ${ratingLowest} und ${ratingHighest}`;
-export const schemaRating = z
-  .number({ error: messageRating })
-  .min(ratingLowest, messageRating)
-  .max(ratingHighest, messageRating);
-
-const schemaUrl = z.url({
-  error: "Bitte gib eine gültige URL ein (beginnt mit 'https')",
-  protocol: /^https$/,
-});
-const schemaNote = z
-  .string()
-  .max(255)
-  .nullable()
-  .transform((note) => (note === "" ? null : note));
 
 const schemaCreateReviewDb = createInsertSchema(reviewsTable, {
   rating: schemaRating,
@@ -124,6 +124,12 @@ export const schemaUpdateReview = createUpdateSchema(reviewsTable, {
 });
 export type ReviewUpdateDb = z.infer<typeof schemaUpdateReview>;
 
+// Give this rule a fixed name so the actions can recognize it: one restaurant
+// cannot have both "Burger" and "burger" as separate products. If two people
+// try to add the same product at once, the action can show a helpful message.
+export const indexProductsPlaceNameUnique =
+  "products_place_name_unique_idx_custom";
+
 export const placesTable = pgTable("places", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
@@ -141,16 +147,6 @@ export const placeCitiesTable = pgTable(
   },
   (table) => [primaryKey({ columns: [table.placeId, table.city] })],
 );
-
-const schemaCity = z.enum(cities);
-function schemaTrimmedName(min: number, max: number) {
-  return z
-    .string({ error: "Kann nicht leer sein" })
-    .trim()
-    .min(min, "Kann nicht leer sein")
-    .max(max);
-}
-const schemaPlaceName = schemaTrimmedName(1, 255);
 
 export const schemaCreatePlace = createInsertSchema(placesTable, {
   name: schemaPlaceName,
@@ -192,13 +188,14 @@ export const productsTable = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [index("products_name_idx_custom").on(table.name)],
+  (table) => [
+    index("products_name_idx_custom").on(table.name),
+    uniqueIndex(indexProductsPlaceNameUnique).on(
+      table.placeId,
+      lower(table.name),
+    ),
+  ],
 );
-
-export const schemaCategory = z.enum(categories, {
-  message: "Bitte wähle eine Kategorie aus",
-});
-const schemaProductName = schemaTrimmedName(2, 255);
 
 export const schemaCreateProduct = createInsertSchema(productsTable, {
   category: schemaCategory,

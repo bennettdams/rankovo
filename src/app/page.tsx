@@ -11,8 +11,10 @@ import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
 import { cities, ratingHighest } from "@/data/static";
-import { schemaCategory, schemaRating, schemaUsername } from "@/db/db-schema";
+import { schemaUsername } from "@/db/db-schema";
 import {
+  schemaCategory,
+  schemaRating,
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
 } from "@/lib/schemas";

@@ -37,6 +37,7 @@ export function FieldError({
   return messages.map((message, index) => (
     <p
       aria-live="polite"
+      data-field-error
       className={cn("text-error", className)}
       key={`${index}-${message}`}
     >

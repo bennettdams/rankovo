@@ -199,7 +199,9 @@ export async function assertAdmin() {
   }
 }
 
-export async function assertUserForEntity(cb: () => Promise<string>) {
+export async function assertUserForEntity(
+  cb: () => Promise<string>,
+): Promise<string> {
   const userAuth = await getUserAuthGated();
 
   const authorId = await cb();
@@ -210,4 +212,6 @@ export async function assertUserForEntity(cb: () => Promise<string>) {
     );
     unauthorized();
   }
+
+  return authorId;
 }

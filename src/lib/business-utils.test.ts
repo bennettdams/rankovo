@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { extractReviewSourceFromUrl } from "./business-utils";
+import { ratingHighest, ratingLowest } from "@/data/static";
+import {
+  extractReviewSourceFromUrl,
+  guessCategoryFromName,
+  isRatingInRange,
+} from "./business-utils";
 
 describe(`${extractReviewSourceFromUrl.name}`, () => {
   test("recognizes YouTube and Instagram with protocol and www prefixes stripped", () => {
@@ -24,5 +29,43 @@ describe(`${extractReviewSourceFromUrl.name}`, () => {
         "https://youtube.com.attacker.example/watch?v=abc",
       ),
     ).toBeNull();
+  });
+});
+
+describe(`${guessCategoryFromName.name}`, () => {
+  test("finds the category from typical product names", () => {
+    expect(guessCategoryFromName("Crispy Chili Burger")).toBe("burger");
+    expect(guessCategoryFromName("Döner (Sylter Fladenbrot)")).toBe("doener");
+    expect(guessCategoryFromName("Dürüm Kebap")).toBe("doener");
+    expect(guessCategoryFromName("Pizza Margherita")).toBe("pizza");
+    expect(guessCategoryFromName("Pastrami Sandwich")).toBe("sandwich");
+    expect(guessCategoryFromName("Hot Wings")).toBe("chicken");
+  });
+
+  test("counts a chicken burger as a burger", () => {
+    expect(guessCategoryFromName("Chicken Burger")).toBe("burger");
+  });
+
+  test("returns null when no keyword matches", () => {
+    expect(guessCategoryFromName("BETR Mac")).toBeNull();
+    expect(guessCategoryFromName("")).toBeNull();
+  });
+});
+
+describe(`${isRatingInRange.name}`, () => {
+  test("rejects an empty rating so the form can stay blank", () => {
+    expect(isRatingInRange(null)).toBe(false);
+  });
+
+  test("accepts the 0–10 endpoints and a value in between", () => {
+    expect(isRatingInRange(ratingLowest)).toBe(true);
+    expect(isRatingInRange(7.4)).toBe(true);
+    expect(isRatingInRange(ratingHighest)).toBe(true);
+  });
+
+  test("rejects values outside the scale", () => {
+    expect(isRatingInRange(-0.1)).toBe(false);
+    expect(isRatingInRange(10.1)).toBe(false);
+    expect(isRatingInRange(Number.NaN)).toBe(false);
   });
 });

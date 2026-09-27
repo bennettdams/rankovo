@@ -22,10 +22,12 @@ import {
   count,
   desc,
   eq,
+  exists,
   gte,
   ilike,
   inArray,
   lte,
+  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -34,7 +36,6 @@ import { notFound } from "next/navigation";
 import { sqlCitiesForPlace } from "./place-cities";
 import {
   conditionsSearchProducts,
-  conditionsSearchReviewProducts,
   existsPlaceCityMatching,
   ilikeContains,
 } from "./search-conditions";
@@ -369,15 +370,25 @@ async function critics() {
 }
 export type CriticQuery = Awaited<ReturnType<typeof critics>>[number];
 
-async function searchPlaces(placeName: string) {
+/**
+ * Finds up to eight places for the review-creation search.
+ *
+ * A place matches when the trimmed query occurs case-insensitively in either
+ * the place name or a product name sold there. Place-name matches are ordered
+ * before product-only matches, then both groups are ordered by place name.
+ *
+ * `productNameMatched` contains one matching product name when the match came
+ * from a product. An exact case-insensitive product-name match is preferred;
+ * otherwise the alphabetically first matching product is returned.
+ */
+async function searchPlacesByNameOrProduct(q: string) {
   "use cache";
-  cacheTag(cacheKeys.places);
-  console.debug(`🟦 QUERY searchPlaces | Place: ${placeName}`);
+  cacheTag(cacheKeys.places, cacheKeys.products);
+  console.debug(`🟦 QUERY searchPlacesByNameOrProduct | q: ${q}`);
 
-  const filtersSQL: SQL[] = [];
-  if (!!placeName && placeName.length >= minCharsSearch)
-    filtersSQL.push(ilike(placesTable.name, ilikeContains(placeName)));
-
+  const queryNormalized = q.trim().toLowerCase();
+  const term = ilikeContains(q.trim());
+  const sqlPlaceNameMatches = ilike(placesTable.name, term);
   const citiesHack = "cities";
 
   return await db
@@ -385,57 +396,161 @@ async function searchPlaces(placeName: string) {
       id: placesTable.id,
       name: placesTable.name,
       [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+      numOfProducts: sql<number>`(
+        select count(*) from ${productsTable}
+        where ${eq(productsTable.placeId, placesTable.id)}
+      )`.mapWith(Number),
+      productNameMatched: sql<string | null>`(
+        select ${productsTable.name} from ${productsTable}
+        where ${and(eq(productsTable.placeId, placesTable.id), ilike(productsTable.name, term))}
+        order by
+          case when lower(${productsTable.name}) = ${queryNormalized} then 0 else 1 end,
+          ${productsTable.name}
+        limit 1
+      )`,
     })
     .from(placesTable)
-    .where(and(...filtersSQL));
+    .where(
+      or(
+        sqlPlaceNameMatches,
+        exists(
+          db
+            .select({ id: productsTable.id })
+            .from(productsTable)
+            .where(
+              and(
+                eq(productsTable.placeId, placesTable.id),
+                ilike(productsTable.name, term),
+              ),
+            ),
+        ),
+      ),
+    )
+    .orderBy(
+      sql`case when ${sqlPlaceNameMatches} then 0 else 1 end`,
+      asc(lower(placesTable.name)),
+    )
+    .limit(8);
 }
 
-export type PlaceSearchQuery = Awaited<ReturnType<typeof searchPlaces>>[number];
+export type PlaceSearchQuery = Awaited<
+  ReturnType<typeof searchPlacesByNameOrProduct>
+>[number];
 
-async function searchProducts({
-  productName,
-  placeName,
-}: {
-  productName: string | null;
-  placeName: string | null;
-}) {
+async function placeWithProducts(placeId: number) {
   "use cache";
-  cacheTag(cacheKeys.products, cacheKeys.places);
-  console.debug(
-    `🟦 QUERY searchProducts | Product: ${productName} | Place: ${placeName}`,
-  );
+  cacheTag(cacheKeys.places, cacheKeys.products, cacheKeys.reviews);
+  console.debug(`🟦 QUERY placeWithProducts | Place: ${placeId}`);
 
-  const searchConditions = conditionsSearchReviewProducts(
-    productName,
-    placeName,
-  );
-
-  if (!searchConditions) {
-    return [];
-  }
-
-  const placeNameHack = "placeName";
   const citiesHack = "cities";
+  const place = await db
+    .select({
+      id: placesTable.id,
+      name: placesTable.name,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+    })
+    .from(placesTable)
+    .where(eq(placesTable.id, placeId))
+    .then((rows) => rows[0]);
+
+  if (!place) return null;
+
+  const qProductRatings = db.$with("queryPlaceProductRatings").as(
+    db
+      .select({
+        productId: reviewsTable.productId,
+        ratingAvg: avg(reviewsTable.rating).mapWith(Number).as("ratingAvg"),
+        numOfReviews: count().mapWith(Number).as("numOfReviews"),
+      })
+      .from(reviewsTable)
+      .where(eq(reviewsTable.isCurrent, true))
+      .groupBy(reviewsTable.productId),
+  );
+
+  const products = await db
+    .with(qProductRatings)
+    .select({
+      id: productsTable.id,
+      name: productsTable.name,
+      note: productsTable.note,
+      category: productsTable.category,
+      ratingAvg: sql`${qProductRatings.ratingAvg}`.mapWith(
+        (value: unknown): number | null =>
+          value === null ? null : Number(value),
+      ),
+      // Products without current reviews have no joined aggregate; expose zero.
+      numOfReviews: sql`coalesce(${qProductRatings.numOfReviews}, 0)`.mapWith(
+        Number,
+      ),
+    })
+    .from(productsTable)
+    .leftJoin(qProductRatings, eq(productsTable.id, qProductRatings.productId))
+    .where(eq(productsTable.placeId, placeId))
+    .orderBy(
+      sql`${qProductRatings.numOfReviews} desc nulls last`,
+      asc(productsTable.name),
+    );
+
+  return { ...place, products };
+}
+
+export type PlaceWithProductsQuery = NonNullable<
+  Awaited<ReturnType<typeof placeWithProducts>>
+>;
+
+async function userReviewsAtPlace(userId: string, placeId: number) {
+  "use cache";
+  cacheTag(cacheKeys.reviews, cacheKeys.user(userId));
+  console.debug(
+    `🟦 QUERY userReviewsAtPlace | User: ${userId} | Place: ${placeId}`,
+  );
 
   return await db
     .select({
-      productId: productsTable.id,
-      productName: productsTable.name,
-      productCategory: productsTable.category,
-      productNote: productsTable.note,
-      placeId: productsTable.placeId,
-      [placeNameHack]: sql<string>`${placesTable.name}`.as(placeNameHack),
-      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+      productId: reviewsTable.productId,
+      rating: reviewsTable.rating,
     })
-    .from(productsTable)
-    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
-    .where(and(...searchConditions))
-    .orderBy(asc(productsTable.name))
-    .limit(10);
+    .from(reviewsTable)
+    .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
+    .where(
+      and(
+        eq(reviewsTable.authorId, userId),
+        eq(reviewsTable.isCurrent, true),
+        eq(productsTable.placeId, placeId),
+      ),
+    );
 }
 
-export type ProductSearchQuery = Awaited<
-  ReturnType<typeof searchProducts>
+export type UserReviewAtPlaceQuery = Awaited<
+  ReturnType<typeof userReviewsAtPlace>
+>[number];
+
+async function userRecentPlaces(userId: string) {
+  "use cache";
+  cacheTag(cacheKeys.reviews, cacheKeys.places, cacheKeys.user(userId));
+  console.debug(`🟦 QUERY userRecentPlaces | User: ${userId}`);
+
+  const citiesHack = "cities";
+  // Legacy reviews may lack reviewedAt; use createdAt for recent-place ordering.
+  const sqlLastReviewedAt = sql`max(coalesce(${reviewsTable.reviewedAt}, ${reviewsTable.createdAt}))`;
+
+  return await db
+    .select({
+      id: placesTable.id,
+      name: placesTable.name,
+      [citiesHack]: sqlCitiesForPlace().as(citiesHack),
+    })
+    .from(reviewsTable)
+    .innerJoin(productsTable, eq(reviewsTable.productId, productsTable.id))
+    .innerJoin(placesTable, eq(productsTable.placeId, placesTable.id))
+    .where(eq(reviewsTable.authorId, userId))
+    .groupBy(placesTable.id)
+    .orderBy(sql`${sqlLastReviewedAt} desc`)
+    .limit(5);
+}
+
+export type UserRecentPlaceQuery = Awaited<
+  ReturnType<typeof userRecentPlaces>
 >[number];
 
 async function userForId(userId: string) {
@@ -652,8 +767,10 @@ export const queries = {
   rankingForProductId,
   reviews,
   critics,
-  searchPlaces,
-  searchProducts,
+  searchPlacesByNameOrProduct,
+  placeWithProducts,
+  userReviewsAtPlace,
+  userRecentPlaces,
   userForId,
   adminProducts: wrapAdmin(queryAdminProducts),
   adminPlaces: wrapAdmin(queryAdminPlaces),

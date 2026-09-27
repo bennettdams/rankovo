@@ -4,7 +4,7 @@ import { Box } from "./box";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { NumberFormatted } from "./number-formatted";
-import { RankingDrawer } from "./ranking-drawer";
+import { RankingDrawer } from "./ranking-drawer.client";
 import { ReviewSourceIcon } from "./review-source-icon";
 import { EditReviewButtonWithSheet } from "./reviews-list.client";
 import { StarsForRating } from "./stars-for-rating";
@@ -84,6 +84,8 @@ export async function ReviewWithDrawer({
 
   return (
     <RankingDrawer
+      placeId={ranking.placeId}
+      productId={productId}
       ratingAvg={ranking.ratingAvg}
       productName={ranking.productName}
       productCategory={ranking.productCategory}

@@ -1,3 +1,5 @@
+"use client";
+
 import type { RankingWithReviewsQuery } from "@/data/queries";
 import { formatCitiesFull, pickCityForMap } from "@/lib/cities";
 import { formatDateTime } from "@/lib/date-utils";
@@ -21,18 +23,9 @@ import {
 } from "./ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
-export function RankingDrawer({
-  ratingAvg,
-  productName,
-  productCategory,
-  productNote,
-  lastReviewedAt,
-  placeName,
-  cities,
-  numOfReviews,
-  reviews,
-  children,
-}: {
+export type RankingDrawerProps = {
+  placeId: RankingWithReviewsQuery["placeId"];
+  productId: RankingWithReviewsQuery["productId"];
   ratingAvg: RankingWithReviewsQuery["ratingAvg"];
   productName: RankingWithReviewsQuery["productName"];
   productCategory: RankingWithReviewsQuery["productCategory"];
@@ -43,12 +36,29 @@ export function RankingDrawer({
   numOfReviews: RankingWithReviewsQuery["numOfReviews"];
   reviews: RankingWithReviewsQuery["reviews"];
   children: React.ReactNode;
-}) {
+};
+
+export function RankingDrawer({
+  placeId,
+  productId,
+  ratingAvg,
+  productName,
+  productCategory,
+  productNote,
+  lastReviewedAt,
+  placeName,
+  cities,
+  numOfReviews,
+  reviews,
+  children,
+}: RankingDrawerProps) {
   const citiesFull = formatCitiesFull(cities);
 
   return (
     <Drawer>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerTrigger asChild>
+        <div className="contents">{children}</div>
+      </DrawerTrigger>
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader>
           <DrawerTitle className="font-normal">
@@ -132,7 +142,12 @@ export function RankingDrawer({
           </div>
         </div>
 
-        <DrawerFooter className="flex items-end">
+        <DrawerFooter className="flex flex-row items-center justify-end gap-3">
+          <Button asChild>
+            <Link href={routes.reviewCreateProduct({ placeId, productId })}>
+              Bewertung schreiben
+            </Link>
+          </Button>
           <DrawerClose asChild>
             <Button variant="secondary">Schließen</Button>
           </DrawerClose>
@@ -157,7 +172,6 @@ function LastReviewsList({
             className="col-span-12 flex min-w-0 flex-col gap-y-1 border-b border-gray py-3 last:border-b-0 md:grid md:grid-cols-subgrid md:gap-y-0 md:py-2"
             key={review.id}
           >
-            {/* First row on mobile: number + stars and username */}
             <div className="flex items-center gap-2 md:contents">
               <NumberFormatted num={review.rating} min={2} max={2} />
 
@@ -173,7 +187,6 @@ function LastReviewsList({
               </Link>
             </div>
 
-            {/* Second row on mobile: note (if exists) */}
             {review.note && (
               <p
                 className="truncate text-sm md:pl-6 md:text-base"
@@ -183,10 +196,8 @@ function LastReviewsList({
               </p>
             )}
 
-            {/* Third row on mobile: reviewed at and URL source */}
             <div className="flex items-center gap-3 text-sm text-dark-gray md:contents md:text-base">
               <p className="md:pl-6 md:text-left">
-                {/* TODO remove null check when all reviews have a date */}
                 {!review.reviewedAt ? (
                   "-"
                 ) : (

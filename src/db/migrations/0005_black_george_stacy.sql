@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "reviews_one_current_per_author_product_idx_custom" ON "reviews" USING btree ("author_id","product_id") WHERE "reviews"."is_current" = true;

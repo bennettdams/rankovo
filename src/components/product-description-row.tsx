@@ -13,7 +13,8 @@ function ProductDescriptionRowBase({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden text-start">
+    // Keep the metadata at its natural height so a growing form cannot clip its text.
+    <div className="flex shrink-0 flex-col overflow-hidden text-start">
       <p className={cn("truncate text-lg", showBold && "font-bold")}>
         {productName}
       </p>

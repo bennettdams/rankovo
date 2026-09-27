@@ -6,7 +6,7 @@ import { CategoryIcon } from "./category-icon";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
 import { NumberFormatted } from "./number-formatted";
-import { RankingDrawer } from "./ranking-drawer";
+import { RankingDrawer } from "./ranking-drawer.client";
 import { RankingPositionMarker } from "./ranking-position-marker";
 import { StarsForRating } from "./stars-for-rating";
 
@@ -29,6 +29,8 @@ export async function RankingsList({
           rankings.map((ranking, index) => (
             <RankingsTableRow
               key={ranking.productId}
+              placeId={ranking.placeId}
+              productId={ranking.productId}
               placeName={ranking.placeName}
               ratingAvg={ranking.ratingAvg}
               productName={ranking.productName}
@@ -53,6 +55,8 @@ export async function RankingsList({
 }
 
 function RankingsTableRow({
+  placeId,
+  productId,
   ratingAvg,
   productName,
   productCategory,
@@ -64,6 +68,8 @@ function RankingsTableRow({
   reviews,
   position,
 }: {
+  placeId: RankingWithReviewsQuery["placeId"];
+  productId: RankingWithReviewsQuery["productId"];
   ratingAvg: RankingWithReviewsQuery["ratingAvg"];
   productName: RankingWithReviewsQuery["productName"];
   productCategory: RankingWithReviewsQuery["productCategory"];
@@ -79,6 +85,8 @@ function RankingsTableRow({
 
   return (
     <RankingDrawer
+      placeId={placeId}
+      productId={productId}
       placeName={placeName}
       ratingAvg={ratingAvg}
       productName={productName}

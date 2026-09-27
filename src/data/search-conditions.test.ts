@@ -1,11 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { and, type SQL } from "drizzle-orm";
 import { CasingCache } from "drizzle-orm/casing";
-import {
-  conditionsSearchProducts,
-  conditionsSearchReviewProducts,
-  ilikeContains,
-} from "./search-conditions";
+import { shouldRunSearch } from "./static";
+import { conditionsSearchProducts, ilikeContains } from "./search-conditions";
 
 function sqlToQuery(fragment: SQL) {
   return fragment.toQuery({
@@ -51,50 +48,18 @@ describe(`${conditionsSearchProducts.name}`, () => {
   });
 });
 
-describe(`${conditionsSearchReviewProducts.name}`, () => {
-  test("ANDs place name with product search so other restaurants are excluded", () => {
-    const conditions = conditionsSearchReviewProducts("cheesebur", "five guy");
-
-    expect(conditions).toBeDefined();
-    const params = paramsOf(conditions);
-
-    expect(params).toContain("%cheesebur%");
-    expect(params).toContain("%five guy%");
+describe(`${shouldRunSearch.name}`, () => {
+  test("stays quiet until the query has enough characters", () => {
+    expect(shouldRunSearch(null)).toBe(false);
+    expect(shouldRunSearch("")).toBe(false);
+    expect(shouldRunSearch("  ")).toBe(false);
+    expect(shouldRunSearch("Do")).toBe(false);
+    expect(shouldRunSearch("  Do")).toBe(false);
   });
 
-  test("filters by restaurant name when product name is omitted", () => {
-    const params = paramsOf(conditionsSearchReviewProducts(null, "five guy"));
-
-    expect(params).toEqual(["%five guy%"]);
-  });
-
-  test("ignores a place name shorter than the search minimum", () => {
-    const params = paramsOf(conditionsSearchReviewProducts("cheesebur", "fg"));
-
-    expect(params).toContain("%cheesebur%");
-    expect(params).not.toContain("%fg%");
-  });
-
-  test("trims trailing whitespace before matching the place name", () => {
-    const params = paramsOf(
-      conditionsSearchReviewProducts("cheesebur", "five guy  "),
-    );
-
-    expect(params).toContain("%five guy%");
-    expect(params).not.toContain("%five guy  %");
-  });
-
-  test("adds no place filter for whitespace-only input", () => {
-    expect(conditionsSearchReviewProducts(null, "   ")).toBeUndefined();
-
-    const params = paramsOf(conditionsSearchReviewProducts("cheesebur", "   "));
-    expect(params).toContain("%cheesebur%");
-    expect(params).not.toContain("%   %");
-  });
-
-  test("returns undefined when neither filter is usable", () => {
-    expect(conditionsSearchReviewProducts(null, null)).toBeUndefined();
-    expect(conditionsSearchReviewProducts(null, "ab")).toBeUndefined();
-    expect(conditionsSearchReviewProducts("", null)).toBeUndefined();
+  test("runs once the trimmed query meets the search minimum", () => {
+    expect(shouldRunSearch("Don")).toBe(true);
+    expect(shouldRunSearch("  Don")).toBe(true);
+    expect(shouldRunSearch("Five Guys")).toBe(true);
   });
 });
