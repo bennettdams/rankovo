@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn, signOut, useUserAuth } from "@/lib/auth-client";
+import type { AuthSession } from "@/lib/auth-server";
 import { routes } from "@/lib/navigation";
 import { CircleUser, NotepadText } from "lucide-react";
 import Link from "next/link";
@@ -59,8 +60,14 @@ function SignInButton({ allowDevLogin }: { allowDevLogin: boolean }) {
   );
 }
 
-export function UserMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
-  const userAuth = useUserAuth();
+export function UserMenu({
+  allowDevLogin,
+  initialSession,
+}: {
+  allowDevLogin: boolean;
+  initialSession: AuthSession | null;
+}) {
+  const userAuth = useUserAuth(initialSession);
 
   return (
     <div className="flex h-full w-full items-center justify-end gap-2">
@@ -120,10 +127,12 @@ export function UserMenu({ allowDevLogin }: { allowDevLogin: boolean }) {
 
 export function UserMenuForMobile({
   allowDevLogin,
+  initialSession,
 }: {
   allowDevLogin: boolean;
+  initialSession: AuthSession | null;
 }) {
-  const userAuth = useUserAuth();
+  const userAuth = useUserAuth(initialSession);
 
   if (userAuth.state === "pending") return <div>Nutzer wird geladen..</div>;
   if (userAuth.state === "error")
@@ -163,10 +172,12 @@ export function UserMenuForMobile({
 
 export function CreateReviewButtonLink({
   inMobileMenu = false,
+  initialSession,
 }: {
   inMobileMenu?: boolean;
+  initialSession: AuthSession | null;
 }) {
-  const userAuth = useUserAuth();
+  const userAuth = useUserAuth(initialSession);
 
   if (userAuth.state === "authenticated") {
     if (inMobileMenu) {

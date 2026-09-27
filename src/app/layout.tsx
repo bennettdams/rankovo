@@ -1,9 +1,10 @@
-import { Navbar } from "@/components/navbar";
+import { Navbar, NavbarWithSession } from "@/components/navbar";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Domine } from "next/font/google";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,7 +36,9 @@ export default function RootLayout({
         )}
       >
         <Analytics />
-        <Navbar />
+        <Suspense fallback={<Navbar initialSession={null} />}>
+          <NavbarWithSession />
+        </Suspense>
 
         <main className="flex flex-1 flex-col">
           <div className="container mx-auto flex flex-1 flex-col">

@@ -153,11 +153,25 @@ async function createTemporaryUsername(
   }
 }
 
-export const getUserAuth = cache(async () => {
-  const data = await auth.api.getSession({
+export type AuthSession = typeof auth.$Infer.Session;
+
+export const getAuthSession = cache(async () => {
+  return auth.api.getSession({
     headers: await headers(),
   });
+});
 
+export const getOptionalAuthSession = cache(async () => {
+  try {
+    return await getAuthSession();
+  } catch (error) {
+    console.error("Failed to load optional auth session:", error);
+    return null;
+  }
+});
+
+export const getUserAuth = cache(async () => {
+  const data = await getAuthSession();
   if (!data) return null;
 
   const role = data.user.role;
