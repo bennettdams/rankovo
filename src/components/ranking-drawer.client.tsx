@@ -57,7 +57,22 @@ export function RankingDrawer({
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <div className="contents">{children}</div>
+        <div
+          className="contents focus-visible:[&>*]:ring-2 focus-visible:[&>*]:ring-primary focus-visible:[&>*]:ring-offset-2"
+          role="button"
+          tabIndex={0}
+          aria-label={`Details zu ${productName} bei ${placeName}`}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              event.currentTarget.click();
+            }
+          }}
+        >
+          {children}
+        </div>
       </DrawerTrigger>
       <DrawerContent className="mx-auto flex h-[80vh] w-full flex-col md:max-w-5xl">
         <DrawerHeader>
