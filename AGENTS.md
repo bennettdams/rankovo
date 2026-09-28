@@ -2,30 +2,32 @@
 
 ## Key Development Commands
 
-Requires Bun `^1.4.0` (`package.json` `engines.bun`, matching `@types/bun`). `bun run test` uses that runtime.
+Requires Bun `^1.4.0`, matching the `@types/bun` range.
 
 ```bash
 bun run dev          # Development with Turbopack
 bun run tsc          # TypeScript type checking
 bun run lint         # ESLint with project-specific rules
-bun run test         # Unit tests (`bun test`)
+bun run test         # Bun unit tests
+bun run test:e2e:prepare # One-time fresh local database seed; rerun only to reset data
+bun run test:e2e     # Full-stack Playwright tests; no reseed needed for each run
 bun run check        # Combined linting and type-checking
 bun run build        # Production build
-bun run db:seed      # Reset local DB and seed (includes dev accounts)
+bun run db:seed      # Reset local DB and seed; dev accounts require ALLOW_DEV_LOGIN=true
 ```
 
 There is also always a running terminal task that monitors TypeScript errors called "Monitor TS Errors". Instead of running the type-check yourself, you can look at the output terminal of this task.
 
 ## Dev accounts
 
-Seed (`bun run db:seed`) creates two local accounts so you can sign in without Google OAuth. They only exist after a seed. `/dev/login` is off unless `ALLOW_DEV_LOGIN=true` in `.env.local` **and** `NODE_ENV` is not `production`.
+When `ALLOW_DEV_LOGIN=true`, seed (`bun run db:seed`) creates two local accounts so you can sign in without Google OAuth. They only exist after a seed with that setting enabled. `/dev/login` is off unless `ALLOW_DEV_LOGIN=true` in `.env.local` **and** `NODE_ENV` is not `production`.
 
 | Username            | Role  | Email                           | Password      |
 | ------------------- | ----- | ------------------------------- | ------------- |
 | `rankovo-dev-user`  | user  | `rankovo-dev-user@example.com`  | `rankovo-dev` |
 | `rankovo-dev-admin` | admin | `rankovo-dev-admin@example.com` | `rankovo-dev` |
 
-To sign in, open `/dev/login` (the **Anmelden** button goes there when `ALLOW_DEV_LOGIN` is set) and choose the account. Use the user account for regular flows (reviews, profile). Use the admin account for `/admin`. Dev accounts work only under `next dev`, not `next start`.
+To sign in, open `/dev/login` (the **Anmelden** button goes there when `ALLOW_DEV_LOGIN` is set) and choose the account. Use the user account for regular flows (reviews, profile). Use the admin account for `/admin`. Dev accounts work only under `next dev`, not `next start`. For a new local database setup, run `bun run test:e2e:prepare` once after applying the schema. It resets and seeds the local database, so rerun it only when you want to reset test data or recreate the dev accounts. `bun run test:e2e` does not seed the database.
 
 If sign-in fails, re-run `bun run db:seed`.
 

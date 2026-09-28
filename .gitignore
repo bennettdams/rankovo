@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
+/e2e/.storage/
 
 # next.js
 /.next/
@@ -44,3 +47,8 @@ next-env.d.ts
 notes.txt
 backups
 ideas
+
+# Playwright
+node_modules/
+/blob-report/
+/playwright/.cache/

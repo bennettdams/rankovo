@@ -1,3 +1,5 @@
+import type { ComponentPropsWithoutRef } from "react";
+
 import { cn } from "@/lib/utils";
 
 const baseStyles =
@@ -14,10 +16,13 @@ export function Box({
   children,
   variant = "md",
   className,
-}: {
-  children: React.ReactNode;
+  ...props
+}: ComponentPropsWithoutRef<"div"> & {
   variant?: keyof typeof boxStyles;
-  className?: string;
 }) {
-  return <div className={cn(boxStyles[variant], className)}>{children}</div>;
+  return (
+    <div {...props} className={cn(boxStyles[variant], className)}>
+      {children}
+    </div>
+  );
 }
