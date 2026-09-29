@@ -5,7 +5,8 @@ loadEnvConfig(process.cwd());
 
 const localTestDatabaseUrl =
   "postgresql://ben:password@localhost:5432/rankovo-dev";
-const e2eBaseUrl = "http://localhost:3001";
+const e2eBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const e2ePort = new URL(e2eBaseUrl).port || "3000";
 const databaseUrl = process.env.DATABASE_URL;
 
 if (databaseUrl !== localTestDatabaseUrl) {
@@ -22,7 +23,7 @@ export default defineConfig({
   // Keep tests in each spec file ordered because they share the seeded database.
   // Different spec files can still run in parallel across workers.
   fullyParallel: false,
-  retries: process.env.CI ? 2 : 1,
+  retries: 2,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: e2eBaseUrl,
@@ -31,9 +32,9 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   webServer: {
-    command: "bun run dev -- --port 3001",
+    command: `bun run dev -- --port ${e2ePort}`,
     url: e2eBaseUrl,
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     env: {
       ...process.env,
       DATABASE_URL: localTestDatabaseUrl,

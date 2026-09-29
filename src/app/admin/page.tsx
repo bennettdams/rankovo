@@ -1,5 +1,5 @@
 import { Box } from "@/components/box";
-import { CategoryBadge } from "@/components/category-badge";
+import { CategoryBadge } from "@/components/badges";
 import { SectionHeader } from "@/components/section-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -20,15 +20,17 @@ export function RankingsSectionClient({
   return (
     <div
       ref={ref}
-      className="mt-10 flex flex-col gap-y-10 md:flex-row md:gap-x-8"
+      className="mt-10 flex flex-col gap-y-10 md:flex-row md:gap-x-10"
     >
       {/* Desktop: sidebar filters */}
-      <div className="hidden basis-auto md:block md:basis-1/3">
+      <div
+        className="hidden basis-auto md:sticky md:top-6 md:block md:h-fit md:basis-1/4"
+      >
         {filtersSlot}
       </div>
 
       {/* List content */}
-      <div className="basis-full overflow-y-hidden md:basis-2/3">
+      <div className="basis-full overflow-y-hidden md:basis-3/4">
         {listSlot}
       </div>
 

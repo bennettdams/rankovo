@@ -6,6 +6,16 @@ import {
 } from "@/data/static";
 import { objectEntries } from "./utils";
 
+const numOfTopPicks = 3;
+
+export function selectTopPicks<T>(rankings: readonly T[]) {
+  return rankings.slice(0, numOfTopPicks);
+}
+
+export function selectRemainingRankings<T>(rankings: readonly T[]) {
+  return rankings.slice(numOfTopPicks);
+}
+
 /** Earlier entries win, so "Chicken Burger" counts as a burger. */
 const keywordsByCategory: [CategoryActive, string[]][] = [
   ["burger", ["burger", "smash"]],

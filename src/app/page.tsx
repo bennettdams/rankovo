@@ -7,6 +7,7 @@ import {
   RankingSearch,
   RankingsSearchShell,
 } from "@/components/rankings-search";
+import { RankingFiltersProvider } from "@/components/ranking-filters-context";
 import { SkeletonList } from "@/components/skeletons";
 import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
@@ -48,31 +49,76 @@ export default async function PageHome({
 
   return (
     <div className="px-4 md:px-0 md:pt-8">
-      <HeroSection
-        searchSlot={
-          <Suspense fallback={<RankingsSearchShell />}>
-            <RankingSearch filters={filters} />
-          </Suspense>
-        }
-      />
-
-      <div className="mt-12 md:mt-20">
-        <RankingsSectionClient
-          filtersSlot={
-            <Suspense fallback={<RankingsFiltersSkeleton />}>
-              <RankingsFilters filters={filters} critics={criticsPromise} />
-            </Suspense>
-          }
-          listSlot={
-            <Suspense fallback={<SkeletonList />}>
-              <RankingsList filters={filters} />
-            </Suspense>
-          }
+      <Suspense fallback={<RankingsHomeSkeleton />}>
+        <RankingsHomeContent
+          criticsPromise={criticsPromise}
+          filtersPromise={filters}
         />
-      </div>
+      </Suspense>
 
       <AboutSection />
     </div>
+  );
+}
+
+async function RankingsHomeContent({
+  criticsPromise,
+  filtersPromise,
+}: {
+  criticsPromise: ReturnType<typeof queries.critics>;
+  filtersPromise: Promise<FiltersRankings>;
+}) {
+  const filters = await filtersPromise;
+  const filtersForList = Promise.resolve(filters);
+
+  return (
+    <RankingFiltersProvider initialFilters={filters}>
+      <HomePageShell
+        searchSlot={
+          <Suspense fallback={<RankingsSearchShell />}>
+            <RankingSearch />
+          </Suspense>
+        }
+        rankingsSlot={
+          <RankingsSectionClient
+            filtersSlot={
+              <Suspense fallback={<RankingsFiltersSkeleton />}>
+                <RankingsFilters critics={criticsPromise} />
+              </Suspense>
+            }
+            listSlot={
+              <Suspense fallback={<SkeletonList />}>
+                <RankingsList filters={filtersForList} />
+              </Suspense>
+            }
+          />
+        }
+      />
+    </RankingFiltersProvider>
+  );
+}
+
+function RankingsHomeSkeleton() {
+  return (
+    <HomePageShell
+      searchSlot={<RankingsSearchShell />}
+      rankingsSlot={<SkeletonList />}
+    />
+  );
+}
+
+function HomePageShell({
+  searchSlot,
+  rankingsSlot,
+}: {
+  searchSlot: React.ReactNode;
+  rankingsSlot: React.ReactNode;
+}) {
+  return (
+    <>
+      <HeroSection searchSlot={searchSlot} />
+      <div className="mt-12 md:mt-20">{rankingsSlot}</div>
+    </>
   );
 }
 

@@ -1,4 +1,3 @@
-import type { FiltersRankings } from "@/app/page";
 import { minCharsSearch } from "@/data/static";
 import { SearchIcon, XIcon } from "lucide-react";
 import { FieldError } from "./form";
@@ -6,14 +5,8 @@ import { LoadingSpinner } from "./loading-spinner";
 import { RankingsSearchClient } from "./rankings-search.client";
 import { Input } from "./ui/input";
 
-export async function RankingSearch({
-  filters: filtersPromise,
-}: {
-  filters: Promise<FiltersRankings>;
-}) {
-  const filters = await filtersPromise;
-
-  return <RankingsSearchClient searchQuery={filters.q} />;
+export function RankingSearch() {
+  return <RankingsSearchClient />;
 }
 
 // Interactive version - all handlers required

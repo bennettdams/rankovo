@@ -17,6 +17,15 @@ function rankingRow(page: Page, productName: string): Locator {
   });
 }
 
+function rankingEntry(page: Page, productName: string): Locator {
+  const escapedProductName = productName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return page.getByRole("button", {
+    name: new RegExp(
+      `^(?:Details zu|Top-Pick \\d+: Details zu) ${escapedProductName} bei `,
+    ),
+  });
+}
+
 async function searchForRanking(page: Page) {
   const searchInput = page
     .locator('input[name="filter-search"]')
@@ -26,8 +35,15 @@ async function searchForRanking(page: Page) {
     (url) => url.searchParams.get("q") === rankingSearchQuery,
   );
 
-  const rankingProductRow = rankingRow(page, rankingProductName);
+  const rankingProductRow = rankingEntry(page, rankingProductName);
   await expect(rankingProductRow).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: `${rankingSearchQuery} · Alle Städte`,
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Top-Pick/ })).toHaveCount(1);
   return { rankingProductRow };
 }
 
@@ -61,6 +77,82 @@ test("filters and clears seeded home rankings", async ({ page }) => {
     (url) => url.pathname === "/" && url.search === "",
   );
   await expect(moodRow).toBeVisible();
+  const topPicks = page.getByRole("button", { name: /^Top-Pick/ });
+  await expect(topPicks).toHaveCount(3);
+  await expect(
+    topPicks.locator("svg.text-center"),
+  ).toHaveCount(3);
+  await expect(page.getByRole("button", { name: /^Details zu/ })).toHaveCount(
+    7,
+  );
+  await expect(
+    page.getByRole("heading", { name: "Weitere Ergebnisse", exact: true }),
+  ).toBeVisible();
+  await expect(rankingRow(page, "Döner (Sylter Fladenbrot)")).toHaveCount(0);
+});
+
+// Verifies searching augments the current URL filters instead of replacing them.
+test("keeps active city filters when searching", async ({ page }) => {
+  await page.goto("/?cities=Hamburg");
+
+  const searchInput = page
+    .locator('input[name="filter-search"]')
+    .filter({ visible: true });
+  await searchInput.fill("burger");
+
+  await expect(page).toHaveURL(
+    (url) =>
+      url.searchParams.get("q") === "burger" &&
+      url.searchParams.get("cities") === "Hamburg",
+  );
+  await expect(
+    page.getByRole("heading", { name: "burger · Hamburg", exact: true }),
+  ).toBeVisible();
+});
+
+// Verifies multiple categories use natural German list punctuation in the context.
+test("formats multiple active categories in the ranking context", async ({
+  page,
+}) => {
+  await page.goto("/?categories=chicken,pizza,sandwich");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Hähnchen, Pizza & Sandwich · Alle Städte",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Hähnchen, Pizza, Sandwich Filter entfernen",
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+// Verifies the active search chip can remove itself without losing the ranking context.
+test("removes an active ranking filter from the context bar", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await searchForRanking(page);
+
+  await page
+    .getByRole("button", {
+      name: `${rankingSearchQuery} Filter entfernen`,
+      exact: true,
+    })
+    .click();
+
+  await expect(page).toHaveURL(
+    (url) => url.pathname === "/" && url.search === "",
+  );
+  await expect(
+    page.getByRole("heading", {
+      name: "Alle Produkte · Alle Städte",
+      exact: true,
+    }),
+  ).toBeVisible();
 });
 
 // Verifies a seeded ranking opens a details drawer with its product, place, rating, and critic.
@@ -135,10 +227,49 @@ test("filters rankings by minimum review count", async ({ page }) => {
   await expect(
     page.getByText("Keine Bewertungen für deine Filter"),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Keine Treffer für „Pulled Pork“",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Weniger Filter", { exact: true })).toBeVisible();
+  await expect(page.getByText("Andere Stadt", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Bewertung öffnen", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Filter zurücksetzen",
+      exact: true,
+    }),
+  ).toBeVisible();
 
   await visibleButton(page, "Löschen").click();
   await expect(page).toHaveURL(
     (url) => url.pathname === "/" && url.search === "",
   );
   await expect(rankingRow(page, "Mood Double")).toBeVisible();
+});
+
+// Verifies clearing a rating filter also resets the slider's local draft values.
+test("clears the rating slider draft with the ranking filters", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const minimumRating = page
+    .getByRole("slider", { name: "Mindestbewertung" })
+    .filter({ visible: true });
+  await minimumRating.press("ArrowRight");
+  await expect(page).toHaveURL((url) =>
+    url.searchParams.has("rating-min"),
+  );
+  await expect(minimumRating).toHaveAttribute("aria-valuenow", "0.1");
+
+  await visibleButton(page, "Löschen").click();
+  await expect(page).toHaveURL(
+    (url) => url.pathname === "/" && url.search === "",
+  );
+  await expect(minimumRating).toHaveAttribute("aria-valuenow", "0");
 });

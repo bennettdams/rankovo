@@ -1,12 +1,11 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { stringifySearchParams } from "./url-state";
 import { isKeyOfObj } from "./utils";
 
 export function useSearchParamsHelper() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const pathname = usePathname();
 
   function updateSearchParams(
@@ -26,7 +25,7 @@ export function useSearchParamsHelper() {
     }
   }
 
-  return { searchParams, updateSearchParams };
+  return { updateSearchParams };
 }
 
 export function prepareFiltersForUpdate<

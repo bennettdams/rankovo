@@ -4,7 +4,27 @@ import {
   extractReviewSourceFromUrl,
   guessCategoryFromName,
   isRatingInRange,
+  selectRemainingRankings,
+  selectTopPicks,
 } from "./business-utils";
+
+describe(`${selectTopPicks.name}`, () => {
+  test("keeps the first three ranking items in order", () => {
+    expect(selectTopPicks(["one", "two", "three", "four"])).toEqual([
+      "one",
+      "two",
+      "three",
+    ]);
+  });
+});
+
+describe(`${selectRemainingRankings.name}`, () => {
+  test("returns only entries after the top three", () => {
+    expect(selectRemainingRankings(["one", "two", "three", "four"])).toEqual([
+      "four",
+    ]);
+  });
+});
 
 describe(`${extractReviewSourceFromUrl.name}`, () => {
   test("recognizes YouTube and Instagram with protocol and www prefixes stripped", () => {
