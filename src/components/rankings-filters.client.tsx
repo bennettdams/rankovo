@@ -10,24 +10,30 @@ import {
 } from "@/components/ui/drawer";
 import type { CriticQuery } from "@/data/queries";
 import { ratingHighest, ratingLowest } from "@/data/static";
-import { routes } from "@/lib/navigation";
-import {
-  prepareFiltersForUpdate,
-  useSearchParamsHelper,
-} from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
-import { FilterX, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useOptimistic, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { Box } from "./box";
 import { CategoriesSelection } from "./categories-selection";
 import { CitiesSelection } from "./cities-selection";
 import { FilterButton } from "./filter-button";
 import { LoadingSpinner } from "./loading-spinner";
+import { useRankingFilters } from "./ranking-filters-context";
 import { SliderDual } from "./slider";
 import { StarsForRating } from "./stars-for-rating";
 import { Button } from "./ui/button";
+
+/**
+ * Temporary slider values while the user is dragging.
+ * `sourceFilters` anchors the draft to the committed filter object that
+ * existed when the drag started; a sibling filter change replaces that object.
+ */
+type RatingRangeDraft = {
+  min: number;
+  max: number;
+  sourceFilters: FiltersRankings;
+};
 
 function updateArray<T extends string>(arr: T[] | null, entry: T) {
   if (arr === null) {
@@ -44,119 +50,41 @@ function updateArray<T extends string>(arr: T[] | null, entry: T) {
 }
 
 export function RankingsFiltersSkeleton() {
-  return (
-    <RankingsFiltersClientInternal
-      filters={{
-        categories: null,
-        cities: null,
-        critics: null,
-        "rating-min": null,
-        "rating-max": null,
-        "reviews-min": null,
-        q: null,
-      }}
-      critics={[]}
-      updateSearchParams={() => {}}
-    />
-  );
+  return <RankingsFiltersClientInternal critics={[]} />;
 }
 
 /** Filter UI with search params integration */
-export function RankingsFiltersClient({
-  filters,
-  critics,
-}: {
-  filters: FiltersRankings;
-  critics: CriticQuery[];
-}) {
-  const { updateSearchParams } = useSearchParamsHelper();
-
-  return (
-    <RankingsFiltersClientInternal
-      filters={filters}
-      critics={critics}
-      updateSearchParams={updateSearchParams}
-    />
-  );
+export function RankingsFiltersClient({ critics }: { critics: CriticQuery[] }) {
+  return <RankingsFiltersClientInternal critics={critics} />;
 }
 
 function RankingsFiltersClientInternal({
-  filters: filtersExternal,
   critics,
-  updateSearchParams,
 }: {
-  filters: FiltersRankings;
   critics: CriticQuery[];
-  updateSearchParams: (
-    paramsNew: Record<string, unknown>,
-    shouldServerUpdate: boolean,
-  ) => void;
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const { changeFilters, filters, isPending } = useRankingFilters();
+  const [ratingRangeDraft, setRatingRangeDraft] =
+    useState<RatingRangeDraft | null>(null);
+  const currentRatingDraft =
+    ratingRangeDraft?.sourceFilters === filters ? ratingRangeDraft : null;
+  const ratingMinUncommited =
+    currentRatingDraft?.min ?? filters["rating-min"];
+  const ratingMaxUncommited =
+    currentRatingDraft?.max ?? filters["rating-max"];
+  const reviewsMinUncommited = filters["reviews-min"];
 
-  const [filters, setOptimisticFilters] = useOptimistic(filtersExternal);
-  const [ratingMinUncommited, setRatingMinUncommited] = useState(
-    filtersExternal["rating-min"],
-  );
-  const [ratingMaxUncommited, setRatingMaxUncommited] = useState(
-    filtersExternal["rating-max"],
-  );
-  const [reviewsMinUncommited, setReviewsMinUncommited] = useState(
-    filtersExternal["reviews-min"],
-  );
   const ratingMinToShow = ratingMinUncommited ?? ratingLowest;
   const ratingMaxToShow = ratingMaxUncommited ?? ratingHighest;
 
-  function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
-    const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
-    if (filtersNew) {
-      startTransition(() => {
-        setOptimisticFilters(filtersNew);
-        updateSearchParams(filtersNew, true);
-      });
-    }
-  }
-
-  function clearFilters() {
-    setRatingMinUncommited(null);
-    setRatingMaxUncommited(null);
-    setReviewsMinUncommited(null);
-
-    startTransition(() => {
-      setOptimisticFilters({
-        categories: null,
-        cities: null,
-        critics: null,
-        "rating-min": null,
-        "rating-max": null,
-        "reviews-min": null,
-        q: null,
-      });
-
-      router.push(routes.rankings, { scroll: false });
-    });
-  }
-
-  const hasFilters = Object.values(filters).some(
-    (filterEntry) => !!filterEntry,
-  );
-
   return (
-    <Box variant="lg" className="flex flex-col gap-y-6 md:gap-y-10">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-        <div>
-          {hasFilters && (
-            <Button onClick={() => clearFilters()} variant="outline" size="sm">
-              <FilterX /> <span>Löschen</span>
-            </Button>
-          )}
-        </div>
-        <h2 className="w-full text-center text-2xl text-secondary">Filter</h2>
-        <div className="flex items-center pl-2">
-          {isPending && (
-            <LoadingSpinner className="flex size-5 items-center fill-tertiary" />
-          )}
+    <Box variant="lg" className="flex flex-col gap-y-6 p-5 md:gap-y-8 md:p-6">
+      <div className="flex items-center gap-2">
+        <h2 className="min-w-0 flex-1 text-center text-2xl text-secondary">
+          Filter
+        </h2>
+        <div className="flex w-5 shrink-0 items-center">
+          {isPending && <LoadingSpinner className="size-5 fill-tertiary" />}
         </div>
       </div>
 
@@ -198,8 +126,7 @@ function RankingsFiltersClientInternal({
             <StarsForRating
               rating={ratingMaxUncommited ?? ratingHighest}
               onClick={(ratingClicked) => {
-                setRatingMinUncommited(ratingClicked);
-                setRatingMaxUncommited(ratingHighest);
+                setRatingRangeDraft(null);
                 changeFilters({
                   "rating-min": ratingClicked,
                   "rating-max": ratingHighest,
@@ -218,15 +145,17 @@ function RankingsFiltersClientInternal({
               step={0.1}
               minStepsBetweenThumbs={0.1}
               onValueChange={(range) => {
-                setRatingMinUncommited(range[0]);
-                setRatingMaxUncommited(range[1]);
+                setRatingRangeDraft({
+                  min: range[0],
+                  max: range[1],
+                  sourceFilters: filters,
+                });
               }}
-              onValueCommit={(range) => {
-                setRatingMinUncommited(range[0]);
-                setRatingMaxUncommited(range[1]);
+              onValueCommit={([min, max]) => {
+                setRatingRangeDraft(null);
                 changeFilters({
-                  "rating-min": range[0],
-                  "rating-max": range[1],
+                  "rating-min": min,
+                  "rating-max": max,
                 });
               }}
             />
@@ -286,10 +215,7 @@ function RankingsFiltersClientInternal({
                 <FilterButton
                   key={value ?? "all"}
                   isActive={isActive}
-                  onClick={() => {
-                    setReviewsMinUncommited(value);
-                    changeFilters({ "reviews-min": value });
-                  }}
+                  onClick={() => changeFilters({ "reviews-min": value })}
                 >
                   {value === null ? "Alle" : `≥ ${value}`}
                 </FilterButton>

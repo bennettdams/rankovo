@@ -5,7 +5,7 @@ import { formatCitiesFull, pickCityForMap } from "@/lib/cities";
 import { formatDateTime } from "@/lib/date-utils";
 import { routes } from "@/lib/navigation";
 import Link from "next/link";
-import { CategoryBadge } from "./category-badge";
+import { CategoryBadge } from "./badges";
 import { DateTime } from "./date-time";
 import { MapWithPlace } from "./map-with-place";
 import { NumberFormatted } from "./number-formatted";
@@ -35,6 +35,8 @@ export type RankingDrawerProps = {
   cities: RankingWithReviewsQuery["cities"];
   numOfReviews: RankingWithReviewsQuery["numOfReviews"];
   reviews: RankingWithReviewsQuery["reviews"];
+  // Lets ranking variants provide a more descriptive accessible label for the drawer trigger.
+  triggerAriaLabel?: string;
   children: React.ReactNode;
 };
 
@@ -50,6 +52,7 @@ export function RankingDrawer({
   cities,
   numOfReviews,
   reviews,
+  triggerAriaLabel,
   children,
 }: RankingDrawerProps) {
   const citiesFull = formatCitiesFull(cities);
@@ -61,7 +64,9 @@ export function RankingDrawer({
           className="contents focus-visible:[&>*]:ring-2 focus-visible:[&>*]:ring-primary focus-visible:[&>*]:ring-offset-2"
           role="button"
           tabIndex={0}
-          aria-label={`Details zu ${productName} bei ${placeName}`}
+          aria-label={
+            triggerAriaLabel ?? `Details zu ${productName} bei ${placeName}`
+          }
           onKeyDown={(event) => {
             if (event.target !== event.currentTarget) return;
 

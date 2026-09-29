@@ -1,33 +1,10 @@
 "use client";
 
-import { FiltersRankings } from "@/app/page";
-import {
-  prepareFiltersForUpdate,
-  useSearchParamsHelper,
-} from "@/lib/url-state.client";
-import { useOptimistic, useTransition } from "react";
+import { useRankingFilters } from "./ranking-filters-context";
 import { RankingsSearchBase } from "./rankings-search";
 
-export function RankingsSearchClient({
-  searchQuery,
-}: {
-  searchQuery: FiltersRankings["q"];
-}) {
-  const { updateSearchParams } = useSearchParamsHelper();
-  const [filters, setOptimisticFilters] = useOptimistic({
-    q: searchQuery,
-  });
-  const [isLoading, startTransition] = useTransition();
-
-  function changeFilters(filtersUpdatedPartial: Partial<FiltersRankings>) {
-    const filtersNew = prepareFiltersForUpdate(filtersUpdatedPartial, filters);
-    if (filtersNew) {
-      startTransition(() => {
-        setOptimisticFilters(filtersNew);
-        updateSearchParams(filtersNew, true);
-      });
-    }
-  }
+export function RankingsSearchClient() {
+  const { changeFilters, filters, isPending } = useRankingFilters();
 
   function resetSearchFilter() {
     changeFilters({ q: null });
@@ -39,7 +16,7 @@ export function RankingsSearchClient({
       searchQuery={filters.q}
       onSearchChange={(value) => changeFilters({ q: value })}
       onResetSearch={resetSearchFilter}
-      isLoading={isLoading}
+      isLoading={isPending}
     />
   );
 }
