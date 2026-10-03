@@ -78,7 +78,9 @@ function RankingTopPick({
         <div className="mt-5 flex items-end justify-between gap-3">
           <div className="flex items-baseline gap-1.5">
             <NumberFormatted
-              className="text-3xl"
+              className={`text-4xl font-semibold ${
+                isFirst ? "text-secondary-fg" : "text-secondary"
+              }`}
               max={2}
               min={1}
               num={ranking.ratingAvg}
