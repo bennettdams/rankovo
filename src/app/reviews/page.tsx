@@ -15,7 +15,7 @@ export default async function PageReviews() {
   return (
     <div className="pt-8 md:pt-12">
       <Suspense fallback={<SkeletonList />}>
-        <ReviewsList reviews={reviews} />
+        <ReviewsList reviews={reviews} isOwnProfile={false} />
       </Suspense>
     </div>
   );

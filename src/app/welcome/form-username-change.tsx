@@ -10,6 +10,7 @@ import {
   withCallbacks,
   type ActionStateError,
 } from "@/lib/action-utils";
+import type { AuthSession } from "@/lib/auth-server";
 import { useUserAuth } from "@/lib/auth-client";
 import {
   prepareFormState,
@@ -51,9 +52,15 @@ async function changeUsername(_: unknown, formData: FormData) {
   return actionChangeUsername(formState, usernameParsed, formKeys.name);
 }
 
-export function FormUsernameChange({ redirectTo }: { redirectTo: string }) {
+export function FormUsernameChange({
+  redirectTo,
+  initialSession = null,
+}: {
+  redirectTo: string;
+  initialSession?: AuthSession | null;
+}) {
   const router = useRouter();
-  const userAuth = useUserAuth();
+  const userAuth = useUserAuth(initialSession);
 
   const [state, formAction, isPendingAction] = useActionState(
     withCallbacks(changeUsername, {

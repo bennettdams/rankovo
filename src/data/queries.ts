@@ -305,7 +305,7 @@ function createReviewsQuery(options: {
   const citiesHack = "cities";
   const pageNumber = pageFromSearchParam(page);
 
-  return db
+  const query = db
     .select({
       id: reviewsTable.id,
       rating: reviewsTable.rating,
@@ -321,6 +321,7 @@ function createReviewsQuery(options: {
       reviewedAt: reviewsTable.reviewedAt,
       isCurrent: reviewsTable.isCurrent,
       authorId: reviewsTable.authorId,
+      productCategory: productsTable.category,
     })
     .from(reviewsTable)
     .where(and(...whereConditions))
@@ -332,7 +333,15 @@ function createReviewsQuery(options: {
       desc(reviewsTable.updatedAt),
       // order by ID for pagination
       asc(reviewsTable.id),
-    )
+    );
+
+  // A user's profile is their complete review record, including historical
+  // versions. The general reviews feed remains paginated at 20 entries.
+  if (userIdFilter !== null && limit === undefined) {
+    return query;
+  }
+
+  return query
     .limit(limit || pageSizeReviews)
     .offset(limit ? 0 : pageOffset(pageNumber, pageSizeReviews));
 }
