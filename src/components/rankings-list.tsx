@@ -207,107 +207,46 @@ function RankingsTableRow({
     >
       <Box
         variant="lg"
-        className="group/ranking-row relative cursor-pointer p-4 transition-transform hover:-translate-y-0.5"
+        className="group/ranking-row relative cursor-pointer p-4 transition-transform hover:-translate-y-0.5 md:p-5"
       >
-        {/* Mobile: Multi-line card layout */}
-        <div className="flex flex-col gap-3 lg:hidden">
-          {/* Row 1: Position + Icon + Product Name */}
-          <div className="flex items-center gap-2">
-            <RankingPositionMarker position={position} />
-            <p
-              className="line-clamp-2 flex-1 leading-tight font-medium"
-              title={productName}
-            >
-              {productName}
-            </p>
-            <div className="shrink-0">
-              <CategoryIcon category={productCategory} />
-            </div>
+        <div className="grid items-center gap-x-3 gap-y-3 lg:grid-cols-[auto_auto_minmax(150px,1.2fr)_auto_minmax(150px,0.9fr)_minmax(100px,0.75fr)] lg:gap-x-4">
+          <div className="row-start-1 shrink-0">
+            <RankingPositionMarker position={position} size="lg" />
           </div>
 
-          {/* Row 2: Rating + Stars + Reviews + Product Note */}
-          <div className="flex items-center gap-2">
+          <div className="row-start-1 shrink-0">
+            <CategoryIcon category={productCategory} size="lg" />
+          </div>
+
+          <p
+            className="col-start-3 row-start-1 min-w-0 line-clamp-2 font-medium leading-tight"
+            title={productName}
+          >
+            {productName}
+          </p>
+
+          <div className="col-start-3 row-start-2 flex items-center gap-2 lg:col-start-4 lg:row-start-1">
             <NumberFormatted
-              className="font-semibold"
+              className="text-3xl font-semibold text-secondary"
               num={ratingAvg}
               min={1}
               max={2}
             />
             <StarsForRating rating={ratingAvg} size="small" />
-            <span className="text-sm text-tertiary">({numOfReviews})</span>
-            {productNote && (
-              <>
-                <span className="text-tertiary">•</span>
-                <span
-                  className="flex-1 truncate text-sm text-tertiary"
-                  title={productNote}
-                >
-                  {productNote}
-                </span>
-              </>
-            )}
+            <span className="shrink-0 text-sm text-tertiary">
+              ({numOfReviews})
+            </span>
           </div>
 
-          {/* Row 3: Place + City */}
-          <div className="flex flex-wrap items-center gap-x-2 text-sm">
+          <div className="col-start-3 row-start-3 min-w-0 text-sm lg:col-start-5 lg:row-start-1">
             <span className="font-medium text-secondary transition-colors group-hover/ranking-row:text-primary">
               {placeName}
             </span>
-            {citiesLabel && (
-              <>
-                <span className="text-tertiary">•</span>
-                <span>{citiesLabel}</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Desktop: Horizontal row layout */}
-        <div className="hidden items-center gap-4 lg:flex">
-          {/* Position */}
-          <div className="shrink-0">
-            <RankingPositionMarker position={position} />
           </div>
 
-          {/* Icon */}
-          <div className="shrink-0">
-            <CategoryIcon category={productCategory} />
-          </div>
-
-          {/* Product Name */}
-          <div className="min-w-0 flex-1 basis-40" title={productName}>
-            <p className="line-clamp-2 font-medium text-ellipsis">
-              {productName}
-            </p>
-          </div>
-
-          {/* Rating Number */}
-          <div className="basis-10">
-            <NumberFormatted
-              className="text-2xl"
-              num={ratingAvg}
-              min={1}
-              max={2}
-            />
-          </div>
-
-          {/* Stars + Review Count */}
-          <div className="flex shrink-0 items-center gap-1.5">
-            <StarsForRating rating={ratingAvg} size="small" />
-            <span className="text-sm text-tertiary">({numOfReviews})</span>
-          </div>
-
-          {/* Place Name */}
-          <div className="min-w-0 shrink-0 basis-36">
-            <span className="line-clamp-2 text-secondary transition-colors group-hover/ranking-row:text-primary">
-              {placeName}
-            </span>
-          </div>
-
-          {/* City */}
-          <div className="min-w-0 shrink-0 basis-36">
+          <div className="col-start-3 row-start-4 min-w-0 text-sm lg:col-start-6 lg:row-start-1">
             <span className="block truncate" title={citiesLabel ?? undefined}>
-              {citiesLabel}
+              {citiesLabel ?? "—"}
             </span>
           </div>
         </div>

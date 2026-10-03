@@ -22,6 +22,7 @@ import {
 const sizes = {
   sm: "size-5",
   md: "size-8",
+  lg: "size-10",
 };
 
 type Size = keyof typeof sizes;

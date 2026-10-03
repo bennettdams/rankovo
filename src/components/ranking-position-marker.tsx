@@ -4,14 +4,17 @@ import type { ReactNode } from "react";
 export function RankingPositionMarker({
   position,
   labelOverwrite,
+  size = "md",
 }: {
   position: number;
   labelOverwrite?: ReactNode;
+  size?: "md" | "lg";
 }) {
   return (
     <div
       className={cn(
-        "grid size-12 place-items-center rounded-full text-fg",
+        "grid place-items-center rounded-full text-fg",
+        size === "lg" ? "size-14" : "size-12",
         position <= 3 && "shadow-lg",
         position > 3 && "border-2 border-gray",
         position === 1 &&
