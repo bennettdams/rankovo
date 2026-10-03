@@ -1,5 +1,6 @@
 import { queries, type ReviewQuery } from "@/data/queries";
 import { formatCitiesLabel } from "@/lib/cities";
+import { CategoryBadge } from "./badges";
 import { Box } from "./box";
 import { DateTime } from "./date-time";
 import { InfoMessage } from "./info-message";
@@ -9,7 +10,13 @@ import { ReviewSourceIcon } from "./review-source-icon";
 import { EditReviewButtonWithSheet } from "./reviews-list.client";
 import { StarsForRating } from "./stars-for-rating";
 
-export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
+export function ReviewsList({
+  reviews,
+  isOwnProfile,
+}: {
+  reviews: ReviewQuery[];
+  isOwnProfile: boolean;
+}) {
   if (reviews.length === 0) {
     return (
       <div className="mt-4">
@@ -19,53 +26,103 @@ export function ReviewsList({ reviews }: { reviews: ReviewQuery[] }) {
   }
 
   return (
-    <div className="grid gap-2 overflow-x-scroll">
+    <div className="grid gap-3">
       {reviews.map((review) => (
         <ReviewWithDrawer key={review.id} productId={review.productId}>
           <Box
-            className="col-span-12 grid h-16 cursor-pointer grid-cols-subgrid items-center p-0 whitespace-nowrap transition-colors hover:bg-secondary hover:text-secondary-fg"
-            variant="sm"
+            className="group/review-card w-full max-w-full min-w-0 cursor-pointer overflow-hidden p-4 transition-transform hover:-translate-y-0.5 md:p-5"
+            variant="lg"
           >
-            <div>{review.productName}</div>
-            <NumberFormatted num={review.rating} min={2} max={2} />
-            <StarsForRating rating={review.rating} />
-            <div title="Du kannst mehrere Bewertungen für das gleiche Produkt erstellen, aber nur die neueste wird für die durchschnittliche Bewertung verwendet.">
-              {review.isCurrent ? "Neueste" : "Veraltet"}
-            </div>
-            <div>{review.username}</div>
-            <div>{review.note}</div>
-            <div>{review.placeName}</div>
-            <div>{formatCitiesLabel(review.cities)}</div>
-            <div>
-              {review.urlSource && <ReviewSourceIcon href={review.urlSource} />}
-            </div>
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="flex min-w-0 items-start gap-4">
+                <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-2xl font-semibold text-primary-fg shadow-md">
+                  <NumberFormatted num={review.rating} min={1} max={1} />
+                </div>
 
-            {/* fixed width because the date will only be evaluated on the client */}
-            <div className="w-52">
-              Bewertet am{" "}
-              {/* TODO remove null check when all reviews have a date */}
-              {!review.reviewedAt ? (
-                "-"
-              ) : (
-                <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p
+                      className="truncate text-lg font-semibold text-secondary"
+                      title={review.productName}
+                    >
+                      {review.productName}
+                    </p>
+                    <span
+                      className={
+                        review.isCurrent
+                          ? "rounded-full bg-secondary/10 px-2 py-0.5 text-xs font-semibold text-secondary"
+                          : "rounded-full bg-tertiary/15 px-2 py-0.5 text-xs font-semibold text-tertiary"
+                      }
+                      title={
+                        review.isCurrent
+                          ? undefined
+                          : "Eine neuere Bewertung für dieses Produkt existiert."
+                      }
+                    >
+                      {review.isCurrent ? "Aktuell" : "Ältere Version"}
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-sm text-dark-gray">
+                    {review.placeName}
+                    {formatCitiesLabel(review.cities)
+                      ? ` · ${formatCitiesLabel(review.cities)}`
+                      : null}
+                  </p>
+
+                  {!isOwnProfile && (
+                    <p className="mt-1 truncate text-sm text-dark-gray">
+                      Von {review.username}
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <CategoryBadge
+                      category={review.productCategory}
+                      size="sm"
+                    />
+                    <StarsForRating rating={review.rating} size="small" />
+                  </div>
+                </div>
+              </div>
+
+              {isOwnProfile && (
+                <div className="shrink-0 md:pt-1">
+                  <EditReviewButtonWithSheet
+                    productId={review.productId}
+                    productName={review.productName}
+                    placeName={review.placeName}
+                    cities={review.cities}
+                    rating={review.rating}
+                    note={review.note}
+                    urlSource={review.urlSource}
+                  />
+                </div>
               )}
             </div>
 
-            {/* fixed width because the date will only be evaluated on the client */}
-            <div className="w-52">
-              Aktualisiert{" "}
-              <DateTime date={review.updatedAt} format="YYYY-MM-DD" />
-            </div>
+            <div className="mt-4 flex flex-col gap-2 border-t border-gray/70 pt-3 text-sm md:flex-row md:items-center md:justify-between">
+              <p
+                className="line-clamp-2 min-h-5 text-fg"
+                title={review.note ?? undefined}
+              >
+                {review.note ? `“${review.note}”` : "Keine Notiz hinzugefügt"}
+              </p>
 
-            <EditReviewButtonWithSheet
-              productId={review.productId}
-              productName={review.productName}
-              placeName={review.placeName}
-              cities={review.cities}
-              rating={review.rating}
-              note={review.note}
-              urlSource={review.urlSource}
-            />
+              <div className="flex shrink-0 items-center gap-3 text-xs text-dark-gray">
+                <span>
+                  Bewertet am{" "}
+                  {review.reviewedAt ? (
+                    <DateTime date={review.reviewedAt} format="YYYY-MM-DD" />
+                  ) : (
+                    "-"
+                  )}
+                </span>
+                {review.urlSource && (
+                  <ReviewSourceIcon href={review.urlSource} />
+                )}
+              </div>
+            </div>
           </Box>
         </ReviewWithDrawer>
       ))}
