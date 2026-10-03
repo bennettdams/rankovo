@@ -19,7 +19,7 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 w-72 rounded-md border border-oklch(0.923 0.003 48.717) bg-oklch(1 0 0) p-4 text-oklch(0.147 0.004 49.25) shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-popover-content-transform-origin] dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.216 0.006 56.043) dark:text-oklch(0.985 0.001 106.423)",
+        "z-50 w-72 rounded-md border border-gray bg-bg p-4 text-fg shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-popover-content-transform-origin) dark:border-[oklch(1_0_0_/_10%)] dark:bg-[oklch(0.216_0.006_56.043)] dark:text-[oklch(0.985_0.001_106.423)]",
         className
       )}
       {...props}

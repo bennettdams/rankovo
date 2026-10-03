@@ -707,6 +707,8 @@ export async function actionChangeUsername(
   }
 
   updateTag(cacheKeys.user(userAuth.id));
+  updateTag(cacheKeys.reviews);
+  updateTag(cacheKeys.critics);
 
   return {
     status: "SUCCESS",

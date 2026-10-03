@@ -70,6 +70,12 @@ export function ReviewsList({
                       : null}
                   </p>
 
+                  {!isOwnProfile && (
+                    <p className="mt-1 truncate text-sm text-dark-gray">
+                      Von {review.username}
+                    </p>
+                  )}
+
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <CategoryBadge
                       category={review.productCategory}
