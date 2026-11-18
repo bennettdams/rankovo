@@ -1,7 +1,9 @@
 import { ReviewCreateSkeleton } from "@/components/skeletons";
 import { queries } from "@/data/queries";
 import { getUserAuth } from "@/lib/auth-server";
+import { routes } from "@/lib/navigation";
 import { schemaSearchParamSingle } from "@/lib/schemas";
+import { parseSearchParamsOrRedirect } from "@/lib/url-state.server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -32,7 +34,11 @@ async function ReviewCreateNewPlaceScreen({
 }: {
   searchParams: Promise<unknown>;
 }) {
-  const params = schemaSearchParams.parse(await searchParams);
+  const params = parseSearchParamsOrRedirect({
+    schema: schemaSearchParams,
+    searchParams: await searchParams,
+    pathname: routes.reviewCreateNew,
+  });
   const placeName = params[searchParamKeysReviewCreate.placeName]?.trim();
   if (!placeName) notFound();
   const userAuth = await getUserAuth();

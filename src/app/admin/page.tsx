@@ -2,7 +2,6 @@ import { Box } from "@/components/box";
 import { CategoryBadge } from "@/components/badges";
 import { SectionHeader } from "@/components/section-header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { queries } from "@/data/queries";
 import { minCharsSearch } from "@/data/static";
 import { assertAdmin } from "@/lib/auth-server";
@@ -16,17 +15,17 @@ import {
   totalPages,
   type Page,
 } from "@/lib/pagination";
+import { parseSearchParamsOrRedirect } from "@/lib/url-state.server";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { PlaceEditor, ProductEditor } from "./admin.client";
+import { AdminSearchForm, PlaceEditor, ProductEditor } from "./admin.client";
 import {
   adminHref,
   emptyAdminParams,
-  parseSearchParamsAdmin,
-  searchParamKeysAdmin,
+  schemaParamsAdmin,
   type SearchParamsAdmin,
 } from "./admin.shared";
 
@@ -75,7 +74,11 @@ async function AdminContent({
   searchParams: Promise<unknown>;
 }) {
   await assertAdmin();
-  const params = parseSearchParamsAdmin(await searchParams);
+  const params = parseSearchParamsOrRedirect({
+    schema: schemaParamsAdmin,
+    searchParams: await searchParams,
+    pathname: routes.admin,
+  });
   const isPlacesTab = params.tab === "places";
 
   return (
@@ -110,33 +113,6 @@ async function AdminContent({
         <ProductPanel params={params} />
       )}
     </div>
-  );
-}
-
-function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
-  const isPlacesTab = params.tab === "places";
-  const searchKey = isPlacesTab
-    ? searchParamKeysAdmin["place-search"]
-    : searchParamKeysAdmin["product-search"];
-  const searchLabel = isPlacesTab ? "Restaurantname" : "Produktname";
-
-  return (
-    <form action={routes.admin} className="flex gap-2" method="get">
-      {/* Native GET replaces the query string. Without this, search from the
-          places tab drops `tab=places` and the page falls back to products. */}
-      {isPlacesTab && (
-        <input name={searchParamKeysAdmin.tab} type="hidden" value="places" />
-      )}
-      <Input
-        aria-label={searchLabel}
-        defaultValue={params[searchKey] ?? ""}
-        maxLength={255}
-        name={searchKey}
-        placeholder={searchLabel}
-        type="search"
-      />
-      <Button type="submit">Suchen</Button>
-    </form>
   );
 }
 

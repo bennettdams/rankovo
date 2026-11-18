@@ -3,8 +3,7 @@ import type { FormConfig, FormState } from "@/lib/form-utils";
 import { routes } from "@/lib/navigation";
 import { schemaPageSearchParam } from "@/lib/pagination";
 import { schemaSearchParamSingle } from "@/lib/schemas";
-import { stringifySearchParams } from "@/lib/url-state";
-import { redirect } from "next/navigation";
+import { hrefWithSearchParams } from "@/lib/url-state";
 import { z } from "zod";
 
 const adminTabs = ["products", "places"] as const;
@@ -47,32 +46,7 @@ export function emptyAdminParams(
 }
 
 export function adminHref(params: SearchParamsAdmin): string {
-  const queryString = stringifySearchParams(params);
-  return queryString ? `${routes.admin}?${queryString}` : routes.admin;
-}
-
-function flattenSearchParams(searchParams: unknown): Record<string, unknown> {
-  if (searchParams === null || typeof searchParams !== "object") {
-    return {};
-  }
-
-  const flattened: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(
-    searchParams as Record<string, unknown>,
-  )) {
-    flattened[key] = Array.isArray(value) ? value[0] : value;
-  }
-  return flattened;
-}
-
-export function parseSearchParamsAdmin(
-  searchParams: unknown,
-): SearchParamsAdmin {
-  const parsed = schemaParamsAdmin.safeParse(flattenSearchParams(searchParams));
-  if (!parsed.success) {
-    redirect(routes.admin);
-  }
-  return parsed.data;
+  return hrefWithSearchParams(routes.admin, params);
 }
 
 export const formConfigUpdateProduct = {

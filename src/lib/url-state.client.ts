@@ -1,20 +1,22 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { stringifySearchParams } from "./url-state";
+import { hrefWithSearchParams, type SearchParamValue } from "./url-state";
 import { isKeyOfObj } from "./utils";
 
 export function useSearchParamsHelper() {
   const router = useRouter();
   const pathname = usePathname();
 
-  function updateSearchParams(
-    paramsNew: Record<string, unknown>,
+  /**
+   * Replaces all search params of the current URL with `paramsNew`.
+   * `shouldServerUpdate: false` only rewrites the URL without fetching a new RSC payload.
+   */
+  function setSearchParams(
+    paramsNew: Record<string, SearchParamValue>,
     shouldServerUpdate: boolean,
   ) {
-    const queryString = stringifySearchParams(paramsNew);
-
-    const pathWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
+    const pathWithQuery = hrefWithSearchParams(pathname, paramsNew);
 
     if (shouldServerUpdate) {
       router.replace(pathWithQuery, {
@@ -25,7 +27,7 @@ export function useSearchParamsHelper() {
     }
   }
 
-  return { updateSearchParams };
+  return { setSearchParams };
 }
 
 export function prepareFiltersForUpdate<

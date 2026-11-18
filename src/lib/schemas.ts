@@ -1,5 +1,6 @@
 import { categories, cities, ratingHighest, ratingLowest } from "@/data/static";
 import { type ZodPipe, type ZodType, z } from "zod";
+import { unescapeListItem } from "./url-state";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ZodTypeUnknown = ZodType<unknown, any>;
@@ -148,14 +149,13 @@ export function schemaSearchParamSingle<
       // We do not use schemaNonEmptyString (which has trim()) here, because we want to allow search params with leading/trailing spaces,
       // as they might be intentional (e.g. searching for " ABC " with the spaces)
       .string()
-      .min(1)
       .optional()
       .transform((raw) => {
-        if (raw === undefined) return null;
+        if (raw === undefined || raw === "") return null;
 
         switch (variant) {
           case "string":
-            return raw === "" ? null : raw;
+            return raw;
           case "number":
             return Number(raw);
           case "date":
@@ -175,8 +175,10 @@ export function schemaSearchParamSingle<
 export function schemaSearchParamMultiple<TSchema extends ZodTypeUnknown>(
   schema: TSchema,
 ) {
-  return schemaNonEmptyString
+  return z
+    .string()
+    .trim()
     .optional()
-    .transform((raw) => (!raw ? null : raw.split(",")))
+    .transform((raw) => (!raw ? null : raw.split(",").map(unescapeListItem)))
     .pipe(z.array(schema).nullable());
 }

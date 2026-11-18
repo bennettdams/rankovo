@@ -26,11 +26,15 @@ import {
 import { getActionRootErrors, type ActionStateError } from "@/lib/action-utils";
 import { formatCitiesFull } from "@/lib/cities";
 import { prepareFormState } from "@/lib/form-utils";
+import { routes } from "@/lib/navigation";
 import { useSearchParamsHelper } from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { useActionState, useState, type FormEvent } from "react";
 import { z } from "zod";
 import {
+  adminHref,
+  emptyAdminParams,
   formConfigUpdatePlace,
   formConfigUpdateProduct,
   formKeysUpdatePlace,
@@ -60,6 +64,49 @@ function placeAssignmentLabel(place: SelectedPlace): string {
   return `${place.name}${cities ? ` · ${cities}` : ""} · #${place.id}`;
 }
 
+export function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
+  const router = useRouter();
+  const isPlacesTab = params.tab === "places";
+  const searchKey = isPlacesTab
+    ? searchParamKeysAdmin["place-search"]
+    : searchParamKeysAdmin["product-search"];
+  const searchLabel = isPlacesTab ? "Restaurantname" : "Produktname";
+
+  function search(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = String(
+      new FormData(event.currentTarget).get(searchKey) ?? "",
+    );
+    router.push(
+      adminHref(emptyAdminParams({ tab: params.tab, [searchKey]: value })),
+    );
+  }
+
+  return (
+    <form
+      action={routes.admin}
+      className="flex gap-2"
+      method="get"
+      onSubmit={search}
+    >
+      {/* Before hydration, native GET replaces the query string. Without this,
+          search from the places tab drops `tab=places` and the page falls back to products. */}
+      {isPlacesTab && (
+        <input name={searchParamKeysAdmin.tab} type="hidden" value="places" />
+      )}
+      <Input
+        aria-label={searchLabel}
+        defaultValue={params[searchKey] ?? ""}
+        maxLength={255}
+        name={searchKey}
+        placeholder={searchLabel}
+        type="search"
+      />
+      <Button type="submit">Suchen</Button>
+    </form>
+  );
+}
+
 export function ProductEditor({
   product,
   placesForSearch,
@@ -71,7 +118,7 @@ export function ProductEditor({
   placesSearchTotal: number;
   params: SearchParamsAdmin;
 }) {
-  const { updateSearchParams } = useSearchParamsHelper();
+  const { setSearchParams } = useSearchParamsHelper();
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace>(
     selectedPlaceFromProduct(product),
   );
@@ -88,7 +135,7 @@ export function ProductEditor({
       ) ?? "",
     );
     const placeSearch = value.length > 0 ? value : null;
-    updateSearchParams({ ...params, "place-search": placeSearch }, true);
+    setSearchParams({ ...params, "place-search": placeSearch }, true);
   }
 
   async function updateProduct(_: unknown, formData: FormData) {

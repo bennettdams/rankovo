@@ -31,6 +31,15 @@ describe(`${schemaSearchParamSingle.name}`, () => {
     expect(schema.parse(undefined)).toBeNull();
   });
 
+  test("treats an empty value like a missing param", () => {
+    expect(
+      schemaSearchParamSingle(z.string().min(1), "string").parse(""),
+    ).toBeNull();
+    expect(
+      schemaSearchParamSingle(z.number().int().positive(), "number").parse(""),
+    ).toBeNull();
+  });
+
   test("parses numbers, booleans, and dates", () => {
     expect(schemaSearchParamSingle(z.number(), "number").parse("12.5")).toBe(
       12.5,
@@ -59,6 +68,20 @@ describe(`${schemaSearchParamMultiple.name}`, () => {
 
     expect(schema.parse("burger,pizza")).toEqual(["burger", "pizza"]);
     expect(schema.parse(undefined)).toBeNull();
+  });
+
+  test("treats an empty or blank value like a missing param", () => {
+    const schema = schemaSearchParamMultiple(z.string().min(1));
+
+    expect(schema.parse("")).toBeNull();
+    expect(schema.parse("  ")).toBeNull();
+  });
+
+  test("unescapes the list separator inside items", () => {
+    const schema = schemaSearchParamMultiple(z.string().min(1));
+
+    expect(schema.parse("Müller%2C Hans,Ben")).toEqual(["Müller, Hans", "Ben"]);
+    expect(schema.parse("a%2Cb,100%25")).toEqual(["a,b", "100%"]);
   });
 });
 

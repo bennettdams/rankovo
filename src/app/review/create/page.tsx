@@ -2,7 +2,9 @@ import { queries } from "@/data/queries";
 import { shouldRunSearch } from "@/data/static";
 import { ReviewCreateSkeleton } from "@/components/skeletons";
 import { getUserAuth } from "@/lib/auth-server";
+import { routes } from "@/lib/navigation";
 import { schemaSearchParamSingle } from "@/lib/schemas";
+import { parseSearchParamsOrRedirect } from "@/lib/url-state.server";
 import { Suspense } from "react";
 import { z } from "zod";
 import { searchParamKeysReviewCreate } from "./page.shared";
@@ -30,7 +32,11 @@ async function PlaceSearchScreen({
 }: {
   searchParams: Promise<unknown>;
 }) {
-  const params = schemaSearchParams.parse(await searchParams);
+  const params = parseSearchParamsOrRedirect({
+    schema: schemaSearchParams,
+    searchParams: await searchParams,
+    pathname: routes.reviewCreate,
+  });
   const userAuth = await getUserAuth();
   const q = params.q;
   const [placesFound, placesRecent] = await Promise.all([
