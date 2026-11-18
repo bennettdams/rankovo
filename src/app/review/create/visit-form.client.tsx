@@ -284,6 +284,7 @@ function VisitForm({
   function resetForMoreReviews() {
     setReviews([]);
     setShowUrlSource(false);
+    setAuthorIdOverride("");
     dispatchSubmit({ type: "RESET" });
   }
 
