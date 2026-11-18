@@ -29,6 +29,11 @@ export const categoriesActive = [
 
 export type CategoryActive = (typeof categoriesActive)[number];
 
+/** Categories that stay selectable, but are hidden from the default picker. */
+export const categoriesInactive = categories.filter(
+  (category) => !(categoriesActive as readonly Category[]).includes(category),
+);
+
 export const ratingLowest = 0;
 export const ratingHighest = 10;
 export const ratingMiddle = 5;

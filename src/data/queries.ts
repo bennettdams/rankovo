@@ -740,6 +740,22 @@ async function queryAdminProductForId(id: number) {
   return rows[0] ?? null;
 }
 
+async function queryAdminCritics() {
+  "use cache";
+  cacheTag(cacheKeys.critics);
+  console.debug("🟦 QUERY admin critics");
+
+  return await db
+    .select({ userId: usersTable.id, name: usersTable.name })
+    .from(criticsTable)
+    .innerJoin(usersTable, eq(criticsTable.userId, usersTable.id))
+    .orderBy(asc(lower(usersTable.name)));
+}
+
+export type AdminCriticQuery = Awaited<
+  ReturnType<typeof queryAdminCritics>
+>[number];
+
 async function queryAdminPlaceForId(id: number) {
   "use cache";
   cacheTag(cacheKeys.places);
@@ -785,4 +801,5 @@ export const queries = {
   adminPlaces: wrapAdmin(queryAdminPlaces),
   adminProductForId: wrapAdmin(queryAdminProductForId),
   adminPlaceForId: wrapAdmin(queryAdminPlaceForId),
+  adminCritics: wrapAdmin(queryAdminCritics),
 };

@@ -1,4 +1,5 @@
 import { ReviewCreateSkeleton } from "@/components/skeletons";
+import { queries } from "@/data/queries";
 import { getUserAuth } from "@/lib/auth-server";
 import { schemaSearchParamSingle } from "@/lib/schemas";
 import { notFound } from "next/navigation";
@@ -35,6 +36,8 @@ async function ReviewCreateNewPlaceScreen({
   const placeName = params[searchParamKeysReviewCreate.placeName]?.trim();
   if (!placeName) notFound();
   const userAuth = await getUserAuth();
+  const critics =
+    userAuth?.role === "admin" ? await queries.adminCritics() : [];
 
   return (
     <VisitFormForNewPlace
@@ -43,6 +46,7 @@ async function ReviewCreateNewPlaceScreen({
       userReviews={[]}
       productIdPreselected={null}
       userRole={userAuth?.role ?? null}
+      critics={critics}
     />
   );
 }

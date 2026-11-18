@@ -47,9 +47,10 @@ async function ReviewCreateAtPlaceScreen({
     : null;
   const userAuth = await getUserAuth();
 
-  const [place, userReviews] = await Promise.all([
+  const [place, userReviews, critics] = await Promise.all([
     queries.placeWithProducts(placeIdResult.data),
     userAuth ? queries.userReviewsAtPlace(userAuth.id, placeIdResult.data) : [],
+    userAuth?.role === "admin" ? queries.adminCritics() : [],
   ]);
 
   if (!place) notFound();
@@ -66,6 +67,7 @@ async function ReviewCreateAtPlaceScreen({
       userReviews={userReviews}
       productIdPreselected={productIdPreselected}
       userRole={userAuth?.role ?? null}
+      critics={critics}
     />
   );
 }
