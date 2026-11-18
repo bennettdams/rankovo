@@ -1,4 +1,4 @@
-import type { CategoryActive } from "@/data/static";
+import type { Category } from "@/data/static";
 import { guessCategoryFromName } from "@/lib/business-utils";
 import type { VisitCreate } from "@/lib/schemas";
 
@@ -29,7 +29,7 @@ export type ExistingReviewDraft = ReviewDraftFields & {
 export type NewReviewDraft = ReviewDraftFields & {
   id: ReviewIdNew;
   product: Omit<NewProductPayload, "category"> & {
-    category: CategoryActive | null;
+    category: Category | null;
   };
 };
 
@@ -75,7 +75,7 @@ export function initialReviews(
 
 export function categoryForReview(
   product: NewReviewDraft["product"],
-): CategoryActive | null {
+): Category | null {
   return product.category ?? guessCategoryFromName(product.name);
 }
 

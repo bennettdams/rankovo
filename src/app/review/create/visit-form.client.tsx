@@ -16,12 +16,14 @@ import {
   type VisitSaved,
 } from "@/data/actions";
 import type {
+  AdminCriticQuery,
   PlaceWithProductsQuery,
   UserReviewAtPlaceQuery,
 } from "@/data/queries";
 import {
   categoriesActive,
-  type CategoryActive,
+  categoriesInactive,
+  type Category,
   type City,
   type Role,
 } from "@/data/static";
@@ -62,11 +64,11 @@ type VisitFormProps = {
   userReviews: UserReviewAtPlaceQuery[];
   productIdPreselected: number | null;
   userRole: Role | null;
+  critics: AdminCriticQuery[];
 };
 
 type VisitSubmitState = { attempt: number } & (
-  | { status: "IDLE" }
-  | VisitActionResult
+  { status: "IDLE" } | VisitActionResult
 );
 type VisitSubmitAction = FormData | { type: "RESET" };
 
@@ -113,6 +115,7 @@ function VisitForm({
   userReviews,
   productIdPreselected,
   userRole,
+  critics,
 }: VisitFormProps) {
   const router = useRouter();
 
@@ -126,6 +129,7 @@ function VisitForm({
   );
   const [citiesSelected, setCitiesSelected] = useState<City[]>([]);
   const [showUrlSource, setShowUrlSource] = useState(false);
+  const [authorIdOverride, setAuthorIdOverride] = useState("");
 
   const isSignedIn = userRole !== null;
   const ratingByProductId = new Map(
@@ -243,7 +247,7 @@ function VisitForm({
     id: ReviewIdNew,
     update: {
       name?: string;
-      category?: CategoryActive | null;
+      category?: Category | null;
       rating?: number | null;
       note?: string | null;
     },
@@ -482,19 +486,33 @@ function VisitForm({
                           </span>
                         )}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {categoriesActive.map((category) => (
-                          <FilterButton
-                            key={category}
-                            isActive={categoryEffective === category}
-                            onClick={() =>
-                              updateNewReview(reviewDraft.id, { category })
-                            }
-                          >
-                            <CategoryIcon category={category} size="sm" />
-                            <span className="ml-1">{t[category]}</span>
-                          </FilterButton>
-                        ))}
+                      <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          {categoriesActive.map((category) => (
+                            <CategoryChoice
+                              key={category}
+                              category={category}
+                              isActive={categoryEffective === category}
+                              onSelect={() =>
+                                updateNewReview(reviewDraft.id, { category })
+                              }
+                            />
+                          ))}
+                        </div>
+                        {userRole === "admin" && (
+                          <div className="flex flex-wrap gap-2 border-l border-black/15 pl-4">
+                            {categoriesInactive.map((category) => (
+                              <CategoryChoice
+                                key={category}
+                                category={category}
+                                isActive={categoryEffective === category}
+                                onSelect={() =>
+                                  updateNewReview(reviewDraft.id, { category })
+                                }
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <FieldError
                         errorMsg={
@@ -575,12 +593,32 @@ function VisitForm({
             <Label htmlFor="visit-author-override">
               User ID Override (Admin)
             </Label>
-            <Input
-              id="visit-author-override"
-              name="overwriteAuthorId"
-              placeholder="User-ID, um im Namen eines Kritikers zu bewerten"
-              className="bg-white"
-            />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <Input
+                id="visit-author-override"
+                name="overwriteAuthorId"
+                value={authorIdOverride}
+                onChange={(event) => setAuthorIdOverride(event.target.value)}
+                placeholder="User-ID, um im Namen eines Kritikers zu bewerten"
+                className="bg-white sm:max-w-md"
+              />
+              <ul className="flex flex-wrap gap-x-3 gap-y-1 sm:max-w-md sm:pt-2">
+                {critics.map((critic) => (
+                  <li key={critic.userId}>
+                    <button
+                      type="button"
+                      className="text-sm text-secondary hover:underline"
+                      onClick={() => {
+                        setAuthorIdOverride(critic.userId);
+                        void navigator.clipboard.writeText(critic.userId);
+                      }}
+                    >
+                      {critic.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <FieldError errorMsg={errors.overwriteAuthorId} />
           </div>
         )}
@@ -609,6 +647,23 @@ function VisitForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+function CategoryChoice({
+  category,
+  isActive,
+  onSelect,
+}: {
+  category: Category;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <FilterButton isActive={isActive} onClick={onSelect}>
+      <CategoryIcon category={category} size="sm" />
+      <span className="ml-1">{t[category]}</span>
+    </FilterButton>
   );
 }
 
