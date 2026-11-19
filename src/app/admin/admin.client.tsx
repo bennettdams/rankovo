@@ -71,6 +71,21 @@ export function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
     ? searchParamKeysAdmin["place-search"]
     : searchParamKeysAdmin["product-search"];
   const searchLabel = isPlacesTab ? "Restaurantname" : "Produktname";
+  const committedSearch = params[searchKey] ?? "";
+  const [searchValue, setSearchValue] = useState(committedSearch);
+  const [committedSearchKey, setCommittedSearchKey] = useState(searchKey);
+  const [committedSearchValue, setCommittedSearchValue] =
+    useState(committedSearch);
+  // A new committed param, including Back and Forward, replaces the typed
+  // value during render. The input stays mounted, so it keeps focus.
+  if (
+    committedSearchKey !== searchKey ||
+    committedSearchValue !== committedSearch
+  ) {
+    setCommittedSearchKey(searchKey);
+    setCommittedSearchValue(committedSearch);
+    setSearchValue(committedSearch);
+  }
 
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,11 +111,14 @@ export function AdminSearchForm({ params }: { params: SearchParamsAdmin }) {
       )}
       <Input
         aria-label={searchLabel}
-        defaultValue={params[searchKey] ?? ""}
         maxLength={255}
         name={searchKey}
+        onChange={(event) => {
+          setSearchValue(event.target.value);
+        }}
         placeholder={searchLabel}
         type="search"
+        value={searchValue}
       />
       <Button type="submit">Suchen</Button>
     </form>

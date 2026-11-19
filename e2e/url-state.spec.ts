@@ -189,6 +189,39 @@ test.describe("admin", () => {
     ).toBeVisible();
   });
 
+  test("shows the committed search after back and forward", async ({
+    page,
+  }) => {
+    await page.goto("/admin?tab=places");
+    const search = page.getByLabel("Restaurantname");
+
+    await search.fill("Lis");
+    await expect(search).toHaveValue("Lis");
+    await expect(search).toBeFocused();
+    await search.press("Enter");
+
+    await expectPathWithSearch(page, "/admin?tab=places&place-search=Lis");
+    await expect(search).toHaveValue("Lis");
+    await expect(search).toBeFocused();
+
+    await search.fill("Lister");
+    await search.press("Enter");
+    await expectPathWithSearch(page, "/admin?tab=places&place-search=Lister");
+    await expect(search).toHaveValue("Lister");
+
+    await page.goBack();
+    await expectPathWithSearch(page, "/admin?tab=places&place-search=Lis");
+    await expect(search).toHaveValue("Lis");
+
+    await page.goBack();
+    await expectPathWithSearch(page, "/admin?tab=places");
+    await expect(search).toHaveValue("");
+
+    await page.goForward();
+    await expectPathWithSearch(page, "/admin?tab=places&place-search=Lis");
+    await expect(search).toHaveValue("Lis");
+  });
+
   test("removes the search key after an empty search", async ({ page }) => {
     await page.goto("/admin?tab=places&place-search=Lister");
 
