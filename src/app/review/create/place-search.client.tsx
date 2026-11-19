@@ -6,11 +6,12 @@ import type { PlaceSearchQuery, UserRecentPlaceQuery } from "@/data/queries";
 import { minCharsSearch, shouldRunSearch } from "@/data/static";
 import { formatCitiesLabel } from "@/lib/cities";
 import { routes } from "@/lib/navigation";
+import { useSearchParamsHelper } from "@/lib/url-state.client";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Plus } from "lucide-react";
 import Link, { useLinkStatus } from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { searchParamKeysReviewCreate } from "./page.shared";
 
 export function PlaceSearchView({
   queryInitial,
@@ -23,7 +24,7 @@ export function PlaceSearchView({
   placesRecent: UserRecentPlaceQuery[];
   isSignedIn: boolean;
 }) {
-  const router = useRouter();
+  const { setSearchParams } = useSearchParamsHelper();
   const [query, setQuery] = useState(queryInitial ?? "");
   const [isSearching, startSearch] = useTransition();
 
@@ -34,12 +35,12 @@ export function PlaceSearchView({
   function changeSearchQuery(queryNew: string) {
     setQuery(queryNew);
 
-    const url = routes.reviewCreateSearch(queryNew);
+    const params = { [searchParamKeysReviewCreate.q]: queryNew };
 
     if (shouldRunSearch(queryNew)) {
-      startSearch(() => router.replace(url, { scroll: false }));
+      startSearch(() => setSearchParams(params, true));
     } else {
-      window.history.replaceState(null, "", url);
+      setSearchParams(params, false);
     }
   }
 

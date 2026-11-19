@@ -13,12 +13,14 @@ import { StarsForRating } from "@/components/stars-for-rating";
 import { queries } from "@/data/queries";
 import { cities, ratingHighest } from "@/data/static";
 import { schemaUsername } from "@/db/db-schema";
+import { routes } from "@/lib/navigation";
 import {
   schemaCategory,
   schemaRating,
   schemaSearchParamMultiple,
   schemaSearchParamSingle,
 } from "@/lib/schemas";
+import { parseSearchParamsOrRedirect } from "@/lib/url-state.server";
 import { MapPin, Medal, Search, Trophy } from "lucide-react";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -43,7 +45,11 @@ export default async function PageHome({
   searchParams: Promise<unknown>;
 }) {
   const filters = searchParams.then((params) =>
-    schemaParamsRankings.parse(params),
+    parseSearchParamsOrRedirect({
+      schema: schemaParamsRankings,
+      searchParams: params,
+      pathname: routes.rankings,
+    }),
   );
   const criticsPromise = queries.critics();
 

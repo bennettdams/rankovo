@@ -15,10 +15,11 @@ function pageAt(raw: string): Page {
 }
 
 describe("schemaPageSearchParam", () => {
-  test("parses a positive integer page and treats a missing param as null", () => {
+  test("parses a positive integer page and treats a missing or empty param as null", () => {
     expect(Number(schemaPageSearchParam.parse("1"))).toBe(1);
     expect(Number(schemaPageSearchParam.parse("2"))).toBe(2);
     expect(schemaPageSearchParam.parse(undefined)).toBeNull();
+    expect(schemaPageSearchParam.parse("")).toBeNull();
   });
 
   test("rejects zero, negatives, fractions, and non-numeric values", () => {
@@ -26,7 +27,6 @@ describe("schemaPageSearchParam", () => {
     expect(schemaPageSearchParam.safeParse("-1").success).toBe(false);
     expect(schemaPageSearchParam.safeParse("1.5").success).toBe(false);
     expect(schemaPageSearchParam.safeParse("abc").success).toBe(false);
-    expect(schemaPageSearchParam.safeParse("").success).toBe(false);
   });
 });
 

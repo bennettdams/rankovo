@@ -2,7 +2,9 @@ import { ReviewCreateSkeleton } from "@/components/skeletons";
 import { queries } from "@/data/queries";
 import { schemaPlaceId, schemaProductId } from "@/db/db-schema";
 import { getUserAuth } from "@/lib/auth-server";
+import { routes } from "@/lib/navigation";
 import { schemaSearchParamSingle } from "@/lib/schemas";
+import { parseSearchParamsOrRedirect } from "@/lib/url-state.server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -41,10 +43,13 @@ async function ReviewCreateAtPlaceScreen({
   const placeIdResult = schemaPlaceId.safeParse(Number(placeIdParam));
   if (!placeIdResult.success) notFound();
 
-  const searchParamsResult = schemaSearchParams.safeParse(await searchParams);
-  const productIdPreselected = searchParamsResult.success
-    ? searchParamsResult.data[searchParamKeysReviewCreate.productIdPreselected]
-    : null;
+  const searchParamsParsed = parseSearchParamsOrRedirect({
+    schema: schemaSearchParams,
+    searchParams: await searchParams,
+    pathname: routes.reviewCreateAtPlace(placeIdResult.data),
+  });
+  const productIdPreselected =
+    searchParamsParsed[searchParamKeysReviewCreate.productIdPreselected];
   const userAuth = await getUserAuth();
 
   const [place, userReviews, critics] = await Promise.all([

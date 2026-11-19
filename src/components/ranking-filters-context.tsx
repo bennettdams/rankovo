@@ -25,7 +25,7 @@ export function RankingFiltersProvider({
   initialFilters: FiltersRankings;
   children: React.ReactNode;
 }) {
-  const { updateSearchParams } = useSearchParamsHelper();
+  const { setSearchParams } = useSearchParamsHelper();
   const [filters, setOptimisticFilters] = useOptimistic(initialFilters);
   const [isPending, startTransition] = useTransition();
 
@@ -35,7 +35,7 @@ export function RankingFiltersProvider({
 
     startTransition(() => {
       setOptimisticFilters(filtersNew);
-      updateSearchParams(filtersNew, true);
+      setSearchParams(filtersNew, true);
     });
   }
 

@@ -1,16 +1,5 @@
 import { searchParamKeysReviewCreate } from "@/app/review/create/page.shared";
-
-function reviewCreateWith(params: Record<string, string>) {
-  return `/review/create?${new URLSearchParams(params).toString()}`;
-}
-
-function reviewCreateAtPlaceWith(
-  placeId: number,
-  params?: Record<string, string>,
-) {
-  const query = params ? new URLSearchParams(params).toString() : "";
-  return `/review/create/${placeId}${query ? `?${query}` : ""}`;
-}
+import { hrefWithSearchParams } from "./url-state";
 
 export const routes = {
   home: "/",
@@ -19,14 +8,15 @@ export const routes = {
   reviews: "/reviews",
   reviewCreate: "/review/create",
   reviewCreateSearch: (q: string) =>
-    q
-      ? reviewCreateWith({ [searchParamKeysReviewCreate.q]: q })
-      : "/review/create",
-  reviewCreateAtPlace: (placeId: number) => reviewCreateAtPlaceWith(placeId),
+    hrefWithSearchParams(routes.reviewCreate, {
+      [searchParamKeysReviewCreate.q]: q,
+    }),
+  reviewCreateAtPlace: (placeId: number) => `/review/create/${placeId}`,
+  reviewCreateNew: "/review/create/new",
   reviewCreateNewPlace: (placeName: string) =>
-    `/review/create/new?${new URLSearchParams({
+    hrefWithSearchParams(routes.reviewCreateNew, {
       [searchParamKeysReviewCreate.placeName]: placeName,
-    }).toString()}`,
+    }),
   reviewCreateProduct: ({
     placeId,
     productId,
@@ -34,8 +24,8 @@ export const routes = {
     placeId: number;
     productId: number;
   }) =>
-    reviewCreateAtPlaceWith(placeId, {
-      [searchParamKeysReviewCreate.productIdPreselected]: String(productId),
+    hrefWithSearchParams(routes.reviewCreateAtPlace(placeId), {
+      [searchParamKeysReviewCreate.productIdPreselected]: productId,
     }),
   user: (userId: string) => `/user/${userId}`,
   aboutUs: "/about-us",

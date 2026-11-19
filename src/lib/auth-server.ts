@@ -15,6 +15,7 @@ import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { forbidden, unauthorized } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 import "server-only";
 
@@ -156,6 +157,21 @@ async function createTemporaryUsername(
 export type AuthSession = typeof auth.$Infer.Session;
 
 export const getAuthSession = cache(async () => {
+  // Same `getSession({ headers })` call as the Better Auth Next.js guide.
+  // That guide assumes `await headers()` opts the rest of the function out of
+  // prerendering. It does not, once `cacheComponents` and `partialPrefetching`
+  // are on: a runtime prerender is allowed to resolve `headers()`, and then
+  // `getSession` still compares `expiresAt` with `new Date()` (session.mjs).
+  // That synchronous clock read throws. It only runs when a session cookie
+  // exists, and the navbar calls this on every navigation, including each
+  // home-page search keystroke (`router.replace` of `/?q=…`).
+  //
+  // `connection()` stops the prerender at this await, so the clock read runs
+  // on the real request. The navbar is already inside Suspense, which is the
+  // boundary Next streams from.
+  // https://nextjs.org/docs/messages/blocking-prerender-current-time
+  // https://nextjs.org/docs/app/api-reference/functions/connection
+  await connection();
   return auth.api.getSession({
     headers: await headers(),
   });
@@ -165,6 +181,9 @@ export const getOptionalAuthSession = cache(async () => {
   try {
     return await getAuthSession();
   } catch (error) {
+    // A cancelled prerender aborts `connection()`. That is not a failed session.
+    if (error instanceof Error && error.name === "AbortError") throw error;
+
     console.error("Failed to load optional auth session:", error);
     return null;
   }
